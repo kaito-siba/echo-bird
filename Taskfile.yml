@@ -1,0 +1,131 @@
+version: '3'
+
+tasks:
+  install:
+    desc: Install all dependencies
+    cmds:
+      - task: install:client
+      - task: install:server
+
+  install:client:
+    desc: Install client dependencies
+    dir: apps/client
+    cmds:
+      - pnpm install
+
+  install:server:
+    desc: Install server dependencies
+    dir: apps/server
+    cmds:
+      - uv sync
+
+  dev:
+    desc: Run development servers
+    deps: [dev:client, dev:server]
+
+  dev:client:
+    desc: Run client development server
+    dir: apps/client
+    cmds:
+      - pnpm dev
+
+  dev:server:
+    desc: Run server development server
+    dir: apps/server
+    cmds:
+      - uv run fastapi dev src/main.py
+
+  build:
+    desc: Build for production
+    cmds:
+      - task: build:client
+
+  build:client:
+    desc: Build client for production
+    dir: apps/client
+    cmds:
+      - pnpm build
+
+  lint:
+    desc: Run linters
+    cmds:
+      - task: lint:client
+      - task: lint:server
+
+  lint:client:
+    desc: Lint client code
+    dir: apps/client
+    cmds:
+      - pnpm lint
+
+  lint:server:
+    desc: Lint server code
+    dir: apps/server
+    cmds:
+      - uv run ruff check .
+      - uv run ruff format . --check
+
+  format:
+    desc: Format code
+    cmds:
+      - task: format:client
+      - task: format:server
+
+  format:client:
+    desc: Format client code
+    dir: apps/client
+    cmds:
+      - pnpm format
+
+  format:server:
+    desc: Format server code
+    dir: apps/server
+    cmds:
+      - uv run ruff check . --fix
+      - uv run ruff format .
+
+  test:
+    desc: Run tests
+    cmds:
+      - task: test:client
+      - task: test:server
+
+  test:client:
+    desc: Run client tests
+    dir: apps/client
+    cmds:
+      - pnpm test
+
+  test:server:
+    desc: Run server tests
+    dir: apps/server
+    cmds:
+      - uv run pytest
+
+  type-check:
+    desc: Run type checking
+    cmds:
+      - task: type-check:client
+      - task: type-check:server
+
+  type-check:client:
+    desc: Type check client code
+    dir: apps/client
+    cmds:
+      - pnpm type-check
+
+  type-check:server:
+    desc: Type check server code
+    dir: apps/server
+    cmds:
+      - uv run mypy src
+
+  clean:
+    desc: Clean build artifacts and caches
+    cmds:
+      - rm -rf apps/client/dist
+      - rm -rf apps/client/node_modules
+      - rm -rf apps/server/__pycache__
+      - rm -rf apps/server/.pytest_cache
+      - rm -rf apps/server/.ruff_cache
+      - rm -rf apps/server/.mypy_cache
