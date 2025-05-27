@@ -5,5 +5,16 @@ description = "Echo Bird Server"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "aerich>=0.9.0",
+    "beautifulsoup4>=4.13.4",
     "fastapi[standard]>=0.115.12",
+    "httpx[http2]>=0.28.1",
+    "passlib>=1.7.4",
+    "pillow>=11.2.1",
+    "python-jose>=3.4.0",
+    "requests>=2.32.3",
+    "tortoise-orm>=0.25.0",
+    "tweepy>=4.15.0",
+    "tweepy-authlib>=1.5.7",
+    "uvicorn[standard]>=0.34.2",
 ]
