@@ -46,3 +46,117 @@ Thumbs.db
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
 test-output
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Python (apps/server配下)
+apps/server/__pycache__/
+apps/server/**/__pycache__/
+apps/server/**/*.py[cod]
+apps/server/**/*$py.class
+apps/server/**/*.so
+apps/server/.Python
+apps/server/build/
+apps/server/develop-eggs/
+apps/server/dist/
+apps/server/downloads/
+apps/server/eggs/
+apps/server/.eggs/
+apps/server/lib/
+apps/server/lib64/
+apps/server/parts/
+apps/server/sdist/
+apps/server/var/
+apps/server/wheels/
+apps/server/*.egg-info/
+apps/server/.installed.cfg
+apps/server/*.egg
+apps/server/MANIFEST
+
+# PyInstaller
+apps/server/*.manifest
+apps/server/*.spec
+
+# Installer logs
+apps/server/pip-log.txt
+apps/server/pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+apps/server/htmlcov/
+apps/server/.tox/
+apps/server/.nox/
+apps/server/.coverage
+apps/server/.coverage.*
+apps/server/.cache
+apps/server/nosetests.xml
+apps/server/coverage.xml
+apps/server/*.cover
+apps/server/.hypothesis/
+apps/server/.pytest_cache/
+
+# Translations
+apps/server/*.mo
+apps/server/*.pot
+
+# Django stuff:
+apps/server/*.log
+apps/server/local_settings.py
+apps/server/db.sqlite3
+
+# Flask stuff:
+apps/server/instance/
+apps/server/.webassets-cache
+
+# Scrapy stuff:
+apps/server/.scrapy
+
+# Sphinx documentation
+apps/server/docs/_build/
+
+# PyBuilder
+apps/server/target/
+
+# Jupyter Notebook
+apps/server/.ipynb_checkpoints
+
+# IPython
+apps/server/profile_default/
+apps/server/ipython_config.py
+
+# pyenv
+apps/server/.python-version
+
+# celery beat schedule file
+apps/server/celerybeat-schedule
+
+# SageMath parsed files
+apps/server/*.sage.py
+
+# Environments
+apps/server/.env
+apps/server/.venv
+apps/server/env/
+apps/server/venv/
+apps/server/ENV/
+apps/server/env.bak/
+apps/server/venv.bak/
+
+# Spyder project settings
+apps/server/.spyderproject
+apps/server/.spyproject
+
+# Rope project settings
+apps/server/.ropeproject
+
+# mkdocs documentation
+apps/server/site
+
+# mypy
+apps/server/.mypy_cache/
+apps/server/.dmypy.json
+apps/server/dmypy.json
+
+# Pyre type checker
+apps/server/.pyre/
