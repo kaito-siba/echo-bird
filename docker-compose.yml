@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  # FastAPI バックエンドサーバー
+  server:
+    build:
+      context: ./apps/server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017/echo_bird
+    depends_on:
+      - mongodb
+    volumes:
+      - ./apps/server:/app
+    restart: unless-stopped
+
+  # MongoDB データベース
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=echo_bird
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
