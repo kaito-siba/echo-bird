@@ -1,4 +1,5 @@
-FROM python:3.13-slim
+# Python 3.11-slimベースイメージを使用
+FROM python:3.11-slim
 
 # uvをインストール
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
