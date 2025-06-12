@@ -2,78 +2,70 @@
 
 Echo Bird プロジェクトのバックエンドサーバーです。FastAPI と Tortoise ORM を使用して Twitter のツイートデータを管理します。
 
-## 技術スタック
+## 📦 技術スタック
 
-- **Web フレームワーク**: FastAPI
-- **ORM**: Tortoise ORM
-- **データベース**: PostgreSQL
-- **マイグレーション**: Aerich
+- **FastAPI 0.115+** - WebAPI フレームワーク
+- **Tortoise ORM 0.21+** - 非同期 ORM
+- **PostgreSQL** - リレーショナルデータベース
+- **Aerich 0.7+** - マイグレーションツール
+- **Python 3.11** - ランタイム
+- **uv** - パッケージマネージャー
+- **Ruff** - リンター・フォーマッター
+- **Pyright** - 型チェック
 
-## セットアップ
+## 🏗️ プロジェクト構造
 
-### 1. 依存関係のインストール
+```
+src/
+├── main.py           # FastAPI アプリケーションエントリーポイント
+├── database.py       # データベース接続設定
+├── models.py         # Tortoise ORM モデル定義
+└── api.py           # API エンドポイント定義
+
+tests/               # テストファイル
+migrations/          # Aerich マイグレーションファイル
+scripts/            # ユーティリティスクリプト
+```
+
+## 🚀 セットアップ
+
+### 依存関係のインストール
 
 ```bash
-# プロジェクトルートから
 cd apps/server
 uv install
 ```
 
-### 2. データベースの準備
+### データベースの準備
 
-PostgreSQL データベース `echo_bird` を作成してください。
-
-```sql
-CREATE DATABASE echo_bird;
-```
-
-### 3. 環境変数の設定
-
-環境変数でデータベース接続文字列を設定できます：
+PostgreSQL データベース `echo_bird` を作成し、環境変数を設定：
 
 ```bash
-export DATABASE_URL="postgres://username:password@localhost:5432/echo_bird"
+export DATABASE_URL="postgres://user:password@localhost:5432/echo_bird"
 ```
 
-または、デフォルト設定（`postgres://postgres:password@localhost:5432/echo_bird`）を使用することもできます。
-
-### 4. マイグレーションの初期化
+### マイグレーションの実行
 
 ```bash
-# マイグレーション環境の初期化
-aerich init-db
-
-# マイグレーションファイルの生成
-aerich init-db
+aerich init-db      # 初回のみ
+aerich upgrade      # マイグレーション実行
 ```
 
-### 5. サーバーの起動
+### サーバーの起動
 
 ```bash
-# 開発サーバーの起動
 fastapi dev src/main.py
-
-# または
-uvicorn src.main:app --reload
 ```
 
 サーバーは `http://localhost:8000` で起動します。
 
-## API エンドポイント
+## 📡 API エンドポイント
 
 ### ツイート関連
 
-- `GET /api/v1/tweets` - ツイート一覧取得
-
-  - クエリパラメータ:
-    - `start_date`: 開始日 (YYYY-MM-DD)
-    - `end_date`: 終了日 (YYYY-MM-DD)
-    - `search`: 検索キーワード
-    - `sort_by`: ソート条件 (likes_count, retweets_count, posted_at)
-    - `order`: ソート順序 (asc/desc)
-
-- `POST /api/v1/tweets/read/{tweet_id}` - ツイートを既読にする
-- `POST /api/v1/tweets/bookmark/{tweet_id}` - ブックマークの追加・削除
+- `GET /api/v1/tweets` - ツイート一覧取得（フィルタリング・検索対応）
+- `POST /api/v1/tweets/read/{tweet_id}` - 既読状態更新
+- `POST /api/v1/tweets/bookmark/{tweet_id}` - ブックマーク操作
 - `GET /api/v1/tweets/bookmarked` - ブックマーク一覧取得
 
 ### その他
@@ -81,34 +73,77 @@ uvicorn src.main:app --reload
 - `GET /` - Hello World
 - `GET /health` - ヘルスチェック
 - `GET /docs` - API ドキュメント (Swagger UI)
+- `GET /redoc` - API ドキュメント (ReDoc)
 
-## データベースモデル
+## 🗄️ データベースモデル
 
 ### User モデル
 
-- Twitter ユーザーのプロフィール情報を管理
+Twitter ユーザーのプロフィール情報を管理（ユーザー名、表示名、プロフィール画像等）
 
 ### Tweet モデル
 
-- ツイートデータと既読・ブックマーク状態を管理
+ツイートデータと既読・ブックマーク状態を管理（内容、エンゲージメント、投稿日時等）
 
-詳細は設計書 (`docs/specification.md`) を参照してください。
+詳細なデータベース設計については [プロジェクトルートの設計書](../../docs/specification.md) を参照してください。
 
-## 開発
-
-### マイグレーション
+## 🔧 開発コマンド
 
 ```bash
-# モデル変更後のマイグレーションファイル生成
-aerich migrate
+# マイグレーション
+aerich migrate --name description    # マイグレーションファイル生成
+aerich upgrade                       # マイグレーション実行
+aerich history                       # マイグレーション履歴確認
 
-# マイグレーション実行
-aerich upgrade
+# テスト
+pytest                              # テスト実行
+pytest --cov=src                    # カバレッジ付きテスト
+
+# 品質管理
+ruff check src/                     # リンティング
+ruff format src/                    # フォーマット
+pyright src/                        # 型チェック
 ```
 
-### テスト実行
+## 🚀 デプロイ
+
+### 環境変数
+
+本番環境では以下の環境変数を設定：
 
 ```bash
-pytest
+DATABASE_URL=postgres://user:password@db:5432/echo_bird
+SECRET_KEY=your-secret-key
+DEBUG=false
 ```
 
+### Docker デプロイ
+
+```bash
+# Dockerfile を使用してコンテナビルド・実行
+docker build -t echo-bird-server .
+docker run -p 8000:8000 echo-bird-server
+```
+
+## 🧪 テスト
+
+- **単体テスト**: 各 API エンドポイントの機能テスト
+- **統合テスト**: データベースとの連携テスト
+- **E2E テスト**: フロントエンドとの結合テスト
+
+テスト実行時は専用のテストデータベースを使用します。
+
+## 🤝 コントリビューション
+
+1. 新機能・バグ修正の Issue 作成
+2. フィーチャーブランチで開発
+3. テスト追加・更新
+4. `ruff check && ruff format && pyright` でコード品質確認
+5. Pull Request 作成
+
+## 📚 参考資料
+
+- [FastAPI ドキュメント](https://fastapi.tiangolo.com/)
+- [Tortoise ORM ドキュメント](https://tortoise.github.io/)
+- [Aerich ドキュメント](https://github.com/tortoise/aerich)
+- [PostgreSQL ドキュメント](https://www.postgresql.org/docs/)

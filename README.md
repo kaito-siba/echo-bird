@@ -1,208 +1,176 @@
 # Echo Bird
 
-Echo Bird は、Twitter の非公開リストのツイートを取得し、Twitter 風の Web アプリケーションで表示・操作するシステムです。
+Twitter のツイートデータを収集・管理し、効率的な情報収集を支援する Web アプリケーションです。
 
-## 📋 概要
+## 🎯 主な機能
 
-本システムは、Twitter Web API を使用してプライベートリストのツイートを取得し、React 製のモダンなフロントエンドでツイートの閲覧、フィルタリング、ブックマーク機能などを提供します。
+- **ツイート収集・管理** - Twitter API を活用した自動収集システム
+- **既読・ブックマーク** - 読んだツイートの管理とお気に入り機能
+- **フィルタリング・検索** - 日付、キーワード、エンゲージメントでの絞り込み
+- **レスポンシブ UI** - モバイル・デスクトップ両対応
+- **要約・音声読み上げ** - AI 要約と音声での情報取得（予定）
 
-## ✨ 主な機能
+## 🏗️ アーキテクチャ
 
-### 📥 ツイート取得機能
+### Frontend (Client)
 
-- Twitter の非公開リストからツイートを自動取得
-- 以下のデータを取得・保存：
-  - ツイート本文
-  - アカウント情報（名前、URL、アイコン）
-  - エンゲージメント（いいね数、リツイート数）
-  - 投稿日時
+- **React 19** - UI ライブラリ
+- **TypeScript** - 型安全性の確保
+- **TanStack Router** - ファイルベースルーティング
+- **TanStack Query** - サーバー状態管理
+- **TanStack Store** - クライアント状態管理
+- **Vanilla Extract** - 型安全なスタイリング
+- **Vite** - 高速ビルドツール
+- **Vitest** - テスティングフレームワーク
+- **Biome** - リンター・フォーマッター
 
-### 🎨 フロントエンド機能
+### Backend (Server)
 
-- **Twitter 風 UI**: モダンで直感的なインターフェース
-- **フィルタリング**: 投稿期間、キーワード検索
-- **ソート機能**: いいね数順、リツイート数順
-- **既読管理**: 既読ツイートは透明度を下げて表示
-- **ブックマーク**: お気に入りツイートの保存・管理
+- **FastAPI** - 高性能 WebAPI フレームワーク
+- **Tortoise ORM** - 非同期 ORM
+- **PostgreSQL** - リレーショナルデータベース
+- **Aerich** - マイグレーションツール
+- **Python 3.11** - ランタイム
 
-### 🔮 将来の機能（予定）
+### Infrastructure
 
-- 音声読み上げ機能（Web Speech API）
-- ツイート要約機能（LLM/sumy）
+- **モノレポ構成** - 複数アプリケーションの統合管理
+- **pnpm** - Node.js パッケージマネージャー
+- **uv** - Python パッケージマネージャー
+- **Task** - タスクランナー
+- **mise** - 開発環境管理
+- **Docker** - データベースコンテナ化
 
-## 🏗️ システム構成
-
-```
-echo-bird/
-├── apps/
-│   ├── client/          # React フロントエンド
-│   └── server/          # FastAPI バックエンド
-├── docs/
-│   └── specification.md # 詳細仕様書
-├── Taskfile.yml         # タスクランナー設定
-└── mise.toml           # 開発環境設定
-```
-
-### 📦 技術スタック
-
-| 要素               | 技術                                      |
-| ------------------ | ----------------------------------------- |
-| **フロントエンド** | React 19 + Vite + TailwindCSS             |
-| **バックエンド**   | FastAPI + Python 3.11                     |
-| **データベース**   | PostgreSQL                                |
-| **スクレイピング** | Twitter Web API (tweepy-authlib)          |
-| **ツールチェーン** | Task (Task runner), mise (env management) |
-
-## 🚀 セットアップ
+## 🚀 クイックスタート
 
 ### 前提条件
 
 - Node.js 22+
 - Python 3.11
-- PostgreSQL
+- Docker & Docker Compose
 - [mise](https://mise.jdx.dev/) (推奨)
 
-### 1. 開発環境の準備
+### セットアップ
 
 ```bash
-# mise を使用する場合
-mise install
-
-# または手動でインストール
-# Node.js 22, Python 3.11, pnpm, uv, task を個別にインストール
-```
-
-### 2. プロジェクトのクローン
-
-```bash
+# 1. リポジトリクローン
 git clone https://github.com/your-username/echo-bird.git
 cd echo-bird
-```
 
-### 3. 依存関係のインストール
+# 2. 開発環境準備
+mise install
 
-```bash
+# 3. 依存関係インストール
 task install
-```
 
-### 4. 開発サーバーの起動
+# 4. データベース起動
+task db:up
 
-```bash
+# 5. データベース初期化
+task db:migrate:init
+
+# 6. 開発サーバー起動
 task dev
 ```
 
-これにより以下が起動します：
+**アクセス先:**
 
 - フロントエンド: http://localhost:3000
-- バックエンド: http://localhost:8000
+- バックエンド API: http://localhost:8000
+- API ドキュメント: http://localhost:8000/docs
 
 ## 🔧 開発コマンド
 
-### 📦 インストール
+```bash
+# 依存関係
+task install              # 全ての依存関係をインストール
+task install:client       # フロントエンドのみ
+task install:server       # バックエンドのみ
+
+# データベース
+task db:up                # データベース起動
+task db:down              # データベース停止
+task db:restart           # データベース再起動
+task db:reset             # データベースリセット
+task db:logs              # ログ表示
+task db:shell             # データベースシェル接続
+task db:status            # ステータス確認
+
+# マイグレーション
+task db:migrate           # マイグレーション実行
+task db:migrate:init      # マイグレーション初期化
+task db:migrate:create    # 新規マイグレーション作成
+task db:migrate:history   # マイグレーション履歴
+
+# 開発
+task dev                  # 開発サーバー起動（両方）
+task dev:full             # データベース起動 + 開発サーバー起動
+task dev:client           # フロントエンドのみ
+task dev:server           # バックエンドのみ
+
+# ビルド・品質管理
+task build                # プロダクションビルド
+task lint                 # リンティング実行
+task format               # コードフォーマット
+task test                 # テスト実行
+task clean                # キャッシュクリア
+```
+
+## 🗄️ データベース
+
+### 設定
+
+プロジェクトでは Docker を使用して PostgreSQL データベースを管理しています：
+
+- **データベース名**: `echo_bird`
+- **ユーザー**: `postgres`
+- **パスワード**: `password`
+- **ポート**: `5432`
+
+### 初期セットアップ
 
 ```bash
-task install          # 全ての依存関係をインストール
-task install:client   # フロントエンドのみ
-task install:server   # バックエンドのみ
+# データベース起動
+task db:up
+
+# マイグレーション初期化（初回のみ）
+task db:migrate:init
+
+# マイグレーション実行
+task db:migrate
 ```
 
-### 💻 開発
+### 便利なコマンド
 
 ```bash
-task dev              # 開発サーバー起動（フロント・バック両方）
-task dev:client       # フロントエンドのみ
-task dev:server       # バックエンドのみ
+# データベースに直接接続
+task db:shell
+
+# ログ監視
+task db:logs
+
+# データベース完全リセット
+task db:reset
 ```
 
-### 🏗️ ビルド
+## 📚 詳細ドキュメント
 
-```bash
-task build            # プロダクションビルド
-task build:client     # フロントエンドのみ
-```
+- **[Client README](apps/client/README.md)** - React フロントエンドの詳細
+- **[Server README](apps/server/README.md)** - FastAPI バックエンドの詳細
+- **[設計書](docs/specification.md)** - システム設計・データベース設計
 
-### 🔍 品質管理
+## 🧪 テスト駆動開発
 
-```bash
-task lint             # リンティング実行
-task format           # コードフォーマット
-task test             # テスト実行
-task type-check       # 型チェック
-```
-
-### 🧹 クリーンアップ
-
-```bash
-task clean            # ビルド成果物とキャッシュを削除
-```
-
-## 📡 API エンドポイント
-
-| メソッド | エンドポイント                                      | 説明                   |
-| -------- | --------------------------------------------------- | ---------------------- |
-| `GET`    | `/tweets`                                           | ツイート一覧取得       |
-| `GET`    | `/tweets?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD` | 期間フィルタリング     |
-| `GET`    | `/tweets?search=keyword`                            | キーワード検索         |
-| `POST`   | `/tweets/read/{tweet_id}`                           | 既読状態更新           |
-| `POST`   | `/tweets/bookmark/{tweet_id}`                       | ブックマーク追加・削除 |
-
-## 🗄️ データベース設計
-
-PostgreSQL を使用したリレーショナルデータベース設計。
-
-- **users テーブル**: Twitter ユーザー情報を管理
-- **tweets テーブル**: ツイート情報を管理（users テーブルと外部キー制約で関連付け）
-
-詳細なスキーマ情報については [docs/specification.md](docs/specification.md) をご参照ください。
-
-## 🔄 データフロー
-
-1. **ツイート取得**: Twitter Web API を使用してプライベートリストからツイートを取得
-2. **データ保存**: PostgreSQL にツイートデータを保存
-3. **フロントエンド表示**: React アプリでツイートを表示・操作
-4. **ユーザー操作**: フィルタリング、ソート、ブックマーク等の機能
-
-## 🛠️ 開発情報
-
-### プロジェクト構造
-
-```
-apps/client/
-├── src/              # React ソースコード
-├── public/           # 静的ファイル
-└── package.json      # フロントエンド依存関係
-
-apps/server/
-├── src/              # FastAPI ソースコード
-├── tests/            # テストファイル
-└── pyproject.toml    # バックエンド依存関係
-```
-
-### 使用ライブラリ
-
-**フロントエンド:**
-
-- React 19 (UI フレームワーク)
-- TanStack Router (ルーティング)
-- TanStack Query (データ取得)
-- TailwindCSS (スタイリング)
-- Biome (リンター・フォーマッター)
-
-**バックエンド:**
-
-- FastAPI (Web フレームワーク)
-- Ruff (リンター・フォーマッター)
-- pytest (テストフレームワーク)
-- Pyright/MyPy (型チェック)
-
-## 📄 ライセンス
-
-[ライセンス情報を記載]
+このプロジェクトでは TDD を採用しています。新機能の実装前にテストを作成し、ビジネス要求を満たす最小限の実装から始めてください。
 
 ## 🤝 コントリビューション
 
-コントリビューションを歓迎します！詳細は [CONTRIBUTING.md](CONTRIBUTING.md) をご覧ください。
+1. Issue の作成・確認
+2. フィーチャーブランチでの開発
+3. テストの追加・更新
+4. コード品質確認 (`task lint && task format && task type-check`)
+5. Pull Request の作成
 
-## 📖 詳細仕様
+## 📄 ライセンス
 
-詳細な仕様については [docs/specification.md](docs/specification.md) をご参照ください。
+このプロジェクトは MIT ライセンスの下で公開されています。詳細は [LICENSE](LICENSE) ファイルをご覧ください。
