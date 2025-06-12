@@ -1,0 +1,20 @@
+FROM postgres:16-alpine
+
+# 環境変数の設定
+ENV POSTGRES_DB=echo_bird
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=password
+ENV PGDATA=/var/lib/postgresql/data/pgdata
+
+# 日本語対応のロケール設定（Alpine Linux用）
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
+# データベース初期化スクリプト用ディレクトリ
+COPY ./db/init/ /docker-entrypoint-initdb.d/
+
+# ポート
+EXPOSE 5432
+
+# ボリューム
+VOLUME ["/var/lib/postgresql/data"]

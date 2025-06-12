@@ -86,5 +86,12 @@ coverage/
 .vercel
 .netlify
 
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Database
+db/data/
+
 # Misc
 .task/

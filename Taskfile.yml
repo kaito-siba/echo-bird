@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 tasks:
   install:
@@ -19,9 +19,54 @@ tasks:
     cmds:
       - uv sync
 
+  # Database tasks
+  db:up:
+    desc: Start database with Docker Compose
+    cmds:
+      - docker-compose up -d postgres
+
+  db:down:
+    desc: Stop database
+    cmds:
+      - docker-compose down
+
+  db:restart:
+    desc: Restart database
+    cmds:
+      - task: db:down
+      - task: db:up
+
+  db:logs:
+    desc: Show database logs
+    cmds:
+      - docker-compose logs -f postgres
+
+  db:shell:
+    desc: Connect to database shell
+    cmds:
+      - docker-compose exec postgres psql -U postgres -d echo_bird
+
+  db:reset:
+    desc: Reset database (remove volume and restart)
+    cmds:
+      - docker-compose down -v
+      - docker-compose up -d postgres
+
+  db:status:
+    desc: Check database status
+    cmds:
+      - docker-compose ps postgres
+
+  # Development tasks
   dev:
     desc: Run development servers
     deps: [dev:client, dev:server]
+
+  dev:full:
+    desc: Start database and run development servers
+    deps: [db:up]
+    cmds:
+      - task: dev
 
   dev:client:
     desc: Run client development server
@@ -34,6 +79,31 @@ tasks:
     dir: apps/server
     cmds:
       - uv run fastapi dev src/main.py
+
+  # Database migration tasks
+  db:migrate:
+    desc: Run database migrations
+    dir: apps/server
+    cmds:
+      - uv run aerich upgrade
+
+  db:migrate:init:
+    desc: Initialize database migrations
+    dir: apps/server
+    cmds:
+      - uv run aerich init-db
+
+  db:migrate:create:
+    desc: Create new migration
+    dir: apps/server
+    cmds:
+      - uv run aerich migrate --name "{{.CLI_ARGS}}"
+
+  db:migrate:history:
+    desc: Show migration history
+    dir: apps/server
+    cmds:
+      - uv run aerich history
 
   build:
     desc: Build for production

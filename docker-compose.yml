@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    container_name: echo-bird-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: echo_bird
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - echo-bird-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d echo_bird"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # 将来的にサーバーもDockerizeする場合用
+  # server:
+  #   build:
+  #     context: ./apps/server
+  #     dockerfile: Dockerfile
+  #   container_name: echo-bird-server
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     DATABASE_URL: postgres://postgres:password@postgres:5432/echo_bird
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - echo-bird-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  echo-bird-network:
+    driver: bridge
