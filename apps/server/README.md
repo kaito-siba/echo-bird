@@ -16,7 +16,7 @@ Echo Bird プロジェクトのバックエンドサーバーです。FastAPI �
 ## 🏗️ プロジェクト構造
 
 ```
-src/
+app/
 ├── main.py           # FastAPI アプリケーションエントリーポイント
 ├── database.py       # データベース接続設定
 ├── models.py         # Tortoise ORM モデル定義
@@ -54,7 +54,7 @@ aerich upgrade      # マイグレーション実行
 ### サーバーの起動
 
 ```bash
-fastapi dev src/main.py
+fastapi dev app/main.py
 ```
 
 サーバーは `http://localhost:8000` で起動します。
@@ -97,12 +97,12 @@ aerich history                       # マイグレーション履歴確認
 
 # テスト
 pytest                              # テスト実行
-pytest --cov=src                    # カバレッジ付きテスト
+pytest --cov=app                    # カバレッジ付きテスト
 
 # 品質管理
-ruff check src/                     # リンティング
-ruff format src/                    # フォーマット
-pyright src/                        # 型チェック
+ruff check app/                     # リンティング
+ruff format app/                    # フォーマット
+pyright app/                        # 型チェック
 ```
 
 ## 🚀 デプロイ

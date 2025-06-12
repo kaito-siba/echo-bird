@@ -3,8 +3,8 @@ from typing import Any
 
 from fastapi import FastAPI
 
-from .api import router as api_router
-from .database import close_db, init_db
+from app.api import router as api_router
+from app.database import close_db, init_db
 
 
 @asynccontextmanager

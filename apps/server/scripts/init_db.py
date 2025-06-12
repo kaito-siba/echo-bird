@@ -7,10 +7,10 @@ import asyncio
 import os
 import sys
 
-# パスを追加してsrcをインポート可能にする
+# パスを追加してappをインポート可能にする
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from src.database import close_db, init_db
+from app.database import close_db, init_db
 
 
 async def main():

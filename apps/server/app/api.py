@@ -4,7 +4,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 from tortoise.exceptions import DoesNotExist
 
-from .models import Tweet
+from app.models import Tweet
 
 router = APIRouter()
 

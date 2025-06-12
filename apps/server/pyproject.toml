@@ -53,6 +53,6 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.aerich]
-tortoise_orm = "src.database.TORTOISE_ORM"
+tortoise_orm = "app.database.TORTOISE_ORM"
 location = "./migrations"
-src_folder = "./src"
+src_folder = "./app"

@@ -78,7 +78,7 @@ tasks:
     desc: Run server development server
     dir: apps/server
     cmds:
-      - uv run fastapi dev src/main.py
+      - uv run fastapi dev app/main.py
 
   # Database migration tasks
   db:migrate:
@@ -188,7 +188,7 @@ tasks:
     desc: Type check server code
     dir: apps/server
     cmds:
-      - uv run mypy src
+      - uv run mypy app
 
   clean:
     desc: Clean build artifacts and caches
