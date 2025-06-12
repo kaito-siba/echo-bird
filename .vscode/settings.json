@@ -33,8 +33,9 @@
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true,
   },
-  "mypy.enabled": true,
-  "python.analysis.typeCheckingMode": "strict",
+  "mypy.enabled": false,
+  "flake8.enabled": false,
+  "python.analysis.typeCheckingMode": "basic",
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit",
     "source.organizeImports.ruff": "explicit",
