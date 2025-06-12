@@ -1,15 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
 
-export const Route = createFileRoute("/demo/tanstack-query")({
+export const Route = createFileRoute('/demo/tanstack-query')({
   component: TanStackQueryDemo,
 });
 
 function TanStackQueryDemo() {
   const { data } = useQuery({
-    queryKey: ["people"],
+    queryKey: ['people'],
     queryFn: () =>
-      Promise.resolve([{ name: "John Doe" }, { name: "Jane Doe" }]),
+      Promise.resolve([{ name: 'John Doe' }, { name: 'Jane Doe' }]),
     initialData: [],
   });
 

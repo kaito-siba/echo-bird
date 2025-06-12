@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useStore } from "@tanstack/react-store";
+import { createFileRoute } from '@tanstack/react-router';
+import { useStore } from '@tanstack/react-store';
 
-import { fullName, store } from "../lib/demo-store";
+import { fullName, store } from '../lib/demo-store';
 
-export const Route = createFileRoute("/demo/store")({
+export const Route = createFileRoute('/demo/store')({
   component: DemoStore,
 });
 
@@ -50,7 +50,7 @@ function DemoStore() {
       className="min-h-[calc(100vh-32px)] text-white p-8 flex items-center justify-center w-full h-full"
       style={{
         backgroundImage:
-          "radial-gradient(50% 50% at 80% 80%, #f4a460 0%, #8b4513 70%, #1a0f0a 100%)",
+          'radial-gradient(50% 50% at 80% 80%, #f4a460 0%, #8b4513 70%, #1a0f0a 100%)',
       }}
     >
       <div className="bg-white/10 backdrop-blur-lg rounded-xl p-8 shadow-lg flex flex-col gap-4 text-3xl min-w-1/2">

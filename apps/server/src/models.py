@@ -22,7 +22,7 @@ class User(Model):
     updated_at = DatetimeField(auto_now=True)
 
     class Meta:
-        table = "users"
+        table = 'users'
 
     def __str__(self):
         return self.username
@@ -31,7 +31,7 @@ class User(Model):
 class Tweet(Model):
     id = BigIntField(primary_key=True)
     tweet_id = CharField(max_length=50, unique=True)
-    user = ForeignKeyField("models.User", related_name="tweets", on_delete=CASCADE)
+    user = ForeignKeyField('models.User', related_name='tweets', on_delete=CASCADE)
     content = TextField()
     tweet_url = CharField(max_length=500, null=True)
     likes_count = IntField(default=0)
@@ -43,7 +43,7 @@ class Tweet(Model):
     updated_at = DatetimeField(auto_now=True)
 
     class Meta:
-        table = "tweets"
+        table = 'tweets'
 
     def __str__(self):
-        return f"{self.user.username}: {self.content[:50]}..."
+        return f'{self.user.username}: {self.content[:50]}...'

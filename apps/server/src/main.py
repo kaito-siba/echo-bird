@@ -16,17 +16,17 @@ async def lifespan(_app: FastAPI):
     await close_db()
 
 
-app = FastAPI(lifespan=lifespan, title="Echo Bird API", version="0.1.0")
+app = FastAPI(lifespan=lifespan, title='Echo Bird API', version='0.1.0')
 
 # APIルーターを追加
-app.include_router(api_router, prefix="/api/v1")
+app.include_router(api_router, prefix='/api/v1')
 
 
-@app.get("/")
+@app.get('/')
 async def root() -> dict[str, Any]:
-    return {"message": "Hello World"}
+    return {'message': 'Hello World'}
 
 
-@app.get("/health")
+@app.get('/health')
 async def health_check() -> dict[str, str]:
-    return {"status": "ok"}
+    return {'status': 'ok'}

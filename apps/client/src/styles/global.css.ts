@@ -1,17 +1,17 @@
-import { globalStyle } from "@vanilla-extract/css";
+import { globalStyle } from '@vanilla-extract/css';
 
 // グローバルスタイルをリセット
-globalStyle("*", {
+globalStyle('*', {
   margin: 0,
   padding: 0,
-  boxSizing: "border-box",
+  boxSizing: 'border-box',
 });
 
-globalStyle("html, body", {
-  height: "100%",
+globalStyle('html, body', {
+  height: '100%',
   fontFamily: [
-    "-apple-system",
-    "BlinkMacSystemFont",
+    '-apple-system',
+    'BlinkMacSystemFont',
     '"Segoe UI"',
     '"Roboto"',
     '"Oxygen"',
@@ -20,23 +20,23 @@ globalStyle("html, body", {
     '"Fira Sans"',
     '"Droid Sans"',
     '"Helvetica Neue"',
-    "sans-serif",
-  ].join(", "),
-  WebkitFontSmoothing: "antialiased",
-  MozOsxFontSmoothing: "grayscale",
+    'sans-serif',
+  ].join(', '),
+  WebkitFontSmoothing: 'antialiased',
+  MozOsxFontSmoothing: 'grayscale',
 });
 
-globalStyle("code", {
+globalStyle('code', {
   fontFamily: [
-    "source-code-pro",
-    "Menlo",
-    "Monaco",
-    "Consolas",
+    'source-code-pro',
+    'Menlo',
+    'Monaco',
+    'Consolas',
     '"Courier New"',
-    "monospace",
-  ].join(", "),
+    'monospace',
+  ].join(', '),
 });
 
-globalStyle("#app", {
-  height: "100%",
+globalStyle('#app', {
+  height: '100%',
 });

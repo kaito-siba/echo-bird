@@ -1,5 +1,5 @@
-import { forwardRef } from "react";
-import { button, buttonVariants, buttonSizes } from "./Button.css";
+import { forwardRef } from 'react';
+import { button, buttonVariants, buttonSizes } from './Button.css';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: keyof typeof buttonVariants;
@@ -9,7 +9,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { variant = "primary", size = "md", className, children, ...props },
+    { variant = 'primary', size = 'md', className, children, ...props },
     ref,
   ) => {
     const combinedClassName = [
@@ -19,7 +19,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       className,
     ]
       .filter(Boolean)
-      .join(" ");
+      .join(' ');
 
     return (
       <button ref={ref} className={combinedClassName} {...props}>
@@ -29,4 +29,4 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   },
 );
 
-Button.displayName = "Button";
+Button.displayName = 'Button';

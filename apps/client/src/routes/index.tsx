@@ -1,13 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router';
 import {
   containerStyle,
   headerStyle,
   logoStyle,
   linkStyle,
-} from "../styles/index.css";
-import logo from "../logo.svg";
+} from '../styles/index.css';
+import logo from '../logo.svg';
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/')({
   component: App,
 });
 
