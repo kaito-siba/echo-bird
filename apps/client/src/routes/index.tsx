@@ -1,24 +1,26 @@
-import { createFileRoute } from '@tanstack/react-router'
-import logo from '../logo.svg'
+import { createFileRoute } from "@tanstack/react-router";
+import {
+  containerStyle,
+  headerStyle,
+  logoStyle,
+  linkStyle,
+} from "../styles/index.css";
+import logo from "../logo.svg";
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute("/")({
   component: App,
-})
+});
 
 function App() {
   return (
-    <div className="text-center">
-      <header className="min-h-screen flex flex-col items-center justify-center bg-[#282c34] text-white text-[calc(10px+2vmin)]">
-        <img
-          src={logo}
-          className="h-[40vmin] pointer-events-none animate-[spin_20s_linear_infinite]"
-          alt="logo"
-        />
+    <div className={containerStyle}>
+      <header className={headerStyle}>
+        <img src={logo} className={logoStyle} alt="logo" />
         <p>
           Edit <code>src/routes/index.tsx</code> and save to reload.
         </p>
         <a
-          className="text-[#61dafb] hover:underline"
+          className={linkStyle}
           href="https://reactjs.org"
           target="_blank"
           rel="noopener noreferrer"
@@ -26,7 +28,7 @@ function App() {
           Learn React
         </a>
         <a
-          className="text-[#61dafb] hover:underline"
+          className={linkStyle}
           href="https://tanstack.com"
           target="_blank"
           rel="noopener noreferrer"
@@ -35,5 +37,5 @@ function App() {
         </a>
       </header>
     </div>
-  )
+  );
 }

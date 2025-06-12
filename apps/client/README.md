@@ -56,7 +56,52 @@ describe("My Component", () => {
 
 ## Styling
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+This project uses [Vanilla Extract](https://vanilla-extract.style/) for type-safe CSS-in-TypeScript.
+
+### Writing Styles
+
+Create `.css.ts` files to define your styles:
+
+```tsx
+// src/styles/button.css.ts
+import { style } from "@vanilla-extract/css";
+
+export const button = style({
+  padding: "12px 24px",
+  backgroundColor: "#007bff",
+  color: "white",
+  border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
+  ":hover": {
+    backgroundColor: "#0056b3",
+  },
+});
+```
+
+Then use them in your components:
+
+```tsx
+// src/components/Button.tsx
+import { button } from "../styles/button.css";
+
+export function Button({ children }: { children: React.ReactNode }) {
+  return <button className={button}>{children}</button>;
+}
+```
+
+### Theme System
+
+The project includes a theme system in `src/styles/theme.css.ts` with:
+
+- **Colors**: Predefined color palette
+- **Spacing**: Consistent spacing scale
+- **Typography**: Font sizes and families
+- **Breakpoints**: Responsive design utilities
+
+### Global Styles
+
+Global styles are defined in `src/styles/global.css.ts` and automatically imported in `main.tsx`.
 
 ## Linting & Formatting
 
