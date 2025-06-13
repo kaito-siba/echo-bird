@@ -44,7 +44,24 @@ PostgreSQL データベース `echo_bird` を作成し、環境変数を設定�
 export DATABASE_URL="postgres://user:password@localhost:5432/echo_bird"
 ```
 
-### マイグレーションの実行
+### データベースの初期化
+
+```bash
+# データベースとテーブルを作成し、adminユーザーを自動作成
+uv run scripts/init_db.py
+```
+
+**管理者ユーザーの設定**
+
+環境変数で管理者アカウントをカスタマイズできます：
+
+```bash
+export ADMIN_USERNAME="your_admin"     # デフォルト: admin
+export ADMIN_PASSWORD="your_password"  # デフォルト: admin123
+uv run scripts/init_db.py
+```
+
+### マイグレーションの実行（手動管理の場合）
 
 ```bash
 aerich init-db      # 初回のみ

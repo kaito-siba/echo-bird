@@ -81,6 +81,12 @@ tasks:
       - uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
   # Database migration tasks
+  db:init:
+    desc: Initialize database and create admin user
+    dir: apps/server
+    cmds:
+      - uv run scripts/init_db.py
+
   db:migrate:
     desc: Run database migrations
     dir: apps/server
