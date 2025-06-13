@@ -12,7 +12,7 @@ router = APIRouter(prefix='/api/v1/auth', tags=['auth'])
 class LoginRequest(BaseModel):
     """ログインリクエスト"""
 
-    email_or_username: str
+    username: str
     password: str
 
 
@@ -27,7 +27,6 @@ class UserMeResponse(BaseModel):
     """現在のユーザー情報レスポンス"""
 
     id: int
-    email: str
     username: str
     is_active: bool
     is_admin: bool
@@ -36,11 +35,11 @@ class UserMeResponse(BaseModel):
 @router.post('/login', response_model=TokenResponse)
 async def LoginAPI(request: LoginRequest) -> TokenResponse:
     """ログインAPI"""
-    user = await authenticate_user(request.email_or_username, request.password)
+    user = await authenticate_user(request.username, request.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Incorrect email/username or password',
+            detail='Incorrect username or password',
             headers={'WWW-Authenticate': 'Bearer'},
         )
 
@@ -57,7 +56,6 @@ async def UserMeAPI(current_user: User = Depends(get_current_user)) -> UserMeRes
     """現在のユーザー情報取得API（認証が必要）"""
     return UserMeResponse(
         id=current_user.id,
-        email=current_user.email,
         username=current_user.username,
         is_active=current_user.is_active,
         is_admin=current_user.is_admin,

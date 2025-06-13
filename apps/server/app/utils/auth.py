@@ -97,12 +97,10 @@ async def get_current_user(
     return user
 
 
-async def authenticate_user(email_or_username: str, password: str) -> User | None:
-    """ユーザーを認証する（email または username でログイン可能）"""
-    # メールアドレスまたはユーザー名でユーザーを検索
-    user = await User.filter(email=email_or_username, is_active=True).first()
-    if not user:
-        user = await User.filter(username=email_or_username, is_active=True).first()
+async def authenticate_user(username: str, password: str) -> User | None:
+    """ユーザーを認証する（username でログイン）"""
+    # ユーザー名でユーザーを検索
+    user = await User.filter(username=username, is_active=True).first()
 
     if not user:
         return None

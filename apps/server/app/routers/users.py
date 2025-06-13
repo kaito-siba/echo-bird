@@ -13,7 +13,6 @@ router = APIRouter(prefix='/api/v1/users', tags=['users'])
 class UserCreateRequest(BaseModel):
     """ユーザー作成リクエスト"""
 
-    email: str
     username: str
     password: str
 
@@ -21,7 +20,6 @@ class UserCreateRequest(BaseModel):
 class UserUpdateRequest(BaseModel):
     """ユーザー更新リクエスト"""
 
-    email: str | None = None
     username: str | None = None
 
 
@@ -31,7 +29,6 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    email: str
     username: str
     is_active: bool
     is_admin: bool
@@ -55,7 +52,6 @@ async def UserCreateAPI(request: UserCreateRequest) -> UserResponse:
 
         # ユーザーを作成
         user = await User.create(
-            email=request.email,
             username=request.username,
             password_hash=password_hash,
         )
@@ -64,11 +60,7 @@ async def UserCreateAPI(request: UserCreateRequest) -> UserResponse:
     except IntegrityError as ex:
         # 重複エラーをハンドリング
         error_msg = str(ex).lower()
-        if 'email' in error_msg:
-            raise HTTPException(
-                status_code=400, detail='Email address already exists'
-            ) from ex
-        elif 'username' in error_msg:
+        if 'username' in error_msg:
             raise HTTPException(
                 status_code=400, detail='Username already exists'
             ) from ex
@@ -95,8 +87,6 @@ async def UserUpdateAPI(user_id: int, request: UserUpdateRequest) -> UserRespons
 
     # 更新するフィールドのみを適用
     update_data = {}
-    if request.email is not None:
-        update_data['email'] = request.email
     if request.username is not None:
         update_data['username'] = request.username
 
@@ -109,11 +99,7 @@ async def UserUpdateAPI(user_id: int, request: UserUpdateRequest) -> UserRespons
     except IntegrityError as ex:
         # 重複エラーをハンドリング
         error_msg = str(ex).lower()
-        if 'email' in error_msg:
-            raise HTTPException(
-                status_code=400, detail='Email address already exists'
-            ) from ex
-        elif 'username' in error_msg:
+        if 'username' in error_msg:
             raise HTTPException(
                 status_code=400, detail='Username already exists'
             ) from ex

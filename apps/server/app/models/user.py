@@ -13,7 +13,6 @@ class User(Model):
     """
 
     id = BigIntField(primary_key=True)
-    email = CharField(max_length=255, unique=True)  # メールアドレス
     username = CharField(max_length=255, unique=True)  # EchoBird 内でのユーザー名
     password_hash = CharField(max_length=255)  # パスワードハッシュ
     is_active = BooleanField(default=True)  # アクティブ状態
