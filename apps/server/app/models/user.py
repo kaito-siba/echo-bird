@@ -2,7 +2,7 @@ from tortoise.fields import (
     BigIntField,
     BooleanField,
     CharField,
-    DatetimeField,
+    IntField,
 )
 from tortoise.models import Model
 
@@ -27,11 +27,20 @@ class User(Model):
     password_hash = CharField(max_length=PASSWORD_HASH_LENGTH)  # パスワードハッシュ
     is_active = BooleanField(default=DEFAULT_IS_ACTIVE)  # アクティブ状態
     is_admin = BooleanField(default=DEFAULT_IS_ADMIN)  # 管理者権限
-    created_at = DatetimeField(auto_now_add=True)  # レコード作成日時
-    updated_at = DatetimeField(auto_now=True)  # レコード更新日時
+    created_at = IntField()  # レコード作成日時（Unix timestamp）
+    updated_at = IntField()  # レコード更新日時（Unix timestamp）
 
     class Meta:
         table = TABLE_USERS
 
     def __str__(self):
         return self.username
+
+    async def save(self, *args, **kwargs):
+        """保存時に updated_at を自動更新"""
+        import time
+
+        if not self.created_at:
+            self.created_at = int(time.time())
+        self.updated_at = int(time.time())
+        await super().save(*args, **kwargs)

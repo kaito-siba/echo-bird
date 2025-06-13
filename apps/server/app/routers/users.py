@@ -1,5 +1,3 @@
-from typing import Any
-
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict
 from tortoise.exceptions import IntegrityError
@@ -33,8 +31,8 @@ class UserResponse(BaseModel):
     username: str
     is_active: bool
     is_admin: bool
-    created_at: Any
-    updated_at: Any
+    created_at: int  # Unix timestamp
+    updated_at: int  # Unix timestamp
 
 
 @router.get('', response_model=list[UserResponse])

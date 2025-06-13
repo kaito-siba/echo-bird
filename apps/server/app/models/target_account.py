@@ -3,7 +3,6 @@ from tortoise.fields import (
     BigIntField,
     BooleanField,
     CharField,
-    DatetimeField,
     ForeignKeyField,
     IntField,
     TextField,
@@ -14,6 +13,7 @@ from app.constants import (
     DEFAULT_COUNT,
     DEFAULT_INTERVAL_MINUTES,
     DEFAULT_IS_ACTIVE,
+    DEFAULT_IS_PROTECTED,
     DEFAULT_IS_VERIFIED,
     DEFAULT_MAX_TWEETS_PER_FETCH,
     FIELD_LENGTH_MEDIUM,
@@ -65,7 +65,7 @@ class TargetAccount(Model):
         default=DEFAULT_IS_ACTIVE
     )  # アクティブにツイートを取得するかどうか
     is_protected = BooleanField(
-        default=DEFAULT_IS_VERIFIED
+        default=DEFAULT_IS_PROTECTED
     )  # 非公開アカウントかどうか (twikit: User.protected)
     is_verified = BooleanField(
         default=DEFAULT_IS_VERIFIED
@@ -92,7 +92,9 @@ class TargetAccount(Model):
     )  # いいね数 (twikit: User.favourites_count)
 
     # 取得管理
-    last_fetched_at = DatetimeField(null=True)  # 最後にツイートを取得した日時
+    last_fetched_at = IntField(
+        null=True
+    )  # 最後にツイートを取得した日時（Unix timestamp）
     last_tweet_id = CharField(
         max_length=TWITTER_ID_LENGTH, null=True
     )  # 最後に取得したツイート ID
@@ -106,17 +108,26 @@ class TargetAccount(Model):
     # エラー管理
     consecutive_errors = IntField(default=DEFAULT_COUNT)  # 連続エラー回数
     last_error = TextField(null=True)  # 最後のエラーメッセージ
-    last_error_at = DatetimeField(null=True)  # 最後のエラー発生日時
+    last_error_at = IntField(null=True)  # 最後のエラー発生日時（Unix timestamp）
 
     # メタデータ
-    account_created_at = DatetimeField(
+    account_created_at = IntField(
         null=True
-    )  # Twitter アカウント作成日 (twikit: User.created_at)
-    created_at = DatetimeField(auto_now_add=True)  # レコード作成日時
-    updated_at = DatetimeField(auto_now=True)  # レコード更新日時
+    )  # Twitter アカウント作成日（Unix timestamp）
+    created_at = IntField()  # レコード作成日時（Unix timestamp）
+    updated_at = IntField()  # レコード更新日時（Unix timestamp）
 
     class Meta:
         table = TABLE_TARGET_ACCOUNTS
+
+    async def save(self, *args, **kwargs):
+        """保存時に updated_at を自動更新"""
+        import time
+
+        if not self.created_at:
+            self.created_at = int(time.time())
+        self.updated_at = int(time.time())
+        await super().save(*args, **kwargs)
 
     def __str__(self):
         return f'@{self.username} ({"Active" if self.is_active else "Inactive"})'

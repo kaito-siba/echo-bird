@@ -3,7 +3,6 @@ from tortoise.fields import (
     BigIntField,
     BooleanField,
     CharField,
-    DatetimeField,
     ForeignKeyField,
     IntField,
     TextField,
@@ -66,7 +65,7 @@ class TwitterAccount(Model):
         default=DEFAULT_IS_ACTIVE
     )  # アカウントがアクティブかどうか
     is_logged_in = BooleanField(default=DEFAULT_IS_LOGGED_IN)  # 現在ログイン中かどうか
-    last_login_at = DatetimeField(null=True)  # 最後にログインした日時
+    last_login_at = IntField(null=True)  # 最後にログインした日時（Unix timestamp）
 
     # エラー・制限管理
     is_suspended = BooleanField(
@@ -75,15 +74,26 @@ class TwitterAccount(Model):
     is_locked = BooleanField(
         default=DEFAULT_IS_LOCKED
     )  # アカウントがロックされているかどうか
-    rate_limit_exceeded_at = DatetimeField(null=True)  # レート制限に達した日時
+    rate_limit_exceeded_at = IntField(
+        null=True
+    )  # レート制限に達した日時（Unix timestamp）
     last_error = TextField(null=True)  # 最後に発生したエラー
     error_count = IntField(default=DEFAULT_COUNT)  # エラー発生回数
 
-    created_at = DatetimeField(auto_now_add=True)  # レコード作成日時
-    updated_at = DatetimeField(auto_now=True)  # レコード更新日時
+    created_at = IntField()  # レコード作成日時（Unix timestamp）
+    updated_at = IntField()  # レコード更新日時（Unix timestamp）
 
     class Meta:
         table = TABLE_TWITTER_ACCOUNTS
+
+    async def save(self, *args, **kwargs):
+        """保存時に updated_at を自動更新"""
+        import time
+
+        if not self.created_at:
+            self.created_at = int(time.time())
+        self.updated_at = int(time.time())
+        await super().save(*args, **kwargs)
 
     def __str__(self):
         login_identifier = self.screen_name or self.email or 'Unknown'

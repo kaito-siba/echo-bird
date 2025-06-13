@@ -98,6 +98,12 @@ API_PREFIX = f'/api/{API_VERSION_V1}'
 API_RESPONSE_HELLO = 'Hello World'
 API_RESPONSE_HEALTH_OK = 'ok'
 
+# Unix timestamp フィールド名サフィックス
+UNIX_TIMESTAMP_SUFFIX = '_unix'
+CREATED_AT_UNIX = f'created_at{UNIX_TIMESTAMP_SUFFIX}'
+UPDATED_AT_UNIX = f'updated_at{UNIX_TIMESTAMP_SUFFIX}'
+POSTED_AT_UNIX = f'posted_at{UNIX_TIMESTAMP_SUFFIX}'
+
 
 # ==========================================
 # アプリケーション情報

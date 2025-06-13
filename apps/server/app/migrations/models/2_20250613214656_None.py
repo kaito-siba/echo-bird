@@ -5,13 +5,12 @@ async def upgrade(db: BaseDBAsyncClient) -> str:
     return """
         CREATE TABLE IF NOT EXISTS "users" (
     "id" BIGSERIAL NOT NULL PRIMARY KEY,
-    "email" VARCHAR(255) NOT NULL UNIQUE,
     "username" VARCHAR(255) NOT NULL UNIQUE,
     "password_hash" VARCHAR(255) NOT NULL,
     "is_active" BOOL NOT NULL DEFAULT True,
     "is_admin" BOOL NOT NULL DEFAULT False,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "created_at" INT NOT NULL,
+    "updated_at" INT NOT NULL
 );
 COMMENT ON TABLE "users" IS 'EchoBird アプリケーションのユーザー情報を管理するモデル';
 CREATE TABLE IF NOT EXISTS "target_accounts" (
@@ -33,16 +32,16 @@ CREATE TABLE IF NOT EXISTS "target_accounts" (
     "tweets_count" INT NOT NULL DEFAULT 0,
     "listed_count" INT NOT NULL DEFAULT 0,
     "favorites_count" INT NOT NULL DEFAULT 0,
-    "last_fetched_at" TIMESTAMPTZ,
+    "last_fetched_at" INT,
     "last_tweet_id" VARCHAR(50),
     "fetch_interval_minutes" INT NOT NULL DEFAULT 60,
     "max_tweets_per_fetch" INT NOT NULL DEFAULT 100,
     "consecutive_errors" INT NOT NULL DEFAULT 0,
     "last_error" TEXT,
-    "last_error_at" TIMESTAMPTZ,
-    "account_created_at" TIMESTAMPTZ,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "last_error_at" INT,
+    "account_created_at" INT,
+    "created_at" INT NOT NULL,
+    "updated_at" INT NOT NULL,
     "user_id" BIGINT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE
 );
 COMMENT ON TABLE "target_accounts" IS 'ツイート取得対象の Twitter アカウント情報を管理するモデル';
@@ -71,9 +70,9 @@ CREATE TABLE IF NOT EXISTS "tweets" (
     "user_mentions" JSONB,
     "is_possibly_sensitive" BOOL NOT NULL DEFAULT False,
     "has_media" BOOL NOT NULL DEFAULT False,
-    "posted_at" TIMESTAMPTZ NOT NULL,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "posted_at" INT NOT NULL,
+    "created_at" INT NOT NULL,
+    "updated_at" INT NOT NULL,
     "target_account_id" BIGINT NOT NULL REFERENCES "target_accounts" ("id") ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS "idx_tweets_target__9434fe" ON "tweets" ("target_account_id", "posted_at");
@@ -81,7 +80,7 @@ CREATE INDEX IF NOT EXISTS "idx_tweets_convers_2ab1f4" ON "tweets" ("conversatio
 COMMENT ON TABLE "tweets" IS 'Twitter から twikit 経由で取得したツイートデータを管理するモデル';
 CREATE TABLE IF NOT EXISTS "bookmarked_tweets" (
     "id" BIGSERIAL NOT NULL PRIMARY KEY,
-    "bookmarked_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "bookmarked_at" INT NOT NULL,
     "tweet_id" BIGINT NOT NULL REFERENCES "tweets" ("id") ON DELETE CASCADE,
     "user_id" BIGINT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
     CONSTRAINT "uid_bookmarked__user_id_d3ad98" UNIQUE ("user_id", "tweet_id")
@@ -105,9 +104,9 @@ CREATE TABLE IF NOT EXISTS "media" (
     "file_size" INT,
     "is_downloaded" VARCHAR(20) NOT NULL DEFAULT 'pending',
     "download_attempts" INT NOT NULL DEFAULT 0,
-    "downloaded_at" TIMESTAMPTZ,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "downloaded_at" INT,
+    "created_at" INT NOT NULL,
+    "updated_at" INT NOT NULL,
     "tweet_id" BIGINT NOT NULL REFERENCES "tweets" ("id") ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS "idx_media_tweet_i_4fc89b" ON "media" ("tweet_id", "media_type");
@@ -115,7 +114,7 @@ CREATE INDEX IF NOT EXISTS "idx_media_is_down_b06743" ON "media" ("is_downloaded
 COMMENT ON TABLE "media" IS 'ツイートに添付されたメディア（画像・動画・GIF）を管理するモデル';
 CREATE TABLE IF NOT EXISTS "read_tweets" (
     "id" BIGSERIAL NOT NULL PRIMARY KEY,
-    "read_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "read_at" INT NOT NULL,
     "tweet_id" BIGINT NOT NULL REFERENCES "tweets" ("id") ON DELETE CASCADE,
     "user_id" BIGINT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
     CONSTRAINT "uid_read_tweets_user_id_7ced1d" UNIQUE ("user_id", "tweet_id")
@@ -134,14 +133,14 @@ CREATE TABLE IF NOT EXISTS "twitter_accounts" (
     "profile_image_url" VARCHAR(500),
     "is_active" BOOL NOT NULL DEFAULT True,
     "is_logged_in" BOOL NOT NULL DEFAULT False,
-    "last_login_at" TIMESTAMPTZ,
+    "last_login_at" INT,
     "is_suspended" BOOL NOT NULL DEFAULT False,
     "is_locked" BOOL NOT NULL DEFAULT False,
-    "rate_limit_exceeded_at" TIMESTAMPTZ,
+    "rate_limit_exceeded_at" INT,
     "last_error" TEXT,
     "error_count" INT NOT NULL DEFAULT 0,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" INT NOT NULL,
+    "updated_at" INT NOT NULL,
     "user_id" BIGINT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE
 );
 COMMENT ON TABLE "twitter_accounts" IS '認証用 Twitter アカウント情報を管理するモデル';

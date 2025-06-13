@@ -1,5 +1,4 @@
 from datetime import timedelta
-from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict
@@ -33,8 +32,8 @@ class UserMeResponse(BaseModel):
     username: str
     is_active: bool
     is_admin: bool
-    created_at: Any
-    updated_at: Any
+    created_at: int  # Unix timestamp
+    updated_at: int  # Unix timestamp
 
 
 @router.post('/login', response_model=TokenResponse)

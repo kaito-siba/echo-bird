@@ -4,7 +4,6 @@ from tortoise.fields import (
     CASCADE,
     BigIntField,
     CharField,
-    DatetimeField,
     ForeignKeyField,
     IntField,
     JSONField,
@@ -78,10 +77,10 @@ class Media(Model):
         max_length=MEDIA_TYPE_LENGTH, default=MEDIA_STATUS_PENDING
     )  # ダウンロード状態: pending, downloading, completed, failed
     download_attempts = IntField(default=DEFAULT_COUNT)  # ダウンロード試行回数
-    downloaded_at = DatetimeField(null=True)  # ダウンロード完了日時
+    downloaded_at = IntField(null=True)  # ダウンロード完了日時（Unix timestamp）
 
-    created_at = DatetimeField(auto_now_add=True)  # レコード作成日時
-    updated_at = DatetimeField(auto_now=True)  # レコード更新日時
+    created_at = IntField()  # レコード作成日時（Unix timestamp）
+    updated_at = IntField()  # レコード更新日時（Unix timestamp）
 
     class Meta:
         table = TABLE_MEDIA
@@ -89,6 +88,15 @@ class Media(Model):
             ('tweet', 'media_type'),  # ツイート別・タイプ別の検索用
             ('is_downloaded',),  # ダウンロード状態での絞り込み用
         ]
+
+    async def save(self, *args, **kwargs):
+        """保存時に updated_at を自動更新"""
+        import time
+
+        if not self.created_at:
+            self.created_at = int(time.time())
+        self.updated_at = int(time.time())
+        await super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.media_type}: {self.media_key}'

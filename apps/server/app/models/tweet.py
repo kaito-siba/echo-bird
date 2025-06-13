@@ -5,7 +5,6 @@ from tortoise.fields import (
     BigIntField,
     BooleanField,
     CharField,
-    DatetimeField,
     ForeignKeyField,
     IntField,
     JSONField,
@@ -95,11 +94,9 @@ class Tweet(Model):
         default=DEFAULT_HAS_MEDIA
     )  # メディア（画像・動画）を含むかどうか
 
-    posted_at = (
-        DatetimeField()
-    )  # Twitter でツイートされた日時 (twikit: Tweet.created_at)
-    created_at = DatetimeField(auto_now_add=True)  # レコード作成日時
-    updated_at = DatetimeField(auto_now=True)  # レコード更新日時
+    posted_at = IntField()  # Twitter でツイートされた日時（Unix timestamp）
+    created_at = IntField()  # レコード作成日時（Unix timestamp）
+    updated_at = IntField()  # レコード更新日時（Unix timestamp）
 
     class Meta:
         table = TABLE_TWEETS
@@ -107,6 +104,15 @@ class Tweet(Model):
             ('target_account', 'posted_at'),  # アカウント別の時系列取得用
             ('conversation_id',),  # 会話スレッド取得用
         ]
+
+    async def save(self, *args, **kwargs):
+        """保存時に updated_at を自動更新"""
+        import time
+
+        if not self.created_at:
+            self.created_at = int(time.time())
+        self.updated_at = int(time.time())
+        await super().save(*args, **kwargs)
 
     def __str__(self):
         return f'@{self.target_account.username}: {self.content[:50]}...'
