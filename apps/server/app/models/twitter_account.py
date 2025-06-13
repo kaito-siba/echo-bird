@@ -10,6 +10,22 @@ from tortoise.fields import (
 )
 from tortoise.models import Model
 
+from app.constants import (
+    DEFAULT_COUNT,
+    DEFAULT_IS_ACTIVE,
+    DEFAULT_IS_LOCKED,
+    DEFAULT_IS_LOGGED_IN,
+    DEFAULT_IS_SUSPENDED,
+    EMAIL_MAX_LENGTH,
+    TABLE_TWITTER_ACCOUNTS,
+    TOKEN_MAX_LENGTH,
+    TWITTER_ACCOUNT_STATUS_ACTIVE,
+    TWITTER_ACCOUNT_STATUS_SUSPENDED,
+    TWITTER_ID_LENGTH,
+    URL_MAX_LENGTH,
+    USERNAME_MAX_LENGTH,
+)
+
 
 class TwitterAccount(Model):
     """
@@ -23,43 +39,57 @@ class TwitterAccount(Model):
     )  # EchoBird ユーザー
 
     # twikit 認証情報（どちらか一方でログイン）
-    email = CharField(max_length=255, null=True)  # ログイン用メールアドレス
+    email = CharField(
+        max_length=EMAIL_MAX_LENGTH, null=True
+    )  # ログイン用メールアドレス
     screen_name = CharField(
-        max_length=255, null=True
+        max_length=USERNAME_MAX_LENGTH, null=True
     )  # ログイン用スクリーンネーム（@なし）
-    password = CharField(max_length=500)  # 暗号化されたパスワード
+    password = CharField(max_length=TOKEN_MAX_LENGTH)  # 暗号化されたパスワード
 
     # セッション情報
     cookies = TextField(null=True)  # twikit のセッション Cookie (JSON 形式で保存)
-    auth_token = CharField(max_length=500, null=True)  # 認証トークン
-    ct0 = CharField(max_length=500, null=True)  # CSRF トークン
+    auth_token = CharField(max_length=TOKEN_MAX_LENGTH, null=True)  # 認証トークン
+    ct0 = CharField(max_length=TOKEN_MAX_LENGTH, null=True)  # CSRF トークン
 
     # アカウント情報（twikit から取得）
     twitter_user_id = CharField(
-        max_length=50, null=True, unique=True
+        max_length=TWITTER_ID_LENGTH, null=True, unique=True
     )  # Twitter 側のユーザー ID
-    display_name = CharField(max_length=255, null=True)  # 表示名
-    profile_image_url = CharField(max_length=500, null=True)  # プロフィール画像 URL
+    display_name = CharField(max_length=USERNAME_MAX_LENGTH, null=True)  # 表示名
+    profile_image_url = CharField(
+        max_length=URL_MAX_LENGTH, null=True
+    )  # プロフィール画像 URL
 
     # 状態管理
-    is_active = BooleanField(default=True)  # アカウントがアクティブかどうか
-    is_logged_in = BooleanField(default=False)  # 現在ログイン中かどうか
+    is_active = BooleanField(
+        default=DEFAULT_IS_ACTIVE
+    )  # アカウントがアクティブかどうか
+    is_logged_in = BooleanField(default=DEFAULT_IS_LOGGED_IN)  # 現在ログイン中かどうか
     last_login_at = DatetimeField(null=True)  # 最後にログインした日時
 
     # エラー・制限管理
-    is_suspended = BooleanField(default=False)  # Twitter 側で凍結されているかどうか
-    is_locked = BooleanField(default=False)  # アカウントがロックされているかどうか
+    is_suspended = BooleanField(
+        default=DEFAULT_IS_SUSPENDED
+    )  # Twitter 側で凍結されているかどうか
+    is_locked = BooleanField(
+        default=DEFAULT_IS_LOCKED
+    )  # アカウントがロックされているかどうか
     rate_limit_exceeded_at = DatetimeField(null=True)  # レート制限に達した日時
     last_error = TextField(null=True)  # 最後に発生したエラー
-    error_count = IntField(default=0)  # エラー発生回数
+    error_count = IntField(default=DEFAULT_COUNT)  # エラー発生回数
 
     created_at = DatetimeField(auto_now_add=True)  # レコード作成日時
     updated_at = DatetimeField(auto_now=True)  # レコード更新日時
 
     class Meta:
-        table = 'twitter_accounts'
+        table = TABLE_TWITTER_ACCOUNTS
 
     def __str__(self):
         login_identifier = self.screen_name or self.email or 'Unknown'
-        status = 'Active' if self.is_active and not self.is_suspended else 'Suspended'
+        status = (
+            TWITTER_ACCOUNT_STATUS_ACTIVE
+            if self.is_active and not self.is_suspended
+            else TWITTER_ACCOUNT_STATUS_SUSPENDED
+        )
         return f'{login_identifier} ({status})'

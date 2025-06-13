@@ -12,6 +12,15 @@ from tortoise.fields import (
 )
 from tortoise.models import Model
 
+from app.constants import (
+    DEFAULT_COUNT,
+    MEDIA_KEY_LENGTH,
+    MEDIA_STATUS_PENDING,
+    MEDIA_TYPE_LENGTH,
+    TABLE_MEDIA,
+    URL_MAX_LENGTH,
+)
+
 
 class Media(Model):
     """
@@ -26,21 +35,21 @@ class Media(Model):
 
     # メディア基本情報
     media_key = CharField(
-        max_length=100, unique=True
+        max_length=MEDIA_KEY_LENGTH, unique=True
     )  # メディアキー (twikit: Media.media_key)
     media_type = CharField(
-        max_length=20
+        max_length=MEDIA_TYPE_LENGTH
     )  # メディアタイプ: photo, video, animated_gif (twikit: Media.type)
 
     # URL 情報
     media_url = CharField(
-        max_length=500, null=True
+        max_length=URL_MAX_LENGTH, null=True
     )  # メディア URL (twikit: Media.media_url_https)
     display_url = CharField(
-        max_length=500, null=True
+        max_length=URL_MAX_LENGTH, null=True
     )  # 表示用 URL (twikit: Media.display_url)
     expanded_url = CharField(
-        max_length=500, null=True
+        max_length=URL_MAX_LENGTH, null=True
     )  # 展開された URL (twikit: Media.expanded_url)
 
     # 画像情報
@@ -50,7 +59,7 @@ class Media(Model):
     # 動画・GIF 情報
     duration_ms = IntField(null=True)  # 再生時間（ミリ秒）(twikit: Media.duration_ms)
     preview_image_url = CharField(
-        max_length=500, null=True
+        max_length=URL_MAX_LENGTH, null=True
     )  # サムネイル URL (twikit: Media.preview_image_url)
 
     # 動画のバリアント情報（解像度別の URL など）
@@ -61,19 +70,21 @@ class Media(Model):
     additional_media_info = JSONField(null=True)  # 追加のメディア情報
 
     # ローカル保存情報
-    local_path = CharField(max_length=500, null=True)  # ローカルに保存した場合のパス
+    local_path = CharField(
+        max_length=URL_MAX_LENGTH, null=True
+    )  # ローカルに保存した場合のパス
     file_size = IntField(null=True)  # ファイルサイズ（バイト）
     is_downloaded = CharField(
-        max_length=20, default='pending'
+        max_length=MEDIA_TYPE_LENGTH, default=MEDIA_STATUS_PENDING
     )  # ダウンロード状態: pending, downloading, completed, failed
-    download_attempts = IntField(default=0)  # ダウンロード試行回数
+    download_attempts = IntField(default=DEFAULT_COUNT)  # ダウンロード試行回数
     downloaded_at = DatetimeField(null=True)  # ダウンロード完了日時
 
     created_at = DatetimeField(auto_now_add=True)  # レコード作成日時
     updated_at = DatetimeField(auto_now=True)  # レコード更新日時
 
     class Meta:
-        table = 'media'
+        table = TABLE_MEDIA
         indexes: ClassVar = [
             ('tweet', 'media_type'),  # ツイート別・タイプ別の検索用
             ('is_downloaded',),  # ダウンロード状態での絞り込み用

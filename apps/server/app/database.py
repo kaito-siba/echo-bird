@@ -3,10 +3,10 @@ import pkgutil
 
 from tortoise import Tortoise
 
+from app.constants import DEFAULT_DATABASE_URL
+
 # 環境変数からデータベースURLを取得（デフォルトはローカル開発用）
-DATABASE_URL = os.getenv(
-    'DATABASE_URL', 'postgres://postgres:password@localhost:5432/echo_bird'
-)
+DATABASE_URL = os.getenv('DATABASE_URL', DEFAULT_DATABASE_URL)
 
 __model_list = [name for _, name, _ in pkgutil.iter_modules(path=['app/models'])]
 TORTOISE_ORM = {

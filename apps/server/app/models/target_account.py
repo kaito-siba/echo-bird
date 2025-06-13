@@ -10,6 +10,18 @@ from tortoise.fields import (
 )
 from tortoise.models import Model
 
+from app.constants import (
+    DEFAULT_COUNT,
+    DEFAULT_INTERVAL_MINUTES,
+    DEFAULT_IS_ACTIVE,
+    DEFAULT_IS_VERIFIED,
+    DEFAULT_MAX_TWEETS_PER_FETCH,
+    FIELD_LENGTH_MEDIUM,
+    TABLE_TARGET_ACCOUNTS,
+    TWITTER_ID_LENGTH,
+    URL_MAX_LENGTH,
+)
+
 
 class TargetAccount(Model):
     """
@@ -24,51 +36,75 @@ class TargetAccount(Model):
 
     # 基本情報 (twikit: User)
     twitter_user_id = CharField(
-        max_length=50, unique=True
+        max_length=TWITTER_ID_LENGTH, unique=True
     )  # Twitter 側のユーザー ID (twikit: User.id)
-    username = CharField(max_length=255)  # @なしのユーザー名 (twikit: User.screen_name)
-    display_name = CharField(max_length=255, null=True)  # 表示名 (twikit: User.name)
+    username = CharField(
+        max_length=FIELD_LENGTH_MEDIUM
+    )  # @なしのユーザー名 (twikit: User.screen_name)
+    display_name = CharField(
+        max_length=FIELD_LENGTH_MEDIUM, null=True
+    )  # 表示名 (twikit: User.name)
     description = TextField(null=True)  # 自己紹介文 (twikit: User.description)
-    location = CharField(max_length=255, null=True)  # 場所 (twikit: User.location)
-    url = CharField(max_length=500, null=True)  # プロフィール URL (twikit: User.url)
+    location = CharField(
+        max_length=FIELD_LENGTH_MEDIUM, null=True
+    )  # 場所 (twikit: User.location)
+    url = CharField(
+        max_length=URL_MAX_LENGTH, null=True
+    )  # プロフィール URL (twikit: User.url)
 
     # プロフィール画像
     profile_image_url = CharField(
-        max_length=500, null=True
+        max_length=URL_MAX_LENGTH, null=True
     )  # プロフィール画像 URL (twikit: User.profile_image_url_https)
     profile_banner_url = CharField(
-        max_length=500, null=True
+        max_length=URL_MAX_LENGTH, null=True
     )  # ヘッダー画像 URL (twikit: User.profile_banner_url)
 
     # アカウント状態
-    is_active = BooleanField(default=True)  # アクティブにツイートを取得するかどうか
+    is_active = BooleanField(
+        default=DEFAULT_IS_ACTIVE
+    )  # アクティブにツイートを取得するかどうか
     is_protected = BooleanField(
-        default=False
+        default=DEFAULT_IS_VERIFIED
     )  # 非公開アカウントかどうか (twikit: User.protected)
     is_verified = BooleanField(
-        default=False
+        default=DEFAULT_IS_VERIFIED
     )  # 認証済みアカウントかどうか (twikit: User.verified)
     is_blue_verified = BooleanField(
-        default=False
+        default=DEFAULT_IS_VERIFIED
     )  # Twitter Blue 認証 (twikit: User.is_blue_verified)
 
     # 統計情報
-    followers_count = IntField(default=0)  # フォロワー数 (twikit: User.followers_count)
-    following_count = IntField(default=0)  # フォロー数 (twikit: User.friends_count)
-    tweets_count = IntField(default=0)  # ツイート数 (twikit: User.statuses_count)
+    followers_count = IntField(
+        default=DEFAULT_COUNT
+    )  # フォロワー数 (twikit: User.followers_count)
+    following_count = IntField(
+        default=DEFAULT_COUNT
+    )  # フォロー数 (twikit: User.friends_count)
+    tweets_count = IntField(
+        default=DEFAULT_COUNT
+    )  # ツイート数 (twikit: User.statuses_count)
     listed_count = IntField(
-        default=0
+        default=DEFAULT_COUNT
     )  # リストに追加されている数 (twikit: User.listed_count)
-    favorites_count = IntField(default=0)  # いいね数 (twikit: User.favourites_count)
+    favorites_count = IntField(
+        default=DEFAULT_COUNT
+    )  # いいね数 (twikit: User.favourites_count)
 
     # 取得管理
     last_fetched_at = DatetimeField(null=True)  # 最後にツイートを取得した日時
-    last_tweet_id = CharField(max_length=50, null=True)  # 最後に取得したツイート ID
-    fetch_interval_minutes = IntField(default=60)  # 取得間隔（分）
-    max_tweets_per_fetch = IntField(default=100)  # 一度に取得する最大ツイート数
+    last_tweet_id = CharField(
+        max_length=TWITTER_ID_LENGTH, null=True
+    )  # 最後に取得したツイート ID
+    fetch_interval_minutes = IntField(
+        default=DEFAULT_INTERVAL_MINUTES
+    )  # 取得間隔（分）
+    max_tweets_per_fetch = IntField(
+        default=DEFAULT_MAX_TWEETS_PER_FETCH
+    )  # 一度に取得する最大ツイート数
 
     # エラー管理
-    consecutive_errors = IntField(default=0)  # 連続エラー回数
+    consecutive_errors = IntField(default=DEFAULT_COUNT)  # 連続エラー回数
     last_error = TextField(null=True)  # 最後のエラーメッセージ
     last_error_at = DatetimeField(null=True)  # 最後のエラー発生日時
 
@@ -80,7 +116,7 @@ class TargetAccount(Model):
     updated_at = DatetimeField(auto_now=True)  # レコード更新日時
 
     class Meta:
-        table = 'target_accounts'
+        table = TABLE_TARGET_ACCOUNTS
 
     def __str__(self):
         return f'@{self.username} ({"Active" if self.is_active else "Inactive"})'
