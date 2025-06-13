@@ -4,6 +4,7 @@ from typing import Any
 from fastapi import FastAPI
 
 from app.database import close_db, init_db
+from app.routers import users
 
 
 @asynccontextmanager
@@ -16,6 +17,9 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan, title='Echo Bird API', version='0.1.0')
+
+# ルーターを登録
+app.include_router(users.router)
 
 
 @app.get('/')
