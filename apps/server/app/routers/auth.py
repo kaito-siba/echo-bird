@@ -1,7 +1,8 @@
 from datetime import timedelta
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.models.user import User
 from app.utils.auth import authenticate_user, create_access_token, get_current_user
@@ -26,10 +27,14 @@ class TokenResponse(BaseModel):
 class UserMeResponse(BaseModel):
     """現在のユーザー情報レスポンス"""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     username: str
     is_active: bool
     is_admin: bool
+    created_at: Any
+    updated_at: Any
 
 
 @router.post('/login', response_model=TokenResponse)
@@ -54,9 +59,4 @@ async def LoginAPI(request: LoginRequest) -> TokenResponse:
 @router.get('/me', response_model=UserMeResponse)
 async def UserMeAPI(current_user: User = Depends(get_current_user)) -> UserMeResponse:
     """現在のユーザー情報取得API（認証が必要）"""
-    return UserMeResponse(
-        id=current_user.id,
-        username=current_user.username,
-        is_active=current_user.is_active,
-        is_admin=current_user.is_admin,
-    )
+    return UserMeResponse.model_validate(current_user)

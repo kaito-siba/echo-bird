@@ -93,6 +93,18 @@ async def get_current_user(
     return user
 
 
+async def get_current_admin_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """現在のユーザーが管理者権限を持つかチェックする"""
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Admin access required',
+        )
+    return current_user
+
+
 async def authenticate_user(username: str, password: str) -> User | None:
     """ユーザーを認証する（username でログイン）"""
     # ユーザー名でユーザーを検索

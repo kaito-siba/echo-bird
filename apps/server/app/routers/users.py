@@ -1,11 +1,11 @@
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict
 from tortoise.exceptions import IntegrityError
 
 from app.models.user import User
-from app.utils.auth import hash_password
+from app.utils.auth import get_current_admin_user, hash_password
 
 router = APIRouter(prefix='/api/v1/users', tags=['users'])
 
@@ -21,6 +21,7 @@ class UserUpdateRequest(BaseModel):
     """ユーザー更新リクエスト"""
 
     username: str | None = None
+    is_admin: bool | None = None
 
 
 class UserResponse(BaseModel):
@@ -37,15 +38,20 @@ class UserResponse(BaseModel):
 
 
 @router.get('', response_model=list[UserResponse])
-async def UserListAPI() -> list[UserResponse]:
-    """ユーザー一覧取得API"""
+async def UserListAPI(
+    _admin_user: User = Depends(get_current_admin_user),
+) -> list[UserResponse]:
+    """ユーザー一覧取得API（管理者のみ）"""
     users = await User.all()
     return [UserResponse.model_validate(user) for user in users]
 
 
 @router.post('', response_model=UserResponse, status_code=201)
-async def UserCreateAPI(request: UserCreateRequest) -> UserResponse:
-    """ユーザー作成API"""
+async def UserCreateAPI(
+    request: UserCreateRequest,
+    _admin_user: User = Depends(get_current_admin_user),
+) -> UserResponse:
+    """ユーザー作成API（管理者のみ）"""
     try:
         # パスワードをハッシュ化
         password_hash = hash_password(request.password)
@@ -69,8 +75,11 @@ async def UserCreateAPI(request: UserCreateRequest) -> UserResponse:
 
 
 @router.get('/{user_id}', response_model=UserResponse)
-async def UserDetailAPI(user_id: int) -> UserResponse:
-    """ユーザー詳細取得API"""
+async def UserDetailAPI(
+    user_id: int,
+    _admin_user: User = Depends(get_current_admin_user),
+) -> UserResponse:
+    """ユーザー詳細取得API（管理者のみ）"""
     user = await User.filter(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail='User not found')
@@ -79,8 +88,12 @@ async def UserDetailAPI(user_id: int) -> UserResponse:
 
 
 @router.put('/{user_id}', response_model=UserResponse)
-async def UserUpdateAPI(user_id: int, request: UserUpdateRequest) -> UserResponse:
-    """ユーザー更新API"""
+async def UserUpdateAPI(
+    user_id: int,
+    request: UserUpdateRequest,
+    _admin_user: User = Depends(get_current_admin_user),
+) -> UserResponse:
+    """ユーザー更新API（管理者のみ）"""
     user = await User.filter(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail='User not found')
@@ -89,6 +102,8 @@ async def UserUpdateAPI(user_id: int, request: UserUpdateRequest) -> UserRespons
     update_data = {}
     if request.username is not None:
         update_data['username'] = request.username
+    if request.is_admin is not None:
+        update_data['is_admin'] = request.is_admin
 
     try:
         # ユーザー情報を更新
@@ -108,8 +123,11 @@ async def UserUpdateAPI(user_id: int, request: UserUpdateRequest) -> UserRespons
 
 
 @router.delete('/{user_id}', status_code=204)
-async def UserDeleteAPI(user_id: int) -> None:
-    """ユーザー削除API"""
+async def UserDeleteAPI(
+    user_id: int,
+    _admin_user: User = Depends(get_current_admin_user),
+) -> None:
+    """ユーザー削除API（管理者のみ）"""
     user = await User.filter(id=user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail='User not found')
