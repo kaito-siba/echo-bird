@@ -3,7 +3,6 @@ from typing import Any
 
 from fastapi import FastAPI
 
-from app.api import router as api_router
 from app.database import close_db, init_db
 
 
@@ -17,9 +16,6 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan, title='Echo Bird API', version='0.1.0')
-
-# APIルーターを追加
-app.include_router(api_router, prefix='/api/v1')
 
 
 @app.get('/')

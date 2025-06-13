@@ -68,7 +68,6 @@ dist-ssr/
 .env.production
 
 # Logs
-logs/
 *.log
 
 # OS
