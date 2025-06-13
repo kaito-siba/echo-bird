@@ -54,5 +54,5 @@ line-ending = "auto"
 
 [tool.aerich]
 tortoise_orm = "app.database.TORTOISE_ORM"
-location = "./migrations"
-src_folder = "./app"
+location = "./app/migrations"
+src_folder = "./"

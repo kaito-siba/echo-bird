@@ -1,4 +1,5 @@
 import os
+import pkgutil
 
 from tortoise import Tortoise
 
@@ -7,13 +8,15 @@ DATABASE_URL = os.getenv(
     'DATABASE_URL', 'postgres://postgres:password@localhost:5432/echo_bird'
 )
 
+__model_list = [name for _, name, _ in pkgutil.iter_modules(path=['app/models'])]
 TORTOISE_ORM = {
     'connections': {'default': DATABASE_URL},
     'apps': {
         'models': {
-            'models': ['app.models', 'aerich.models'],
+            'models': [f'app.models.{name}' for name in __model_list]
+            + ['aerich.models'],
             'default_connection': 'default',
-        },
+        }
     },
 }
 
