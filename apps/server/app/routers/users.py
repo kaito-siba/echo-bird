@@ -1,4 +1,3 @@
-import hashlib
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -6,6 +5,7 @@ from pydantic import BaseModel, ConfigDict
 from tortoise.exceptions import IntegrityError
 
 from app.models.user import User
+from app.utils.auth import hash_password
 
 router = APIRouter(prefix='/api/v1/users', tags=['users'])
 
@@ -37,11 +37,6 @@ class UserResponse(BaseModel):
     is_admin: bool
     created_at: Any
     updated_at: Any
-
-
-def hash_password(password: str) -> str:
-    """パスワードをハッシュ化する"""
-    return hashlib.sha256(password.encode()).hexdigest()
 
 
 @router.get('', response_model=list[UserResponse])
