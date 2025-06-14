@@ -18,7 +18,6 @@ import {
   errorMessage,
   mutationErrorContainer,
 } from '../styles/admin-form.css';
-import { errorContainer } from '../styles/admin.css';
 import { authGuard } from '../utils/auth-guard';
 import {
   createTargetAccount,
@@ -44,23 +43,9 @@ function TargetAccountCreate() {
   };
 
   // 認証済み Twitter アカウント一覧を取得
-  const { data: twitterAccountsData, error: twitterAccountsError } =
-    useSuspenseQuery(twitterAccountListQueryOptions);
-
-  // エラーハンドリング
-  if (twitterAccountsError) {
-    return (
-      <div className={formContainer}>
-        <div className={formHeader}>
-          <h1>新しいターゲットアカウントを追加</h1>
-        </div>
-        <div className={errorContainer}>
-          認証済み Twitter アカウントの取得に失敗しました:{' '}
-          {twitterAccountsError.message}
-        </div>
-      </div>
-    );
-  }
+  const { data: twitterAccountsData } = useSuspenseQuery(
+    twitterAccountListQueryOptions,
+  );
 
   // 認証済みアカウントがない場合
   if (twitterAccountsData.accounts.length === 0) {
@@ -69,7 +54,7 @@ function TargetAccountCreate() {
         <div className={formHeader}>
           <h1>新しいターゲットアカウントを追加</h1>
         </div>
-        <div className={errorContainer}>
+        <div style={{ color: '#d32f2f', marginBottom: '1rem' }}>
           認証済み Twitter アカウントがありません。まず Twitter
           アカウントを認証してください。
         </div>

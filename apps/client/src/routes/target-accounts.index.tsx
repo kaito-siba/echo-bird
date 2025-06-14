@@ -11,13 +11,9 @@ import {
   searchInput,
   actionButton,
   createButton,
-  errorContainer,
   statusBadge,
 } from '../styles/admin.css';
-import {
-  targetAccountListQueryOptions,
-  type TargetAccount,
-} from '../integrations/tanstack-query/queries/target-account';
+import { targetAccountListQueryOptions } from '../integrations/tanstack-query/queries/target-account';
 import { authGuard } from '../utils/auth-guard';
 
 export const Route = createFileRoute('/target-accounts/')({
@@ -33,21 +29,7 @@ function TargetAccounts() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // APIからターゲットアカウント一覧を取得
-  const { data, error } = useSuspenseQuery(targetAccountListQueryOptions);
-
-  // エラーハンドリング
-  if (error) {
-    return (
-      <div className={container}>
-        <div className={header}>
-          <h1>ターゲットアカウント管理</h1>
-        </div>
-        <div className={errorContainer}>
-          エラーが発生しました: {error.message}
-        </div>
-      </div>
-    );
-  }
+  const { data } = useSuspenseQuery(targetAccountListQueryOptions);
 
   // Filter accounts based on search term
   const filteredAccounts = useMemo(() => {

@@ -43,9 +43,7 @@ function UserEdit() {
   const queryClient = useQueryClient();
 
   // APIからユーザーデータを取得
-  const { data: userData } = useSuspenseQuery(
-    userDetailQueryOptions(userId),
-  );
+  const { data: userData } = useSuspenseQuery(userDetailQueryOptions(userId));
 
   const [formData, setFormData] = useState({
     username: userData.username,
