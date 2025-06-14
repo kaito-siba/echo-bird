@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.constants import (
     API_RESPONSE_HEALTH_OK,
@@ -24,6 +25,18 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, title=APP_NAME, version=APP_VERSION)
 
+# CORS設定 - 開発環境用
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        'http://localhost:5173',  # Vite開発サーバー
+        'http://127.0.0.1:5173',
+    ],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
+
 # ルーターを登録
 app.include_router(auth.router)
 app.include_router(users.router)
@@ -31,11 +44,11 @@ app.include_router(twitter_auth.router)
 app.include_router(target_accounts.router)
 
 
-@app.get('/')
+@app.get('/api/v1/')
 async def root() -> dict[str, Any]:
     return {'message': API_RESPONSE_HELLO}
 
 
-@app.get('/health')
+@app.get('/api/v1/health')
 async def health_check() -> dict[str, str]:
     return {'status': API_RESPONSE_HEALTH_OK}

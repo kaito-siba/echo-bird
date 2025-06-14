@@ -15,6 +15,14 @@ export default function Header() {
         <div className="px-2 font-bold">
           <Link to="/demo/store">Store</Link>
         </div>
+
+        <div className="px-2 font-bold">
+          <Link to="/admin/users">Admin</Link>
+        </div>
+
+        <div className="px-2 font-bold">
+          <Link to="/login">Login</Link>
+        </div>
       </nav>
     </header>
   );
