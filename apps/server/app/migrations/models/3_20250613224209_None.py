@@ -122,28 +122,24 @@ CREATE TABLE IF NOT EXISTS "read_tweets" (
 COMMENT ON TABLE "read_tweets" IS 'ユーザーが既読したツイートを管理するモデル';
 CREATE TABLE IF NOT EXISTS "twitter_accounts" (
     "id" BIGSERIAL NOT NULL PRIMARY KEY,
+    "twitter_id" VARCHAR(50) NOT NULL UNIQUE,
+    "username" VARCHAR(255) NOT NULL,
+    "display_name" VARCHAR(255) NOT NULL,
     "email" VARCHAR(255),
-    "screen_name" VARCHAR(255),
-    "password" VARCHAR(500) NOT NULL,
-    "cookies" TEXT,
-    "auth_token" VARCHAR(500),
-    "ct0" VARCHAR(500),
-    "twitter_user_id" VARCHAR(50) UNIQUE,
-    "display_name" VARCHAR(255),
-    "profile_image_url" VARCHAR(500),
+    "password_encrypted" TEXT,
+    "cookies_data" TEXT,
     "is_active" BOOL NOT NULL DEFAULT True,
-    "is_logged_in" BOOL NOT NULL DEFAULT False,
-    "last_login_at" INT,
-    "is_suspended" BOOL NOT NULL DEFAULT False,
-    "is_locked" BOOL NOT NULL DEFAULT False,
-    "rate_limit_exceeded_at" INT,
-    "last_error" TEXT,
-    "error_count" INT NOT NULL DEFAULT 0,
+    "status" VARCHAR(50) NOT NULL DEFAULT 'Active',
+    "profile_image_url" VARCHAR(500),
+    "bio" TEXT,
+    "followers_count" INT NOT NULL DEFAULT 0,
+    "following_count" INT NOT NULL DEFAULT 0,
     "created_at" INT NOT NULL,
     "updated_at" INT NOT NULL,
+    "last_login_at" INT,
     "user_id" BIGINT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE
 );
-COMMENT ON TABLE "twitter_accounts" IS '認証用 Twitter アカウント情報を管理するモデル';
+COMMENT ON TABLE "twitter_accounts" IS 'Twitter アカウント情報を管理するモデル';
 CREATE TABLE IF NOT EXISTS "aerich" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "version" VARCHAR(255) NOT NULL,

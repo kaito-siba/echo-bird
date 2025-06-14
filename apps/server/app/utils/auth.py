@@ -53,18 +53,18 @@ def verify_token(token: str) -> dict[str, Any]:
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
         return payload
-    except jwt.ExpiredSignatureError:
+    except jwt.ExpiredSignatureError as ex:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Token has expired',
             headers={'WWW-Authenticate': 'Bearer'},
-        )
-    except jwt.InvalidTokenError:
+        ) from ex
+    except jwt.InvalidTokenError as ex:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Could not validate credentials',
             headers={'WWW-Authenticate': 'Bearer'},
-        )
+        ) from ex
 
 
 async def get_current_user(
