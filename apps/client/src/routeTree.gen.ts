@@ -12,7 +12,9 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as TimelineImport } from './routes/timeline'
+import { Route as SettingsImport } from './routes/settings'
 import { Route as LoginImport } from './routes/login'
+import { Route as BookmarksImport } from './routes/bookmarks'
 import { Route as IndexImport } from './routes/index'
 import { Route as TwitterAccountsIndexImport } from './routes/twitter-accounts.index'
 import { Route as TargetAccountsIndexImport } from './routes/target-accounts.index'
@@ -35,9 +37,21 @@ const TimelineRoute = TimelineImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const SettingsRoute = SettingsImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const LoginRoute = LoginImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const BookmarksRoute = BookmarksImport.update({
+  id: '/bookmarks',
+  path: '/bookmarks',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -130,11 +144,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/bookmarks': {
+      id: '/bookmarks'
+      path: '/bookmarks'
+      fullPath: '/bookmarks'
+      preLoaderRoute: typeof BookmarksImport
+      parentRoute: typeof rootRoute
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsImport
       parentRoute: typeof rootRoute
     }
     '/timeline': {
@@ -235,7 +263,9 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bookmarks': typeof BookmarksRoute
   '/login': typeof LoginRoute
+  '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -253,7 +283,9 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bookmarks': typeof BookmarksRoute
   '/login': typeof LoginRoute
+  '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -272,7 +304,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/bookmarks': typeof BookmarksRoute
   '/login': typeof LoginRoute
+  '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -292,7 +326,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bookmarks'
     | '/login'
+    | '/settings'
     | '/timeline'
     | '/demo/store'
     | '/demo/tanstack-query'
@@ -309,7 +345,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bookmarks'
     | '/login'
+    | '/settings'
     | '/timeline'
     | '/demo/store'
     | '/demo/tanstack-query'
@@ -326,7 +364,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/bookmarks'
     | '/login'
+    | '/settings'
     | '/timeline'
     | '/demo/store'
     | '/demo/tanstack-query'
@@ -345,7 +385,9 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BookmarksRoute: typeof BookmarksRoute
   LoginRoute: typeof LoginRoute
+  SettingsRoute: typeof SettingsRoute
   TimelineRoute: typeof TimelineRoute
   DemoStoreRoute: typeof DemoStoreRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
@@ -363,7 +405,9 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BookmarksRoute: BookmarksRoute,
   LoginRoute: LoginRoute,
+  SettingsRoute: SettingsRoute,
   TimelineRoute: TimelineRoute,
   DemoStoreRoute: DemoStoreRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
@@ -390,7 +434,9 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/bookmarks",
         "/login",
+        "/settings",
         "/timeline",
         "/demo/store",
         "/demo/tanstack-query",
@@ -409,8 +455,14 @@ export const routeTree = rootRoute
     "/": {
       "filePath": "index.tsx"
     },
+    "/bookmarks": {
+      "filePath": "bookmarks.tsx"
+    },
     "/login": {
       "filePath": "login.tsx"
+    },
+    "/settings": {
+      "filePath": "settings.tsx"
     },
     "/timeline": {
       "filePath": "timeline.tsx"

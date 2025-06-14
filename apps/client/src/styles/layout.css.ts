@@ -238,3 +238,23 @@ export const statValue = style({
   fontWeight: '600',
   color: colors.gray[900],
 });
+
+// ログアウトセクション
+export const logoutSection = style({
+  marginTop: '24px',
+});
+
+export const logoutButton = style([
+  navItem,
+  {
+    color: '#dc2626', // より濃い赤色
+    borderTop: `1px solid ${colors.gray[200]}`,
+    paddingTop: '16px',
+    marginTop: '16px',
+
+    ':hover': {
+      backgroundColor: '#fee2e2', // 薄い赤色の背景
+      color: '#b91c1c', // ホバー時にさらに濃い赤色
+    },
+  },
+]);

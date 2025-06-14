@@ -1,7 +1,8 @@
-import { Outlet, createRootRouteWithContext } from '@tanstack/react-router';
+import { Outlet, createRootRouteWithContext, useLocation } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
 import Layout from '../components/Layout';
+import AuthLayout from '../components/AuthLayout';
 
 import TanStackQueryLayout from '../integrations/tanstack-query/layout.tsx';
 
@@ -48,12 +49,31 @@ function ErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+// レイアウトコンポーネント
+function RootComponent() {
+  const location = useLocation();
+
+  // ログインページの場合は認証レイアウトを使用
+  if (location.pathname === '/login') {
+    return (
+      <AuthLayout>
+        <Outlet />
+      </AuthLayout>
+    );
+  }
+
+  // その他のページは通常のレイアウト（サイドバー付き）を使用
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  );
+}
+
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
     <>
-      <Layout>
-        <Outlet />
-      </Layout>
+      <RootComponent />
       <TanStackRouterDevtools />
 
       <TanStackQueryLayout />

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Link, useLocation, useNavigate } from '@tanstack/react-router';
+import { removeAuthToken } from '../integrations/tanstack-query/queries/auth';
 import * as styles from '../styles/layout.css';
 
 interface CollapsibleSidebarProps {
@@ -10,12 +12,26 @@ export function CollapsibleSidebar({
   isCollapsed,
   onToggle,
 }: CollapsibleSidebarProps) {
-  const [activeItem, setActiveItem] = useState('timeline');
+  // 現在のパスを取得してアクティブ状態を管理
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // ログアウト処理
+  const handleLogout = () => {
+    // 確認ダイアログを表示
+    if (window.confirm('ログアウトしますか？')) {
+      // 認証トークンを削除
+      removeAuthToken();
+      // ログインページにリダイレクト
+      navigate({ to: '/login' });
+    }
+  };
 
   const navItems = [
     {
       id: 'timeline',
       label: 'タイムライン',
+      path: '/timeline',
       icon: (
         <svg
           viewBox="0 0 24 24"
@@ -33,6 +49,7 @@ export function CollapsibleSidebar({
     {
       id: 'bookmarks',
       label: 'ブックマーク',
+      path: '/bookmarks',
       icon: (
         <svg
           viewBox="0 0 24 24"
@@ -47,6 +64,7 @@ export function CollapsibleSidebar({
     {
       id: 'accounts',
       label: 'アカウント管理',
+      path: '/target-accounts',
       icon: (
         <svg
           viewBox="0 0 24 24"
@@ -62,6 +80,7 @@ export function CollapsibleSidebar({
     {
       id: 'settings',
       label: '設定',
+      path: '/settings',
       icon: (
         <svg
           viewBox="0 0 24 24"
@@ -126,23 +145,25 @@ export function CollapsibleSidebar({
         }
       >
         <nav className={styles.sidebarNav}>
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={
-                activeItem === item.id ? styles.navItemActive : styles.navItem
-              }
-              onClick={() => setActiveItem(item.id)}
-            >
-              <span className={styles.navIcon}>{item.icon}</span>
-              <span
-                className={isCollapsed ? styles.navTextHidden : styles.navText}
+          {navItems.map((item) => {
+            // 現在のパスと一致するかチェックしてアクティブ状態を決定
+            const isActive = location.pathname === item.path;
+
+            return (
+              <Link
+                key={item.id}
+                to={item.path}
+                className={isActive ? styles.navItemActive : styles.navItem}
               >
-                {item.label}
-              </span>
-            </button>
-          ))}
+                <span className={styles.navIcon}>{item.icon}</span>
+                <span
+                  className={isCollapsed ? styles.navTextHidden : styles.navText}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
         </nav>
 
         {/* 統計情報 */}
@@ -154,6 +175,33 @@ export function CollapsibleSidebar({
               <span className={styles.statValue}>{stat.value}</span>
             </div>
           ))}
+        </div>
+
+        {/* ログアウトボタン */}
+        <div className={styles.logoutSection}>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className={styles.logoutButton}
+          >
+            <span className={styles.navIcon}>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16,17 21,12 16,7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </span>
+            <span
+              className={isCollapsed ? styles.navTextHidden : styles.navText}
+            >
+              ログアウト
+            </span>
+          </button>
         </div>
       </div>
     </aside>

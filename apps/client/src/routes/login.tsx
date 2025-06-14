@@ -35,13 +35,13 @@ function LoginPage() {
       // ログイン成功時: トークンを保存してリダイレクト
       setAuthToken(data.access_token);
 
-      // 保存されたリダイレクト先があればそこへ、なければ管理者画面へリダイレクト
+      // 保存されたリダイレクト先があればそこへ、なければタイムラインへリダイレクト
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
       if (redirectPath) {
         sessionStorage.removeItem('redirectAfterLogin');
         window.location.href = redirectPath;
       } else {
-        navigate({ to: '/admin/users' });
+        navigate({ to: '/timeline' });
       }
     },
     onError: (error) => {
