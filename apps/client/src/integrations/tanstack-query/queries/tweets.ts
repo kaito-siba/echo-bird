@@ -1,0 +1,110 @@
+import { queryOptions } from '@tanstack/react-query';
+import { apiClientJson } from '../../../utils/api-client';
+
+// API レスポンス型定義
+interface TweetResponse {
+  id: number;
+  tweet_id: string;
+  content: string;
+  full_text: string | null;
+  lang: string | null;
+  likes_count: number;
+  retweets_count: number;
+  replies_count: number;
+  quotes_count: number;
+  views_count: number | null;
+  bookmark_count: number | null;
+  is_retweet: boolean;
+  is_quote: boolean;
+  retweeted_tweet_id: string | null;
+  quoted_tweet_id: string | null;
+  is_reply: boolean;
+  in_reply_to_tweet_id: string | null;
+  in_reply_to_user_id: string | null;
+  conversation_id: string | null;
+  hashtags: any[] | null;
+  urls: any[] | null;
+  user_mentions: any[] | null;
+  is_possibly_sensitive: boolean;
+  has_media: boolean;
+  posted_at: number;
+  created_at: number;
+  updated_at: number;
+  // ターゲットアカウント情報
+  target_account_id: number;
+  target_account_username: string;
+  target_account_display_name: string | null;
+  target_account_profile_image_url: string | null;
+  // リツイート・引用ツイート情報
+  original_author_username: string | null;
+  original_author_display_name: string | null;
+  original_author_profile_image_url: string | null;
+}
+
+interface TimelineResponse {
+  tweets: TweetResponse[];
+  total: number;
+  page: number;
+  page_size: number;
+  has_next: boolean;
+}
+
+interface TimelineParams {
+  page?: number;
+  page_size?: number;
+  target_account_id?: number;
+}
+
+// タイムライン取得API
+const fetchTimeline = async (
+  params?: TimelineParams,
+): Promise<TimelineResponse> => {
+  const searchParams = new URLSearchParams();
+
+  if (params?.page) {
+    searchParams.append('page', params.page.toString());
+  }
+
+  if (params?.page_size) {
+    searchParams.append('page_size', params.page_size.toString());
+  }
+
+  if (params?.target_account_id) {
+    searchParams.append(
+      'target_account_id',
+      params.target_account_id.toString(),
+    );
+  }
+
+  const url = `/tweets/timeline${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+
+  return apiClientJson<TimelineResponse>(url, {
+    method: 'GET',
+  });
+};
+
+// ツイート詳細取得API
+const fetchTweetDetail = async (tweetId: string): Promise<TweetResponse> => {
+  return apiClientJson<TweetResponse>(`/tweets/${tweetId}`, {
+    method: 'GET',
+  });
+};
+
+// TanStack Query options
+export const timelineQueryOptions = (params?: TimelineParams) =>
+  queryOptions({
+    queryKey: ['tweets', 'timeline', params],
+    queryFn: () => fetchTimeline(params),
+    staleTime: 30 * 1000, // 30秒間キャッシュ
+    retry: 3,
+  });
+
+export const tweetDetailQueryOptions = (tweetId: string) =>
+  queryOptions({
+    queryKey: ['tweets', 'detail', tweetId],
+    queryFn: () => fetchTweetDetail(tweetId),
+    staleTime: 5 * 60 * 1000, // 5分間キャッシュ
+    retry: 3,
+  });
+
+export type { TweetResponse, TimelineResponse, TimelineParams };

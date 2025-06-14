@@ -19,9 +19,11 @@ from app.constants import (
     DEFAULT_IS_QUOTE,
     DEFAULT_IS_REPLY,
     DEFAULT_IS_RETWEET,
+    FIELD_LENGTH_MEDIUM,
     LANGUAGE_CODE_LENGTH,
     TABLE_TWEETS,
     TWITTER_ID_LENGTH,
+    URL_MAX_LENGTH,
 )
 
 
@@ -93,6 +95,17 @@ class Tweet(Model):
     has_media = BooleanField(
         default=DEFAULT_HAS_MEDIA
     )  # メディア（画像・動画）を含むかどうか
+
+    # リツイート・引用ツイート元の作者情報
+    original_author_username = CharField(
+        max_length=FIELD_LENGTH_MEDIUM, null=True
+    )  # 元ツイート作者のユーザー名（リツイート・引用の場合）
+    original_author_display_name = CharField(
+        max_length=FIELD_LENGTH_MEDIUM, null=True
+    )  # 元ツイート作者の表示名（リツイート・引用の場合）
+    original_author_profile_image_url = CharField(
+        max_length=URL_MAX_LENGTH, null=True
+    )  # 元ツイート作者のプロフィール画像 URL（リツイート・引用の場合）
 
     posted_at = IntField()  # Twitter でツイートされた日時（Unix timestamp）
     created_at = IntField()  # レコード作成日時（Unix timestamp）

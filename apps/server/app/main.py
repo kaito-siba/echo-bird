@@ -11,7 +11,7 @@ from app.constants import (
     APP_VERSION,
 )
 from app.database import close_db, init_db
-from app.routers import auth, target_accounts, twitter_auth, users
+from app.routers import auth, target_accounts, tweets, twitter_auth, users
 
 
 @asynccontextmanager
@@ -42,6 +42,7 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(twitter_auth.router)
 app.include_router(target_accounts.router)
+app.include_router(tweets.router)
 
 
 @app.get('/api/v1/')

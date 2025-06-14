@@ -262,11 +262,104 @@ class TwitterService:
         try:
             current_time = int(time.time())
 
+            # リツイート・引用ツイートの場合の本文取得
+            is_retweet = hasattr(tweet_data, 'retweeted_status') or hasattr(
+                tweet_data, 'retweeted_tweet'
+            )
+            is_quote = hasattr(tweet_data, 'quoted_status') or hasattr(
+                tweet_data, 'quoted_tweet'
+            )
+
+            if is_retweet:
+                # リツイートの場合、元ツイートの本文を取得
+                retweeted_tweet = getattr(
+                    tweet_data, 'retweeted_status', None
+                ) or getattr(tweet_data, 'retweeted_tweet', None)
+                if retweeted_tweet:
+                    content = retweeted_tweet.text
+                    full_text = (
+                        getattr(retweeted_tweet, 'full_text', None)
+                        or retweeted_tweet.text
+                    )
+                    # 元ツイート作者の情報を取得
+                    original_author = getattr(retweeted_tweet, 'user', None)
+                    if original_author:
+                        original_author_username = getattr(
+                            original_author, 'screen_name', None
+                        )
+                        original_author_display_name = getattr(
+                            original_author, 'name', None
+                        )
+                        original_author_profile_image_url = getattr(
+                            original_author, 'profile_image_url_https', None
+                        )
+                    else:
+                        original_author_username = None
+                        original_author_display_name = None
+                        original_author_profile_image_url = None
+                else:
+                    content = tweet_data.text
+                    full_text = (
+                        getattr(tweet_data, 'full_text', None) or tweet_data.text
+                    )
+                    original_author_username = None
+                    original_author_display_name = None
+                    original_author_profile_image_url = None
+            elif is_quote:
+                # 引用ツイートの場合、引用部分 + 元ツイートの本文を結合
+                quoted_tweet = getattr(tweet_data, 'quoted_status', None) or getattr(
+                    tweet_data, 'quoted_tweet', None
+                )
+                if quoted_tweet:
+                    quote_content = quoted_tweet.text
+                    quote_full_text = (
+                        getattr(quoted_tweet, 'full_text', None) or quoted_tweet.text
+                    )
+                    # 引用ツイートのコメント部分と引用元を結合
+                    content = f'{tweet_data.text}\n\n引用: {quote_content}'
+                    full_text = f'{getattr(tweet_data, "full_text", None) or tweet_data.text}\n\n引用: {quote_full_text}'
+                    # 引用元作者の情報を取得
+                    quoted_author = getattr(quoted_tweet, 'user', None)
+                    if quoted_author:
+                        original_author_username = getattr(
+                            quoted_author, 'screen_name', None
+                        )
+                        original_author_display_name = getattr(
+                            quoted_author, 'name', None
+                        )
+                        original_author_profile_image_url = getattr(
+                            quoted_author, 'profile_image_url_https', None
+                        )
+                    else:
+                        original_author_username = None
+                        original_author_display_name = None
+                        original_author_profile_image_url = None
+                else:
+                    content = tweet_data.text
+                    full_text = (
+                        getattr(tweet_data, 'full_text', None) or tweet_data.text
+                    )
+                    original_author_username = None
+                    original_author_display_name = None
+                    original_author_profile_image_url = None
+            else:
+                # 通常のツイート
+                content = tweet_data.text
+                full_text = getattr(tweet_data, 'full_text', None) or tweet_data.text
+                original_author_username = None
+                original_author_display_name = None
+                original_author_profile_image_url = None
+
+            # デバッグログ
+            logger.info(
+                f'Tweet {tweet_data.id}: is_retweet={is_retweet}, is_quote={is_quote}, content_length={len(content)}, full_text_length={len(full_text)}'
+            )
+
             await Tweet.create(
                 tweet_id=tweet_data.id,
                 target_account=target_account,
-                content=tweet_data.text,
-                full_text=tweet_data.full_text,
+                content=content,
+                full_text=full_text,
                 lang=tweet_data.lang,
                 likes_count=getattr(tweet_data, 'favorite_count', 0),
                 retweets_count=getattr(tweet_data, 'retweet_count', 0),
@@ -287,6 +380,10 @@ class TwitterService:
                 user_mentions=getattr(tweet_data, 'user_mentions', None),
                 is_possibly_sensitive=False,  # TODO delete it
                 has_media=getattr(tweet_data, 'has_media', False),
+                # 元ツイート作者情報
+                original_author_username=original_author_username,
+                original_author_display_name=original_author_display_name,
+                original_author_profile_image_url=original_author_profile_image_url,
                 posted_at=self._parse_twitter_date(tweet_data.created_at),
                 created_at=current_time,
                 updated_at=current_time,
