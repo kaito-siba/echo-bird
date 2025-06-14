@@ -1,4 +1,5 @@
 import { queryOptions } from '@tanstack/react-query'
+import { apiClientJson, apiClientPublicJson } from '../../../lib/api-client'
 
 // API レスポンス型定義
 interface LoginRequest {
@@ -20,13 +21,6 @@ interface UserMeResponse {
   updated_at: number
 }
 
-interface ApiError {
-  detail: string
-}
-
-// APIベースURL（Viteプロキシ設定により相対パスを使用）
-const API_BASE_URL = '/api/v1'
-
 // 認証トークンの管理
 export const getAuthToken = (): string | null => {
   return localStorage.getItem('token')
@@ -34,28 +28,22 @@ export const getAuthToken = (): string | null => {
 
 export const setAuthToken = (token: string): void => {
   localStorage.setItem('token', token)
+  // トークン変更を通知
+  window.dispatchEvent(new Event('tokenChange'))
 }
 
 export const removeAuthToken = (): void => {
   localStorage.removeItem('token')
+  // トークン変更を通知
+  window.dispatchEvent(new Event('tokenChange'))
 }
 
 // ログインAPI
 export const login = async (credentials: LoginRequest): Promise<TokenResponse> => {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+  return apiClientPublicJson<TokenResponse>('/auth/login', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(credentials),
   })
-
-  if (!response.ok) {
-    const errorData: ApiError = await response.json()
-    throw new Error(errorData.detail || 'ログインに失敗しました')
-  }
-
-  return response.json()
 }
 
 // 現在のユーザー情報取得API
@@ -63,23 +51,13 @@ const fetchCurrentUser = async (): Promise<UserMeResponse> => {
   const token = getAuthToken()
 
   if (!token) {
+    // トークンがない場合はエラーを投げるだけ（リダイレクトはauthGuardで処理）
     throw new Error('認証トークンが見つかりません')
   }
 
-  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+  return apiClientJson<UserMeResponse>('/auth/me', {
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
   })
-
-  if (!response.ok) {
-    const errorData: ApiError = await response.json()
-    throw new Error(errorData.detail || 'ユーザー情報の取得に失敗しました')
-  }
-
-  return response.json()
 }
 
 // TanStack Query options

@@ -1,7 +1,7 @@
 import { Outlet, createRootRouteWithContext } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
-import Header from '../components/Header';
+import Layout from '../components/Layout';
 
 import TanStackQueryLayout from '../integrations/tanstack-query/layout.tsx';
 
@@ -14,9 +14,9 @@ interface MyRouterContext {
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
     <>
-      <Header />
-
-      <Outlet />
+      <Layout>
+        <Outlet />
+      </Layout>
       <TanStackRouterDevtools />
 
       <TanStackQueryLayout />

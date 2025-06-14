@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query'
-import { getAuthToken } from './auth'
+import { apiClientJson } from '../../../lib/api-client'
 
 // サーバー側のUserResponseインターフェースと同じ構造
 interface User {
@@ -11,36 +11,11 @@ interface User {
   updated_at: number // Unix timestamp
 }
 
-// APIエラーレスポンスの型定義
-interface ApiError {
-  detail: string
-}
-
-// APIベースURL（Viteプロキシ設定により相対パスを使用）
-const API_BASE_URL = '/api/v1'
-
 // APIクライアント関数
 async function fetchUsers(): Promise<User[]> {
-  const token = getAuthToken()
-
-  if (!token) {
-    throw new Error('認証トークンが見つかりません')
-  }
-
-  const response = await fetch(`${API_BASE_URL}/users`, {
+  return apiClientJson<User[]>('/users', {
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
   })
-
-  if (!response.ok) {
-    const errorData: ApiError = await response.json()
-    throw new Error(errorData.detail || 'ユーザー一覧の取得に失敗しました')
-  }
-
-  return response.json()
 }
 
 // TanStack Query options

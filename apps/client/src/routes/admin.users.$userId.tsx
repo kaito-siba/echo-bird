@@ -12,6 +12,7 @@ import {
   cancelButton,
   errorMessage
 } from '../styles/admin-form.css'
+import { authGuard } from '../lib/auth-guard'
 
 interface User {
   id: number
@@ -52,6 +53,7 @@ const mockUsers: Record<string, User> = {
 
 export const Route = createFileRoute('/admin/users/$userId')({
   component: UserEdit,
+  beforeLoad: authGuard,
 })
 
 function UserEdit() {

@@ -3,9 +3,11 @@ import { useState, useMemo } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { container, header, table, row, cell, searchInput, actionButton, statusBadge } from '../styles/admin.css'
 import { userListQueryOptions, type User } from '../integrations/tanstack-query/queries/user'
+import { authGuard } from '../lib/auth-guard'
 
 export const Route = createFileRoute('/admin/users')({
   component: AdminUsers,
+  beforeLoad: authGuard,
   loader: ({ context }) => {
     return context.queryClient.ensureQueryData(userListQueryOptions)
   },

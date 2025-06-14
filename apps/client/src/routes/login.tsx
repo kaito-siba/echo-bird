@@ -31,8 +31,14 @@ function LoginPage() {
       // ログイン成功時: トークンを保存してリダイレクト
       setAuthToken(data.access_token)
 
-      // 管理者画面へリダイレクト（または適切なホームページへ）
-      navigate({ to: '/admin/users' })
+      // 保存されたリダイレクト先があればそこへ、なければ管理者画面へリダイレクト
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin')
+      if (redirectPath) {
+        sessionStorage.removeItem('redirectAfterLogin')
+        window.location.href = redirectPath
+      } else {
+        navigate({ to: '/admin/users' })
+      }
     },
     onError: (error) => {
       // エラーハンドリングはミューテーションのerrorプロパティで自動的に管理される
