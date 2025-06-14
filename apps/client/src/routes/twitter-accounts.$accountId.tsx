@@ -91,23 +91,9 @@ function TwitterAccountDetail() {
   const queryClient = useQueryClient();
 
   // API から Twitter アカウントデータを取得
-  const { data: accountData, error } = useSuspenseQuery(
+  const { data: accountData } = useSuspenseQuery(
     twitterAccountDetailQueryOptions(accountId),
   );
-
-  // エラーハンドリング
-  if (error) {
-    return (
-      <div className={formContainer}>
-        <div className={formHeader}>
-          <h1>Twitter アカウント詳細</h1>
-        </div>
-        <div className={errorContainer}>
-          エラーが発生しました: {error.message}
-        </div>
-      </div>
-    );
-  }
 
   const [formData, setFormData] = useState({
     is_active: accountData.is_active,

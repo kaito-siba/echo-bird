@@ -104,7 +104,10 @@ function TargetAccountCreate() {
       // 作成に成功した場合、詳細ページまたは一覧画面に遷移
       if (response.success && response.account) {
         // 作成されたアカウントの詳細ページに遷移
-        navigate({ to: `/target-accounts/${response.account.id}` });
+        navigate({
+          to: '/target-accounts/$accountId',
+          params: { accountId: response.account.id.toString() },
+        });
       } else {
         // 一覧画面に戻る
         navigate({ to: '/target-accounts' });

@@ -45,23 +45,9 @@ function TargetAccountDetail() {
   const queryClient = useQueryClient();
 
   // API からターゲットアカウントデータを取得
-  const { data: accountData, error } = useSuspenseQuery(
+  const { data: accountData } = useSuspenseQuery(
     targetAccountDetailQueryOptions(accountId),
   );
-
-  // エラーハンドリング
-  if (error) {
-    return (
-      <div className={formContainer}>
-        <div className={formHeader}>
-          <h1>ターゲットアカウント詳細</h1>
-        </div>
-        <div className={errorContainer}>
-          エラーが発生しました: {error.message}
-        </div>
-      </div>
-    );
-  }
 
   const [formData, setFormData] = useState({
     is_active: accountData.is_active,
