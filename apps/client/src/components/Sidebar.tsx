@@ -79,10 +79,16 @@ export default function Sidebar() {
         </Link>
 
         {currentUser?.is_admin && (
-          <Link to="/admin/users" className={sidebarNavItem}>
-            <span>👥</span>
-            <span>ユーザー管理</span>
-          </Link>
+          <>
+            <Link to="/admin/users" className={sidebarNavItem}>
+              <span>👥</span>
+              <span>ユーザー管理</span>
+            </Link>
+            <Link to="/target-accounts" className={sidebarNavItem}>
+              <span>🎯</span>
+              <span>ターゲットアカウント</span>
+            </Link>
+          </>
         )}
 
         <Link to="/demo/tanstack-query" className={sidebarNavItem}>

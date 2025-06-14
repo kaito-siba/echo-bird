@@ -44,6 +44,22 @@ export const input = style({
   },
 });
 
+export const select = style({
+  display: 'block',
+  width: '100%',
+  padding: '0.75rem',
+  border: '1px solid #e0e0e0',
+  borderRadius: '4px',
+  fontSize: '1rem',
+  backgroundColor: 'white',
+  transition: 'border-color 0.2s',
+  cursor: 'pointer',
+  ':focus': {
+    outline: 'none',
+    borderColor: '#1976d2',
+  },
+});
+
 export const checkbox = style({
   marginRight: '0.5rem',
   width: '1rem',
