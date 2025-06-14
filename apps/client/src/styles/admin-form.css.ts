@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css'
+import { style } from '@vanilla-extract/css';
 
 export const formContainer = style({
   display: 'flex',
@@ -10,17 +10,17 @@ export const formContainer = style({
   backgroundColor: 'white',
   borderRadius: '8px',
   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-})
+});
 
 export const formHeader = style({
   marginBottom: '2rem',
   paddingBottom: '1rem',
   borderBottom: '1px solid #e0e0e0',
-})
+});
 
 export const formGroup = style({
   marginBottom: '1.5rem',
-})
+});
 
 export const label = style({
   display: 'block',
@@ -28,7 +28,7 @@ export const label = style({
   fontSize: '0.875rem',
   fontWeight: '500',
   color: '#333',
-})
+});
 
 export const input = style({
   display: 'block',
@@ -42,14 +42,14 @@ export const input = style({
     outline: 'none',
     borderColor: '#1976d2',
   },
-})
+});
 
 export const checkbox = style({
   marginRight: '0.5rem',
   width: '1rem',
   height: '1rem',
   cursor: 'pointer',
-})
+});
 
 export const buttonGroup = style({
   display: 'flex',
@@ -57,7 +57,7 @@ export const buttonGroup = style({
   marginTop: '2rem',
   paddingTop: '2rem',
   borderTop: '1px solid #e0e0e0',
-})
+});
 
 export const saveButton = style({
   padding: '0.75rem 2rem',
@@ -72,7 +72,7 @@ export const saveButton = style({
   ':hover': {
     backgroundColor: '#1565c0',
   },
-})
+});
 
 export const cancelButton = style({
   padding: '0.75rem 2rem',
@@ -88,14 +88,14 @@ export const cancelButton = style({
     backgroundColor: '#f5f5f5',
     borderColor: '#d0d0d0',
   },
-})
+});
 
 export const errorMessage = style({
   display: 'block',
   marginTop: '0.25rem',
   fontSize: '0.75rem',
   color: '#d32f2f',
-})
+});
 
 export const mutationErrorContainer = style({
   padding: '1rem',
@@ -103,4 +103,4 @@ export const mutationErrorContainer = style({
   color: '#c62828',
   borderRadius: '4px',
   marginTop: '1rem',
-})
+});

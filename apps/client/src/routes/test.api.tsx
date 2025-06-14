@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { apiRequest, API_ENDPOINTS } from '../lib/api';
+import { apiRequest, API_ENDPOINTS } from '../utils/api';
 
 export const Route = createFileRoute('/test/api')({
   component: ApiTestPage,
@@ -17,10 +17,14 @@ function ApiTestPage() {
     setError(null);
 
     try {
-      const response = await apiRequest<{ status: string }>(API_ENDPOINTS.health);
+      const response = await apiRequest<{ status: string }>(
+        API_ENDPOINTS.health,
+      );
       setResult(`✅ 疎通成功: ${response.status}`);
     } catch (err) {
-      setError(`❌ 疎通失敗: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setError(
+        `❌ 疎通失敗: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -50,27 +54,31 @@ function ApiTestPage() {
       </div>
 
       {result && (
-        <div style={{
-          padding: '1rem',
-          backgroundColor: '#d4edda',
-          color: '#155724',
-          border: '1px solid #c3e6cb',
-          borderRadius: '4px',
-          marginBottom: '1rem',
-        }}>
+        <div
+          style={{
+            padding: '1rem',
+            backgroundColor: '#d4edda',
+            color: '#155724',
+            border: '1px solid #c3e6cb',
+            borderRadius: '4px',
+            marginBottom: '1rem',
+          }}
+        >
           {result}
         </div>
       )}
 
       {error && (
-        <div style={{
-          padding: '1rem',
-          backgroundColor: '#f8d7da',
-          color: '#721c24',
-          border: '1px solid #f5c6cb',
-          borderRadius: '4px',
-          marginBottom: '1rem',
-        }}>
+        <div
+          style={{
+            padding: '1rem',
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            border: '1px solid #f5c6cb',
+            borderRadius: '4px',
+            marginBottom: '1rem',
+          }}
+        >
           {error}
         </div>
       )}

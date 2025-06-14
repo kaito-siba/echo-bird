@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import {
   loginContainer,
   loginCard,
@@ -12,59 +12,63 @@ import {
   errorMessage,
   successMessage,
   loadingSpinner,
-} from '../styles/login.css'
-import { login, setAuthToken, type LoginRequest } from '../integrations/tanstack-query/queries/auth'
+} from '../styles/login.css';
+import {
+  login,
+  setAuthToken,
+  type LoginRequest,
+} from '../integrations/tanstack-query/queries/auth';
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
-})
+});
 
 function LoginPage() {
-  const navigate = useNavigate()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
   // ログインのミューテーション
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
       // ログイン成功時: トークンを保存してリダイレクト
-      setAuthToken(data.access_token)
+      setAuthToken(data.access_token);
 
       // 保存されたリダイレクト先があればそこへ、なければ管理者画面へリダイレクト
-      const redirectPath = sessionStorage.getItem('redirectAfterLogin')
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
       if (redirectPath) {
-        sessionStorage.removeItem('redirectAfterLogin')
-        window.location.href = redirectPath
+        sessionStorage.removeItem('redirectAfterLogin');
+        window.location.href = redirectPath;
       } else {
-        navigate({ to: '/admin/users' })
+        navigate({ to: '/admin/users' });
       }
     },
     onError: (error) => {
       // エラーハンドリングはミューテーションのerrorプロパティで自動的に管理される
-      console.error('Login failed:', error)
+      console.error('Login failed:', error);
     },
-  })
+  });
 
   // フォーム送信処理
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // バリデーション
     if (!username.trim() || !password.trim()) {
-      return
+      return;
     }
 
     const loginData: LoginRequest = {
       username: username.trim(),
       password: password.trim(),
-    }
+    };
 
-    loginMutation.mutate(loginData)
-  }
+    loginMutation.mutate(loginData);
+  };
 
   // 入力フィールドの無効化条件
-  const isDisabled = loginMutation.isPending
+  const isDisabled = loginMutation.isPending;
 
   return (
     <div className={loginContainer}>
@@ -135,5 +139,5 @@ function LoginPage() {
         </form>
       </div>
     </div>
-  )
+  );
 }

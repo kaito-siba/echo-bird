@@ -44,6 +44,7 @@ select = [
 ignore = [
     "E501",  # line too long (handled by line-length)
     "B008",  # do not perform function calls in argument defaults
+    "RUF001",
     "RUF002",
     "RUF003"
 ]

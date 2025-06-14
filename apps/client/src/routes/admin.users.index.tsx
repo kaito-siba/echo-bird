@@ -1,24 +1,39 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState, useMemo } from 'react'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { container, header, headerControls, table, row, cell, searchInput, actionButton, createButton, errorContainer, statusBadge } from '../styles/admin.css'
-import { userListQueryOptions, type User } from '../integrations/tanstack-query/queries/user'
-import { authGuard } from '../lib/auth-guard'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useState, useMemo } from 'react';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import {
+  container,
+  header,
+  headerControls,
+  table,
+  row,
+  cell,
+  searchInput,
+  actionButton,
+  createButton,
+  errorContainer,
+  statusBadge,
+} from '../styles/admin.css';
+import {
+  userListQueryOptions,
+  type User,
+} from '../integrations/tanstack-query/queries/user';
+import { authGuard } from '../utils/auth-guard';
 
 export const Route = createFileRoute('/admin/users/')({
   component: AdminUsers,
   beforeLoad: authGuard,
   loader: ({ context }) => {
-    return context.queryClient.ensureQueryData(userListQueryOptions)
+    return context.queryClient.ensureQueryData(userListQueryOptions);
   },
-})
+});
 
 function AdminUsers() {
-  const navigate = useNavigate()
-  const [searchTerm, setSearchTerm] = useState('')
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
 
   // APIからユーザー一覧を取得
-  const { data: users, error } = useSuspenseQuery(userListQueryOptions)
+  const { data: users, error } = useSuspenseQuery(userListQueryOptions);
 
   // エラーハンドリング
   if (error) {
@@ -31,20 +46,20 @@ function AdminUsers() {
           エラーが発生しました: {error.message}
         </div>
       </div>
-    )
+    );
   }
 
   // Filter users based on search term
   const filteredUsers = useMemo(() => {
-    return users.filter(user =>
-      user.username.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }, [users, searchTerm])
+    return users.filter((user) =>
+      user.username.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [users, searchTerm]);
 
   // Format Unix timestamp to readable date
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleString('ja-JP')
-  }
+    return new Date(timestamp * 1000).toLocaleString('ja-JP');
+  };
 
   return (
     <div className={container}>
@@ -85,7 +100,11 @@ function AdminUsers() {
               <td className={cell}>{user.id}</td>
               <td className={cell}>{user.username}</td>
               <td className={cell}>
-                <span className={statusBadge[user.is_active ? 'active' : 'inactive']}>
+                <span
+                  className={
+                    statusBadge[user.is_active ? 'active' : 'inactive']
+                  }
+                >
                   {user.is_active ? 'アクティブ' : '非アクティブ'}
                 </span>
               </td>
@@ -100,8 +119,11 @@ function AdminUsers() {
                 <button
                   className={actionButton}
                   onClick={() => {
-                        console.log('編集ボタンがクリックされました:', user.id)
-                    navigate({ to: '/admin/users/$userId', params: { userId: user.id.toString() } })
+                    console.log('編集ボタンがクリックされました:', user.id);
+                    navigate({
+                      to: '/admin/users/$userId',
+                      params: { userId: user.id.toString() },
+                    });
                   }}
                 >
                   編集
@@ -112,5 +134,5 @@ function AdminUsers() {
         </tbody>
       </table>
     </div>
-  )
+  );
 }

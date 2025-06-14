@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ApiClientError } from '../../lib/api-client';
+import { ApiClientError } from '../../utils/api-client';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -7,18 +7,18 @@ const queryClient = new QueryClient({
       // 認証エラーの場合は再試行しない
       retry: (failureCount, error) => {
         if (error instanceof ApiClientError && error.status === 401) {
-          return false
+          return false;
         }
-        return failureCount < 3
+        return failureCount < 3;
       },
     },
     mutations: {
       // 認証エラーの場合は再試行しない
       retry: (failureCount, error) => {
         if (error instanceof ApiClientError && error.status === 401) {
-          return false
+          return false;
         }
-        return failureCount < 3
+        return failureCount < 3;
       },
     },
   },

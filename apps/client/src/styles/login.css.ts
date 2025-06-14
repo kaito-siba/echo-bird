@@ -1,5 +1,5 @@
-import { style } from '@vanilla-extract/css'
-import { spin } from './keyframes.css'
+import { style } from '@vanilla-extract/css';
+import { spin } from './keyframes.css';
 
 // ログインページ全体のコンテナ
 export const loginContainer = style({
@@ -9,7 +9,7 @@ export const loginContainer = style({
   minHeight: '100vh',
   padding: '2rem',
   backgroundColor: '#f5f5f5',
-})
+});
 
 // ログインフォームのカード
 export const loginCard = style({
@@ -22,7 +22,7 @@ export const loginCard = style({
   borderRadius: '8px',
   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
   gap: '1.5rem',
-})
+});
 
 // ログインフォームのタイトル
 export const loginTitle = style({
@@ -31,21 +31,21 @@ export const loginTitle = style({
   textAlign: 'center',
   color: '#333',
   margin: '0',
-})
+});
 
 // フォームグループ（ラベル+入力フィールドのセット）
 export const formGroup = style({
   display: 'flex',
   flexDirection: 'column',
   gap: '0.5rem',
-})
+});
 
 // フォームラベル
 export const formLabel = style({
   fontSize: '0.875rem',
   fontWeight: '500',
   color: '#555',
-})
+});
 
 // 入力フィールド
 export const formInput = style({
@@ -59,7 +59,7 @@ export const formInput = style({
     borderColor: '#1976d2',
     boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.2)',
   },
-})
+});
 
 // ログインボタン
 export const loginButton = style({
@@ -79,7 +79,7 @@ export const loginButton = style({
     backgroundColor: '#ccc',
     cursor: 'not-allowed',
   },
-})
+});
 
 // エラーメッセージ
 export const errorMessage = style({
@@ -89,7 +89,7 @@ export const errorMessage = style({
   borderRadius: '4px',
   fontSize: '0.875rem',
   border: '1px solid #ffcdd2',
-})
+});
 
 // 成功メッセージ
 export const successMessage = style({
@@ -99,7 +99,7 @@ export const successMessage = style({
   borderRadius: '4px',
   fontSize: '0.875rem',
   border: '1px solid #c8e6c9',
-})
+});
 
 // ローディング状態のスピナー
 export const loadingSpinner = style({
@@ -110,4 +110,4 @@ export const loadingSpinner = style({
   borderTop: '2px solid transparent',
   borderRadius: '50%',
   animation: `${spin} 1s linear infinite`,
-})
+});

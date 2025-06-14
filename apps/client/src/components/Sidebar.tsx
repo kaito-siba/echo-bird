@@ -1,7 +1,10 @@
-import { Link, useNavigate } from '@tanstack/react-router'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { currentUserQueryOptions, removeAuthToken } from '../integrations/tanstack-query/queries/auth'
-import { useAuthToken } from '../hooks/useAuthToken'
+import { Link, useNavigate } from '@tanstack/react-router';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  currentUserQueryOptions,
+  removeAuthToken,
+} from '../integrations/tanstack-query/queries/auth';
+import { useAuthToken } from '../hooks/useAuthToken';
 import {
   sidebar,
   sidebarHeader,
@@ -11,49 +14,49 @@ import {
   sidebarFooter,
   logoutButton,
   userInfo,
-} from '../styles/sidebar.css.ts'
+} from '../styles/sidebar.css.ts';
 
 export default function Sidebar() {
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // トークンの状態をリアクティブに管理
-  const hasToken = useAuthToken()
+  const hasToken = useAuthToken();
 
   // トークンがある場合のみユーザー情報を取得
   const { data: currentUser, isLoading } = useQuery({
     ...currentUserQueryOptions,
     enabled: hasToken, // トークンがある場合のみクエリを実行
-  })
+  });
 
-    // ログアウトのミューテーション
+  // ログアウトのミューテーション
   const logoutMutation = useMutation({
     mutationFn: async () => {
       // トークンを削除
-      removeAuthToken()
-      return true
+      removeAuthToken();
+      return true;
     },
-        onSuccess: () => {
+    onSuccess: () => {
       // 認証関連のクエリをすべて無効化してキャッシュをクリア
-      queryClient.invalidateQueries({ queryKey: ['auth'] })
-      queryClient.removeQueries({ queryKey: ['auth'] })
+      queryClient.invalidateQueries({ queryKey: ['auth'] });
+      queryClient.removeQueries({ queryKey: ['auth'] });
 
       // ログイン画面にリダイレクト
-      navigate({ to: '/login' })
+      navigate({ to: '/login' });
     },
     onError: (error) => {
-      console.error('Logout failed:', error)
+      console.error('Logout failed:', error);
     },
-  })
+  });
 
   // ログアウト処理
   const handleLogout = () => {
-    logoutMutation.mutate()
-  }
+    logoutMutation.mutate();
+  };
 
   // ユーザーがログインしていない場合は何も表示しない
   if (!currentUser && !isLoading) {
-    return null
+    return null;
   }
 
   return (
@@ -120,5 +123,5 @@ export default function Sidebar() {
         </button>
       </div>
     </aside>
-  )
+  );
 }

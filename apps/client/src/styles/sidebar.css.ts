@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css'
+import { style } from '@vanilla-extract/css';
 
 // サイドバー全体
 export const sidebar = style({
@@ -13,7 +13,7 @@ export const sidebar = style({
   color: 'white',
   boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)',
   zIndex: '1000',
-})
+});
 
 // サイドバーヘッダー
 export const sidebarHeader = style({
@@ -22,14 +22,14 @@ export const sidebarHeader = style({
   padding: '1.5rem',
   borderBottom: '1px solid #374151',
   gap: '0.5rem',
-})
+});
 
 // ユーザー情報表示
 export const userInfo = style({
   fontSize: '0.875rem',
   color: '#9ca3af',
   fontWeight: '500',
-})
+});
 
 // ナビゲーション
 export const sidebarNav = style({
@@ -38,7 +38,7 @@ export const sidebarNav = style({
   flex: '1',
   padding: '1rem 0',
   gap: '0.25rem',
-})
+});
 
 // ナビゲーションアイテム
 export const sidebarNavItem = style({
@@ -64,19 +64,19 @@ export const sidebarNavItem = style({
       color: 'white',
     },
   },
-})
+});
 
 // アクティブなナビゲーションアイテム（追加クラス用）
 export const sidebarNavItemActive = style({
   backgroundColor: '#1976d2',
   color: 'white',
-})
+});
 
 // サイドバーフッター
 export const sidebarFooter = style({
   padding: '1rem',
   borderTop: '1px solid #374151',
-})
+});
 
 // ログアウトボタン
 export const logoutButton = style({
@@ -103,4 +103,4 @@ export const logoutButton = style({
     backgroundColor: '#6b7280',
     cursor: 'not-allowed',
   },
-})
+});

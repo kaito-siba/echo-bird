@@ -1,6 +1,10 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
-import { useSuspenseQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import {
+  useSuspenseQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import {
   formContainer,
   formHeader,
@@ -12,27 +16,36 @@ import {
   saveButton,
   cancelButton,
   errorMessage,
-  mutationErrorContainer
-} from '../styles/admin-form.css'
-import { errorContainer } from '../styles/admin.css'
-import { authGuard } from '../lib/auth-guard'
-import { userDetailQueryOptions, updateUser, type User, type UserUpdateRequest } from '../integrations/tanstack-query/queries/user'
+  mutationErrorContainer,
+} from '../styles/admin-form.css';
+import { errorContainer } from '../styles/admin.css';
+import { authGuard } from '../utils/auth-guard';
+import {
+  userDetailQueryOptions,
+  updateUser,
+  type User,
+  type UserUpdateRequest,
+} from '../integrations/tanstack-query/queries/user';
 
 export const Route = createFileRoute('/admin/users/$userId')({
   component: UserEdit,
   beforeLoad: authGuard,
   loader: ({ context, params }) => {
-    return context.queryClient.ensureQueryData(userDetailQueryOptions(params.userId))
+    return context.queryClient.ensureQueryData(
+      userDetailQueryOptions(params.userId),
+    );
   },
-})
+});
 
 function UserEdit() {
-  const { userId } = Route.useParams()
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
+  const { userId } = Route.useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // APIからユーザーデータを取得
-  const { data: userData, error } = useSuspenseQuery(userDetailQueryOptions(userId))
+  const { data: userData, error } = useSuspenseQuery(
+    userDetailQueryOptions(userId),
+  );
 
   // エラーハンドリング
   if (error) {
@@ -45,51 +58,51 @@ function UserEdit() {
           エラーが発生しました: {error.message}
         </div>
       </div>
-    )
+    );
   }
 
   const [formData, setFormData] = useState({
     username: userData.username,
     is_active: userData.is_active,
     is_admin: userData.is_admin,
-  })
+  });
 
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // ユーザー更新のミューテーション
   const updateUserMutation = useMutation({
     mutationFn: (data: UserUpdateRequest) => updateUser(userId, data),
     onSuccess: () => {
       // キャッシュを無効化して最新データを取得
-      queryClient.invalidateQueries({ queryKey: ['users'] })
-      queryClient.invalidateQueries({ queryKey: ['users', userId] })
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['users', userId] });
 
       // 一覧画面に戻る
-      navigate({ to: '/admin/users' })
+      navigate({ to: '/admin/users' });
     },
     onError: (error) => {
-      console.error('User update failed:', error)
+      console.error('User update failed:', error);
       // エラーメッセージの表示はミューテーションのerrorプロパティで管理される
     },
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // フォーム バリデーション
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
     if (!formData.username.trim()) {
-      newErrors.username = 'ユーザー名は必須です'
+      newErrors.username = 'ユーザー名は必須です';
     }
 
     if (formData.username.length > 100) {
-      newErrors.username = 'ユーザー名は100文字以内で入力してください'
+      newErrors.username = 'ユーザー名は100文字以内で入力してください';
     }
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return
+      setErrors(newErrors);
+      return;
     }
 
     // APIを呼び出してユーザー情報を更新
@@ -97,18 +110,18 @@ function UserEdit() {
       username: formData.username,
       is_active: formData.is_active,
       is_admin: formData.is_admin,
-    }
+    };
 
-    updateUserMutation.mutate(updateData)
-  }
+    updateUserMutation.mutate(updateData);
+  };
 
   const handleCancel = () => {
-    navigate({ to: '/admin/users' })
-  }
+    navigate({ to: '/admin/users' });
+  };
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleString('ja-JP')
-  }
+    return new Date(timestamp * 1000).toLocaleString('ja-JP');
+  };
 
   return (
     <div className={formContainer}>
@@ -126,7 +139,9 @@ function UserEdit() {
             id="username"
             type="text"
             value={formData.username}
-            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, username: e.target.value })
+            }
             className={input}
           />
           {errors.username && (
@@ -139,7 +154,9 @@ function UserEdit() {
             <input
               type="checkbox"
               checked={formData.is_active}
-              onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+              onChange={(e) =>
+                setFormData({ ...formData, is_active: e.target.checked })
+              }
               className={checkbox}
             />
             アクティブ
@@ -151,7 +168,9 @@ function UserEdit() {
             <input
               type="checkbox"
               checked={formData.is_admin}
-              onChange={(e) => setFormData({ ...formData, is_admin: e.target.checked })}
+              onChange={(e) =>
+                setFormData({ ...formData, is_admin: e.target.checked })
+              }
               className={checkbox}
             />
             管理者権限
@@ -189,5 +208,5 @@ function UserEdit() {
         </div>
       </form>
     </div>
-  )
+  );
 }
