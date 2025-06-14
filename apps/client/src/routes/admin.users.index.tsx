@@ -16,7 +16,6 @@ import {
 } from '../styles/admin.css';
 import {
   userListQueryOptions,
-  type User,
 } from '../integrations/tanstack-query/queries/user';
 import { authGuard } from '../utils/auth-guard';
 

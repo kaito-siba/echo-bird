@@ -18,14 +18,12 @@ import {
   errorMessage,
   mutationErrorContainer,
 } from '../styles/admin-form.css';
-import { errorContainer } from '../styles/admin.css';
 import { authGuard } from '../utils/auth-guard';
 import {
   targetAccountDetailQueryOptions,
   updateTargetAccount,
   deleteTargetAccount,
   fetchTweetsForAccount,
-  type TargetAccount,
   type TargetAccountUpdateRequest,
 } from '../integrations/tanstack-query/queries/target-account';
 

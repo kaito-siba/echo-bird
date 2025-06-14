@@ -12,7 +12,6 @@ import {
   tableHeader,
   tableRow,
   tableCell,
-  button,
   buttonGroup,
   createButton,
   editButton,
@@ -42,7 +41,7 @@ function TwitterAccountsList() {
 
   // アカウント削除のミューテーション（将来的に実装）
   const deleteAccountMutation = useMutation({
-    mutationFn: async (accountId: number) => {
+    mutationFn: async (_accountId: number) => {
       // TODO: 削除 API の実装
       throw new Error('削除機能は未実装です');
     },

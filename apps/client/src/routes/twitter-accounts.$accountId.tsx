@@ -16,10 +16,9 @@ import {
   cancelButton,
   mutationErrorContainer,
 } from '../styles/admin-form.css';
-import { errorContainer } from '../styles/admin.css';
 import { authGuard } from '../utils/auth-guard';
 import { apiClientJson } from '../utils/api-client';
-import { type TwitterAccountResponse } from '../integrations/tanstack-query/queries/twitter-account';
+import type { TwitterAccountResponse } from '../integrations/tanstack-query/queries/twitter-account';
 
 // 個別アカウント詳細取得のクエリオプション
 const twitterAccountDetailQueryOptions = (accountId: string) => ({

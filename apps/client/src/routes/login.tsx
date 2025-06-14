@@ -129,7 +129,7 @@ function LoginPage() {
           >
             {loginMutation.isPending ? (
               <>
-                <span className={loadingSpinner}></span>
+                <span className={loadingSpinner} />
                 <span style={{ marginLeft: '0.5rem' }}>ログイン中...</span>
               </>
             ) : (

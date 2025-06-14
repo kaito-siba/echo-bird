@@ -189,7 +189,7 @@ export const retweetBadge = style([
   {
     backgroundColor: '#ecfdf5',
     color: colors.retweet,
-    border: `1px solid #d1fae5`,
+    border: '1px solid #d1fae5',
   },
 ]);
 
@@ -198,7 +198,7 @@ export const replyBadge = style([
   {
     backgroundColor: '#eff6ff',
     color: colors.reply,
-    border: `1px solid #dbeafe`,
+    border: '1px solid #dbeafe',
   },
 ]);
 
@@ -207,7 +207,7 @@ export const quoteBadge = style([
   {
     backgroundColor: '#fffbeb',
     color: colors.warning,
-    border: `1px solid #fef3c7`,
+    border: '1px solid #fef3c7',
   },
 ]);
 

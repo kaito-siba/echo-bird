@@ -18,12 +18,10 @@ import {
   errorMessage,
   mutationErrorContainer,
 } from '../styles/admin-form.css';
-import { errorContainer } from '../styles/admin.css';
 import { authGuard } from '../utils/auth-guard';
 import {
   userDetailQueryOptions,
   updateUser,
-  type User,
   type UserUpdateRequest,
 } from '../integrations/tanstack-query/queries/user';
 

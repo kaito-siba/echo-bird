@@ -19,14 +19,13 @@ export function TweetItem({ tweet }: TweetItemProps) {
         (now.getTime() - date.getTime()) / (1000 * 60),
       );
       return `${diffInMinutes}分前`;
-    } else if (diffInHours < 24) {
+    }if (diffInHours < 24) {
       return `${diffInHours}時間前`;
-    } else {
+    }
       return date.toLocaleDateString('ja-JP', {
         month: 'short',
         day: 'numeric',
       });
-    }
   };
 
   // 数値を省略表示に変換（例: 1500 -> 1.5K）

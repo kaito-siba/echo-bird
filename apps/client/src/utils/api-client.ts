@@ -56,7 +56,7 @@ export const apiClient = async (
 
   // 認証トークンが存在する場合は Authorization ヘッダーを追加
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`;
   }
 
   const config: RequestInit = {

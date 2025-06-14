@@ -36,9 +36,8 @@ function TargetAccounts() {
     return data.accounts.filter(
       (account) =>
         account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (account.display_name &&
-          account.display_name
-            .toLowerCase()
+        (account.display_name
+            ?.toLowerCase()
             .includes(searchTerm.toLowerCase())),
     );
   }, [data.accounts, searchTerm]);
@@ -53,13 +52,12 @@ function TargetAccounts() {
   const formatInterval = (minutes: number) => {
     if (minutes < 60) {
       return `${minutes}分`;
-    } else if (minutes % 60 === 0) {
+    }if (minutes % 60 === 0) {
       return `${minutes / 60}時間`;
-    } else {
+    }
       const hours = Math.floor(minutes / 60);
       const mins = minutes % 60;
       return `${hours}時間${mins}分`;
-    }
   };
 
   return (
