@@ -16,7 +16,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as TestApiImport } from './routes/test.api'
 import { Route as DemoTanstackQueryImport } from './routes/demo.tanstack-query'
 import { Route as DemoStoreImport } from './routes/demo.store'
-import { Route as AdminUsersImport } from './routes/admin.users'
+import { Route as AdminUsersIndexImport } from './routes/admin.users.index'
 import { Route as AdminUsersUserIdImport } from './routes/admin.users.$userId'
 
 // Create/Update Routes
@@ -51,16 +51,16 @@ const DemoStoreRoute = DemoStoreImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AdminUsersRoute = AdminUsersImport.update({
-  id: '/admin/users',
-  path: '/admin/users',
+const AdminUsersIndexRoute = AdminUsersIndexImport.update({
+  id: '/admin/users/',
+  path: '/admin/users/',
   getParentRoute: () => rootRoute,
 } as any)
 
 const AdminUsersUserIdRoute = AdminUsersUserIdImport.update({
-  id: '/$userId',
-  path: '/$userId',
-  getParentRoute: () => AdminUsersRoute,
+  id: '/admin/users/$userId',
+  path: '/admin/users/$userId',
+  getParentRoute: () => rootRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -79,13 +79,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginImport
-      parentRoute: typeof rootRoute
-    }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersImport
       parentRoute: typeof rootRoute
     }
     '/demo/store': {
@@ -111,57 +104,52 @@ declare module '@tanstack/react-router' {
     }
     '/admin/users/$userId': {
       id: '/admin/users/$userId'
-      path: '/$userId'
+      path: '/admin/users/$userId'
       fullPath: '/admin/users/$userId'
       preLoaderRoute: typeof AdminUsersUserIdImport
-      parentRoute: typeof AdminUsersImport
+      parentRoute: typeof rootRoute
+    }
+    '/admin/users/': {
+      id: '/admin/users/'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersIndexImport
+      parentRoute: typeof rootRoute
     }
   }
 }
 
 // Create and export the route tree
 
-interface AdminUsersRouteChildren {
-  AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
-}
-
-const AdminUsersRouteChildren: AdminUsersRouteChildren = {
-  AdminUsersUserIdRoute: AdminUsersUserIdRoute,
-}
-
-const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
-  AdminUsersRouteChildren,
-)
-
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/admin/users': typeof AdminUsersRouteWithChildren
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/test/api': typeof TestApiRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/admin/users': typeof AdminUsersIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/admin/users': typeof AdminUsersRouteWithChildren
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/test/api': typeof TestApiRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/admin/users': typeof AdminUsersIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/admin/users': typeof AdminUsersRouteWithChildren
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/test/api': typeof TestApiRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -169,48 +157,50 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
-    | '/admin/users'
     | '/demo/store'
     | '/demo/tanstack-query'
     | '/test/api'
     | '/admin/users/$userId'
+    | '/admin/users'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
-    | '/admin/users'
     | '/demo/store'
     | '/demo/tanstack-query'
     | '/test/api'
     | '/admin/users/$userId'
+    | '/admin/users'
   id:
     | '__root__'
     | '/'
     | '/login'
-    | '/admin/users'
     | '/demo/store'
     | '/demo/tanstack-query'
     | '/test/api'
     | '/admin/users/$userId'
+    | '/admin/users/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
-  AdminUsersRoute: typeof AdminUsersRouteWithChildren
   DemoStoreRoute: typeof DemoStoreRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   TestApiRoute: typeof TestApiRoute
+  AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
+  AdminUsersIndexRoute: typeof AdminUsersIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
-  AdminUsersRoute: AdminUsersRouteWithChildren,
   DemoStoreRoute: DemoStoreRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   TestApiRoute: TestApiRoute,
+  AdminUsersUserIdRoute: AdminUsersUserIdRoute,
+  AdminUsersIndexRoute: AdminUsersIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -225,10 +215,11 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/login",
-        "/admin/users",
         "/demo/store",
         "/demo/tanstack-query",
-        "/test/api"
+        "/test/api",
+        "/admin/users/$userId",
+        "/admin/users/"
       ]
     },
     "/": {
@@ -236,12 +227,6 @@ export const routeTree = rootRoute
     },
     "/login": {
       "filePath": "login.tsx"
-    },
-    "/admin/users": {
-      "filePath": "admin.users.tsx",
-      "children": [
-        "/admin/users/$userId"
-      ]
     },
     "/demo/store": {
       "filePath": "demo.store.tsx"
@@ -253,8 +238,10 @@ export const routeTree = rootRoute
       "filePath": "test.api.tsx"
     },
     "/admin/users/$userId": {
-      "filePath": "admin.users.$userId.tsx",
-      "parent": "/admin/users"
+      "filePath": "admin.users.$userId.tsx"
+    },
+    "/admin/users/": {
+      "filePath": "admin.users.index.tsx"
     }
   }
 }

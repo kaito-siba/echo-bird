@@ -19,6 +19,7 @@ class UserUpdateRequest(BaseModel):
     """ユーザー更新リクエスト"""
 
     username: str | None = None
+    is_active: bool | None = None
     is_admin: bool | None = None
 
 
@@ -100,6 +101,8 @@ async def UserUpdateAPI(
     update_data = {}
     if request.username is not None:
         update_data['username'] = request.username
+    if request.is_active is not None:
+        update_data['is_active'] = request.is_active
     if request.is_admin is not None:
         update_data['is_admin'] = request.is_admin
 

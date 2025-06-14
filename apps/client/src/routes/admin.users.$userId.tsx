@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useSuspenseQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   formContainer,
   formHeader,
@@ -13,58 +14,36 @@ import {
   errorMessage
 } from '../styles/admin-form.css'
 import { authGuard } from '../lib/auth-guard'
-
-interface User {
-  id: number
-  username: string
-  is_active: boolean
-  is_admin: boolean
-  created_at: number
-  updated_at: number
-}
-
-// Mock data - in a real app, this would come from an API
-const mockUsers: Record<string, User> = {
-  '1': {
-    id: 1,
-    username: 'admin',
-    is_active: true,
-    is_admin: true,
-    created_at: 1700000000,
-    updated_at: 1700000000,
-  },
-  '2': {
-    id: 2,
-    username: 'user1',
-    is_active: true,
-    is_admin: false,
-    created_at: 1700100000,
-    updated_at: 1700100000,
-  },
-  '3': {
-    id: 3,
-    username: 'user2',
-    is_active: false,
-    is_admin: false,
-    created_at: 1700200000,
-    updated_at: 1700200000,
-  },
-}
+import { userDetailQueryOptions, updateUser, type User, type UserUpdateRequest } from '../integrations/tanstack-query/queries/user'
 
 export const Route = createFileRoute('/admin/users/$userId')({
   component: UserEdit,
   beforeLoad: authGuard,
+  loader: ({ context, params }) => {
+    return context.queryClient.ensureQueryData(userDetailQueryOptions(params.userId))
+  },
 })
 
 function UserEdit() {
   const { userId } = Route.useParams()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
-  // Get user data from mock
-  const userData = mockUsers[userId]
+  // APIからユーザーデータを取得
+  const { data: userData, error } = useSuspenseQuery(userDetailQueryOptions(userId))
 
-  if (!userData) {
-    return <div>ユーザーが見つかりません</div>
+  // エラーハンドリング
+  if (error) {
+    return (
+      <div className={formContainer}>
+        <div className={formHeader}>
+          <h1>ユーザー編集</h1>
+        </div>
+        <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
+          エラーが発生しました: {error.message}
+        </div>
+      </div>
+    )
   }
 
   const [formData, setFormData] = useState({
@@ -75,10 +54,27 @@ function UserEdit() {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // ユーザー更新のミューテーション
+  const updateUserMutation = useMutation({
+    mutationFn: (data: UserUpdateRequest) => updateUser(userId, data),
+    onSuccess: () => {
+      // キャッシュを無効化して最新データを取得
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: ['users', userId] })
+
+      // 一覧画面に戻る
+      navigate({ to: '/admin/users' })
+    },
+    onError: (error) => {
+      console.error('User update failed:', error)
+      // エラーメッセージの表示はミューテーションのerrorプロパティで管理される
+    },
+  })
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validate form
+    // フォーム バリデーション
     const newErrors: Record<string, string> = {}
 
     if (!formData.username.trim()) {
@@ -94,9 +90,14 @@ function UserEdit() {
       return
     }
 
-    // Mock save - in a real app, this would call an API
-    alert(`ユーザー情報を更新しました: ${JSON.stringify(formData)}`)
-    navigate({ to: '/admin/users' })
+    // APIを呼び出してユーザー情報を更新
+    const updateData: UserUpdateRequest = {
+      username: formData.username,
+      is_active: formData.is_active,
+      is_admin: formData.is_admin,
+    }
+
+    updateUserMutation.mutate(updateData)
   }
 
   const handleCancel = () => {
@@ -160,11 +161,27 @@ function UserEdit() {
           <p className={label}>更新日時: {formatDate(userData.updated_at)}</p>
         </div>
 
+        {/* ミューテーションエラーの表示 */}
+        {updateUserMutation.error && (
+          <div style={{ padding: '1rem', backgroundColor: '#ffebee', color: '#c62828', borderRadius: '4px', marginTop: '1rem' }}>
+            更新エラー: {updateUserMutation.error.message}
+          </div>
+        )}
+
         <div className={buttonGroup}>
-          <button type="submit" className={saveButton}>
-            保存
+          <button
+            type="submit"
+            className={saveButton}
+            disabled={updateUserMutation.isPending}
+          >
+            {updateUserMutation.isPending ? '保存中...' : '保存'}
           </button>
-          <button type="button" onClick={handleCancel} className={cancelButton}>
+          <button
+            type="button"
+            onClick={handleCancel}
+            className={cancelButton}
+            disabled={updateUserMutation.isPending}
+          >
             キャンセル
           </button>
         </div>

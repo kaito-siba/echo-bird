@@ -5,7 +5,7 @@ import { container, header, table, row, cell, searchInput, actionButton, statusB
 import { userListQueryOptions, type User } from '../integrations/tanstack-query/queries/user'
 import { authGuard } from '../lib/auth-guard'
 
-export const Route = createFileRoute('/admin/users')({
+export const Route = createFileRoute('/admin/users/')({
   component: AdminUsers,
   beforeLoad: authGuard,
   loader: ({ context }) => {
@@ -89,7 +89,13 @@ function AdminUsers() {
               <td className={cell}>{formatDate(user.created_at)}</td>
               <td className={cell}>{formatDate(user.updated_at)}</td>
               <td className={cell}>
-                <button className={actionButton} onClick={() => navigate({ to: '/admin/users/$userId', params: { userId: user.id.toString() } })}>
+                <button
+                  className={actionButton}
+                  onClick={() => {
+                        console.log('編集ボタンがクリックされました:', user.id)
+                    navigate({ to: '/admin/users/$userId', params: { userId: user.id.toString() } })
+                  }}
+                >
                   編集
                 </button>
               </td>
