@@ -17,6 +17,12 @@ export const header = style({
   marginBottom: '1rem',
 })
 
+export const headerControls = style({
+  display: 'flex',
+  gap: '1rem',
+  alignItems: 'center',
+})
+
 export const searchInput = style({
   padding: '0.5rem 1rem',
   border: '1px solid #e0e0e0',
@@ -28,6 +34,12 @@ export const searchInput = style({
     outline: 'none',
     borderColor: '#1976d2',
   },
+})
+
+export const errorContainer = style({
+  padding: '20px',
+  textAlign: 'center',
+  color: 'red',
 })
 
 export const table = style({
@@ -92,5 +104,20 @@ export const actionButton = style({
   cursor: 'pointer',
   ':hover': {
     backgroundColor: '#1565c0',
+  },
+})
+
+export const createButton = style({
+  padding: '0.5rem 1rem',
+  border: 'none',
+  borderRadius: '4px',
+  backgroundColor: '#2196f3',
+  color: 'white',
+  fontSize: '0.875rem',
+  fontWeight: '500',
+  transition: 'background-color 0.2s',
+  cursor: 'pointer',
+  ':hover': {
+    backgroundColor: '#1976d2',
   },
 })

@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState, useMemo } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { container, header, table, row, cell, searchInput, actionButton, statusBadge } from '../styles/admin.css'
+import { container, header, headerControls, table, row, cell, searchInput, actionButton, createButton, errorContainer, statusBadge } from '../styles/admin.css'
 import { userListQueryOptions, type User } from '../integrations/tanstack-query/queries/user'
 import { authGuard } from '../lib/auth-guard'
 
@@ -27,7 +27,7 @@ function AdminUsers() {
         <div className={header}>
           <h1>ユーザー管理</h1>
         </div>
-        <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
+        <div className={errorContainer}>
           エラーが発生しました: {error.message}
         </div>
       </div>
@@ -50,13 +50,21 @@ function AdminUsers() {
     <div className={container}>
       <div className={header}>
         <h1>ユーザー管理</h1>
-        <input
-          type="text"
-          placeholder="ユーザー名で検索..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className={searchInput}
-        />
+        <div className={headerControls}>
+          <input
+            type="text"
+            placeholder="ユーザー名で検索..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={searchInput}
+          />
+          <button
+            className={createButton}
+            onClick={() => navigate({ to: '/admin/users/create' })}
+          >
+            新しいユーザーを作成
+          </button>
+        </div>
       </div>
 
       <table className={table}>

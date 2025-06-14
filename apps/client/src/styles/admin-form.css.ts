@@ -96,3 +96,11 @@ export const errorMessage = style({
   fontSize: '0.75rem',
   color: '#d32f2f',
 })
+
+export const mutationErrorContainer = style({
+  padding: '1rem',
+  backgroundColor: '#ffebee',
+  color: '#c62828',
+  borderRadius: '4px',
+  marginTop: '1rem',
+})

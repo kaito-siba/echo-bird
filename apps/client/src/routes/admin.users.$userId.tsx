@@ -11,8 +11,10 @@ import {
   buttonGroup,
   saveButton,
   cancelButton,
-  errorMessage
+  errorMessage,
+  mutationErrorContainer
 } from '../styles/admin-form.css'
+import { errorContainer } from '../styles/admin.css'
 import { authGuard } from '../lib/auth-guard'
 import { userDetailQueryOptions, updateUser, type User, type UserUpdateRequest } from '../integrations/tanstack-query/queries/user'
 
@@ -39,7 +41,7 @@ function UserEdit() {
         <div className={formHeader}>
           <h1>ユーザー編集</h1>
         </div>
-        <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
+        <div className={errorContainer}>
           エラーが発生しました: {error.message}
         </div>
       </div>
@@ -163,7 +165,7 @@ function UserEdit() {
 
         {/* ミューテーションエラーの表示 */}
         {updateUserMutation.error && (
-          <div style={{ padding: '1rem', backgroundColor: '#ffebee', color: '#c62828', borderRadius: '4px', marginTop: '1rem' }}>
+          <div className={mutationErrorContainer}>
             更新エラー: {updateUserMutation.error.message}
           </div>
         )}

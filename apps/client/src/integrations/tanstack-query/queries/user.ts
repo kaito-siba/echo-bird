@@ -30,6 +30,18 @@ interface UserUpdateRequest {
   is_admin?: boolean
 }
 
+interface UserCreateRequest {
+  username: string
+  password: string
+}
+
+async function createUser(data: UserCreateRequest): Promise<User> {
+  return apiClientJson<User>('/users', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
 async function updateUser(userId: string, data: UserUpdateRequest): Promise<User> {
   return apiClientJson<User>(`/users/${userId}`, {
     method: 'PUT',
@@ -52,5 +64,5 @@ export const userDetailQueryOptions = (userId: string) => queryOptions({
   retry: 2,
 })
 
-export type { User, UserUpdateRequest }
-export { updateUser }
+export type { User, UserUpdateRequest, UserCreateRequest }
+export { updateUser, createUser }

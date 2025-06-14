@@ -17,6 +17,7 @@ import { Route as TestApiImport } from './routes/test.api'
 import { Route as DemoTanstackQueryImport } from './routes/demo.tanstack-query'
 import { Route as DemoStoreImport } from './routes/demo.store'
 import { Route as AdminUsersIndexImport } from './routes/admin.users.index'
+import { Route as AdminUsersCreateImport } from './routes/admin.users.create'
 import { Route as AdminUsersUserIdImport } from './routes/admin.users.$userId'
 
 // Create/Update Routes
@@ -54,6 +55,12 @@ const DemoStoreRoute = DemoStoreImport.update({
 const AdminUsersIndexRoute = AdminUsersIndexImport.update({
   id: '/admin/users/',
   path: '/admin/users/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AdminUsersCreateRoute = AdminUsersCreateImport.update({
+  id: '/admin/users/create',
+  path: '/admin/users/create',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -109,6 +116,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersUserIdImport
       parentRoute: typeof rootRoute
     }
+    '/admin/users/create': {
+      id: '/admin/users/create'
+      path: '/admin/users/create'
+      fullPath: '/admin/users/create'
+      preLoaderRoute: typeof AdminUsersCreateImport
+      parentRoute: typeof rootRoute
+    }
     '/admin/users/': {
       id: '/admin/users/'
       path: '/admin/users'
@@ -128,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/test/api': typeof TestApiRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/admin/users/create': typeof AdminUsersCreateRoute
   '/admin/users': typeof AdminUsersIndexRoute
 }
 
@@ -138,6 +153,7 @@ export interface FileRoutesByTo {
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/test/api': typeof TestApiRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/admin/users/create': typeof AdminUsersCreateRoute
   '/admin/users': typeof AdminUsersIndexRoute
 }
 
@@ -149,6 +165,7 @@ export interface FileRoutesById {
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/test/api': typeof TestApiRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/admin/users/create': typeof AdminUsersCreateRoute
   '/admin/users/': typeof AdminUsersIndexRoute
 }
 
@@ -161,6 +178,7 @@ export interface FileRouteTypes {
     | '/demo/tanstack-query'
     | '/test/api'
     | '/admin/users/$userId'
+    | '/admin/users/create'
     | '/admin/users'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -170,6 +188,7 @@ export interface FileRouteTypes {
     | '/demo/tanstack-query'
     | '/test/api'
     | '/admin/users/$userId'
+    | '/admin/users/create'
     | '/admin/users'
   id:
     | '__root__'
@@ -179,6 +198,7 @@ export interface FileRouteTypes {
     | '/demo/tanstack-query'
     | '/test/api'
     | '/admin/users/$userId'
+    | '/admin/users/create'
     | '/admin/users/'
   fileRoutesById: FileRoutesById
 }
@@ -190,6 +210,7 @@ export interface RootRouteChildren {
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   TestApiRoute: typeof TestApiRoute
   AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
+  AdminUsersCreateRoute: typeof AdminUsersCreateRoute
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
 }
 
@@ -200,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   TestApiRoute: TestApiRoute,
   AdminUsersUserIdRoute: AdminUsersUserIdRoute,
+  AdminUsersCreateRoute: AdminUsersCreateRoute,
   AdminUsersIndexRoute: AdminUsersIndexRoute,
 }
 
@@ -219,6 +241,7 @@ export const routeTree = rootRoute
         "/demo/tanstack-query",
         "/test/api",
         "/admin/users/$userId",
+        "/admin/users/create",
         "/admin/users/"
       ]
     },
@@ -239,6 +262,9 @@ export const routeTree = rootRoute
     },
     "/admin/users/$userId": {
       "filePath": "admin.users.$userId.tsx"
+    },
+    "/admin/users/create": {
+      "filePath": "admin.users.create.tsx"
     },
     "/admin/users/": {
       "filePath": "admin.users.index.tsx"
