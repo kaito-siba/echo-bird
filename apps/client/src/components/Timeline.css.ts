@@ -1,30 +1,5 @@
 import { style, keyframes } from '@vanilla-extract/css';
-
-// カラーパレット（TweetItemと統一）
-const colors = {
-  // グレースケール
-  white: '#ffffff',
-  gray50: '#f8fafc',
-  gray100: '#f1f5f9',
-  gray200: '#e2e8f0',
-  gray300: '#cbd5e1',
-  gray400: '#94a3b8',
-  gray500: '#64748b',
-  gray600: '#475569',
-  gray700: '#334155',
-  gray800: '#1e293b',
-  gray900: '#0f172a',
-
-  // ブランドカラー
-  primary: '#1d9bf0',
-  primaryHover: '#1a8cd8',
-  primaryLight: '#e0f2fe',
-
-  // ステータスカラー
-  success: '#10b981',
-  warning: '#f59e0b',
-  error: '#ef4444',
-};
+import { colors } from '../styles/theme.css';
 
 const spin = keyframes({
   '0%': { transform: 'rotate(0deg)' },
@@ -43,7 +18,7 @@ export const timeline = style({
   borderRadius: '16px',
   boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
   overflow: 'hidden',
-  border: `1px solid ${colors.gray200}`,
+  border: `1px solid ${colors.gray[200]}`,
   animation: `${fadeIn} 0.3s ease-out`,
   width: '100%',
   maxWidth: '100%',
@@ -62,7 +37,7 @@ export const header = style({
   justifyContent: 'space-between',
   alignItems: 'center',
   padding: '20px 24px',
-  borderBottom: `1px solid ${colors.gray200}`,
+  borderBottom: `1px solid ${colors.gray[200]}`,
   backgroundColor: colors.white,
   position: 'sticky',
   top: 0,
@@ -89,7 +64,7 @@ export const titleContainer = style({
 export const title = style({
   fontSize: '20px',
   fontWeight: '800',
-  color: colors.gray900,
+  color: colors.gray[900],
   lineHeight: '24px',
   letterSpacing: '-0.025em',
 
@@ -103,7 +78,7 @@ export const title = style({
 
 export const subtitle = style({
   fontSize: '14px',
-  color: colors.gray500,
+  color: colors.gray[500],
   fontWeight: '400',
   lineHeight: '18px',
 });
@@ -180,7 +155,7 @@ export const loadingContainer = style({
 export const loadingSpinner = style({
   width: '32px',
   height: '32px',
-  border: `3px solid ${colors.gray200}`,
+  border: `3px solid ${colors.gray[200]}`,
   borderTop: `3px solid ${colors.primary}`,
   borderRadius: '50%',
   animation: `${spin} 1s linear infinite`,
@@ -188,7 +163,7 @@ export const loadingSpinner = style({
 
 export const loadingText = style({
   fontSize: '14px',
-  color: colors.gray500,
+  color: colors.gray[500],
   fontWeight: '500',
 });
 
@@ -217,7 +192,7 @@ export const errorMessage = style({
 
 export const errorDescription = style({
   fontSize: '14px',
-  color: colors.gray500,
+  color: colors.gray[500],
   lineHeight: '20px',
   maxWidth: '400px',
 });
@@ -229,7 +204,7 @@ export const retryButton = style({
   padding: '10px 20px',
   fontSize: '14px',
   fontWeight: '600',
-  backgroundColor: colors.gray600,
+  backgroundColor: colors.gray[600],
   color: colors.white,
   border: 'none',
   borderRadius: '24px',
@@ -237,7 +212,7 @@ export const retryButton = style({
   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
 
   ':hover': {
-    backgroundColor: colors.gray700,
+    backgroundColor: colors.gray[700],
     transform: 'translateY(-1px)',
     boxShadow: '0 4px 12px 0 rgba(0, 0, 0, 0.15)',
   },
@@ -259,20 +234,20 @@ export const emptyContainer = style({
 export const emptyIcon = style({
   width: '64px',
   height: '64px',
-  color: colors.gray300,
+  color: colors.gray[300],
   marginBottom: '8px',
 });
 
 export const emptyTitle = style({
   fontSize: '20px',
   fontWeight: '700',
-  color: colors.gray700,
+  color: colors.gray[700],
   lineHeight: '28px',
 });
 
 export const emptyDescription = style({
   fontSize: '15px',
-  color: colors.gray500,
+  color: colors.gray[500],
   lineHeight: '22px',
   maxWidth: '400px',
 });
@@ -283,8 +258,8 @@ export const paginationContainer = style({
   alignItems: 'center',
   gap: '12px',
   padding: '24px',
-  borderTop: `1px solid ${colors.gray200}`,
-  backgroundColor: colors.gray50,
+  borderTop: `1px solid ${colors.gray[200]}`,
+  backgroundColor: colors.gray[50],
 });
 
 export const paginationButton = style({
@@ -295,16 +270,16 @@ export const paginationButton = style({
   fontSize: '14px',
   fontWeight: '600',
   backgroundColor: colors.white,
-  color: colors.gray700,
-  border: `1px solid ${colors.gray300}`,
+  color: colors.gray[700],
+  border: `1px solid ${colors.gray[300]}`,
   borderRadius: '24px',
   cursor: 'pointer',
   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
   boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
 
   ':hover': {
-    backgroundColor: colors.gray50,
-    borderColor: colors.gray400,
+    backgroundColor: colors.gray[50],
+    borderColor: colors.gray[400],
     transform: 'translateY(-1px)',
     boxShadow: '0 4px 12px 0 rgba(0, 0, 0, 0.1)',
   },
@@ -317,7 +292,7 @@ export const paginationButton = style({
   ':disabled': {
     opacity: 0.5,
     cursor: 'not-allowed',
-    backgroundColor: colors.gray100,
+    backgroundColor: colors.gray[100],
     transform: 'none',
     boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
   },
@@ -325,7 +300,7 @@ export const paginationButton = style({
 
 export const paginationInfo = style({
   fontSize: '14px',
-  color: colors.gray500,
+  color: colors.gray[500],
   fontWeight: '500',
   padding: '0 8px',
 });
@@ -337,7 +312,7 @@ export const statsContainer = style({
   alignItems: 'center',
   padding: '16px 24px',
   backgroundColor: colors.primaryLight,
-  borderBottom: `1px solid ${colors.gray200}`,
+  borderBottom: `1px solid ${colors.gray[200]}`,
 
   '@media': {
     '(max-width: 640px)': {
@@ -371,7 +346,7 @@ export const statsNumber = style({
 
 export const statsLabel = style({
   fontSize: '12px',
-  color: colors.gray600,
+  color: colors.gray[600],
   fontWeight: '500',
   textTransform: 'uppercase',
   letterSpacing: '0.05em',

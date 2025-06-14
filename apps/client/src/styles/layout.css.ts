@@ -1,25 +1,9 @@
 import { style } from '@vanilla-extract/css';
-
-// カラーパレット（他のコンポーネントと統一）
-const colors = {
-  white: '#ffffff',
-  gray50: '#f8fafc',
-  gray100: '#f1f5f9',
-  gray200: '#e2e8f0',
-  gray300: '#cbd5e1',
-  gray400: '#94a3b8',
-  gray500: '#64748b',
-  gray600: '#475569',
-  gray700: '#334155',
-  gray800: '#1e293b',
-  gray900: '#0f172a',
-  primary: '#1d9bf0',
-  primaryHover: '#1a8cd8',
-};
+import { colors } from './theme.css';
 
 export const appContainer = style({
   minHeight: '100vh',
-  backgroundColor: colors.gray50,
+  backgroundColor: colors.gray[50],
   display: 'flex',
   flexDirection: 'column',
 });
@@ -41,7 +25,7 @@ export const appLayout = style({
 export const sidebar = style({
   width: '280px',
   backgroundColor: colors.white,
-  borderRight: `1px solid ${colors.gray200}`,
+  borderRight: `1px solid ${colors.gray[200]}`,
   padding: '20px',
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   position: 'relative',
@@ -50,7 +34,7 @@ export const sidebar = style({
     '(max-width: 1023px)': {
       width: '100%',
       borderRight: 'none',
-      borderBottom: `1px solid ${colors.gray200}`,
+      borderBottom: `1px solid ${colors.gray[200]}`,
       padding: '16px 20px',
     },
   },
@@ -75,13 +59,13 @@ export const sidebarHeader = style({
   justifyContent: 'space-between',
   marginBottom: '24px',
   paddingBottom: '16px',
-  borderBottom: `1px solid ${colors.gray200}`,
+  borderBottom: `1px solid ${colors.gray[200]}`,
 });
 
 export const sidebarTitle = style({
   fontSize: '18px',
   fontWeight: '700',
-  color: colors.gray900,
+  color: colors.gray[900],
   transition: 'opacity 0.2s ease-in-out',
 });
 
@@ -106,14 +90,14 @@ export const toggleButton = style({
   height: '32px',
   borderRadius: '8px',
   backgroundColor: 'transparent',
-  border: `1px solid ${colors.gray300}`,
-  color: colors.gray600,
+  border: `1px solid ${colors.gray[300]}`,
+  color: colors.gray[600],
   cursor: 'pointer',
   transition: 'all 0.2s ease-in-out',
 
   ':hover': {
-    backgroundColor: colors.gray100,
-    borderColor: colors.gray400,
+    backgroundColor: colors.gray[100],
+    borderColor: colors.gray[400],
   },
 
   '@media': {
@@ -152,7 +136,7 @@ export const navItem = style({
   gap: '12px',
   padding: '12px 16px',
   borderRadius: '12px',
-  color: colors.gray700,
+  color: colors.gray[700],
   textDecoration: 'none',
   fontSize: '15px',
   fontWeight: '500',
@@ -164,8 +148,8 @@ export const navItem = style({
   textAlign: 'left',
 
   ':hover': {
-    backgroundColor: colors.gray100,
-    color: colors.gray900,
+    backgroundColor: colors.gray[100],
+    color: colors.gray[900],
   },
 });
 
@@ -225,15 +209,15 @@ export const mainContent = style({
 export const statsSection = style({
   marginTop: '24px',
   padding: '16px',
-  backgroundColor: colors.gray50,
+  backgroundColor: colors.gray[50],
   borderRadius: '12px',
-  border: `1px solid ${colors.gray200}`,
+  border: `1px solid ${colors.gray[200]}`,
 });
 
 export const statsTitle = style({
   fontSize: '14px',
   fontWeight: '600',
-  color: colors.gray700,
+  color: colors.gray[700],
   marginBottom: '12px',
 });
 
@@ -243,7 +227,7 @@ export const statItem = style({
   alignItems: 'center',
   padding: '8px 0',
   fontSize: '13px',
-  color: colors.gray600,
+  color: colors.gray[600],
 });
 
 export const statLabel = style({
@@ -252,5 +236,5 @@ export const statLabel = style({
 
 export const statValue = style({
   fontWeight: '600',
-  color: colors.gray900,
+  color: colors.gray[900],
 });

@@ -1,52 +1,22 @@
 import { style } from '@vanilla-extract/css';
-
-// カラーパレット
-const colors = {
-  // グレースケール
-  white: '#ffffff',
-  gray50: '#f8fafc',
-  gray100: '#f1f5f9',
-  gray200: '#e2e8f0',
-  gray300: '#cbd5e1',
-  gray400: '#94a3b8',
-  gray500: '#64748b',
-  gray600: '#475569',
-  gray700: '#334155',
-  gray800: '#1e293b',
-  gray900: '#0f172a',
-
-  // ブランドカラー
-  primary: '#1d9bf0',
-  primaryHover: '#1a8cd8',
-
-  // アクションカラー
-  like: '#f91880',
-  retweet: '#00ba7c',
-  reply: '#1d9bf0',
-  share: '#64748b',
-
-  // ステータスカラー
-  success: '#10b981',
-  warning: '#f59e0b',
-  error: '#ef4444',
-};
+import { colors } from '../styles/theme.css';
 
 export const tweetItem = style({
   display: 'flex',
   flexDirection: 'column',
   padding: '12px 16px',
-  borderBottom: `1px solid ${colors.gray200}`,
+  borderBottom: `1px solid ${colors.gray[200]}`,
   backgroundColor: colors.white,
   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
   cursor: 'pointer',
   position: 'relative',
 
   ':hover': {
-    backgroundColor: colors.gray50,
+    backgroundColor: colors.gray[50],
   },
 
   ':active': {
-    backgroundColor: colors.gray100,
+    backgroundColor: colors.gray[100],
   },
 
   // フォーカス時のアクセシビリティ
@@ -65,7 +35,7 @@ export const avatar = style({
   width: '40px',
   height: '40px',
   borderRadius: '20px',
-  backgroundColor: colors.gray300,
+  backgroundColor: colors.gray[300],
   flexShrink: 0,
   objectFit: 'cover',
   border: `2px solid ${colors.white}`,
@@ -81,11 +51,11 @@ export const avatarFallback = style({
   width: '40px',
   height: '40px',
   borderRadius: '20px',
-  backgroundColor: colors.gray300,
+  backgroundColor: colors.gray[300],
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  color: colors.gray600,
+  color: colors.gray[600],
   fontSize: '16px',
   fontWeight: '600',
   flexShrink: 0,
@@ -109,7 +79,7 @@ export const header = style({
 export const displayName = style({
   fontSize: '15px',
   fontWeight: '700',
-  color: colors.gray900,
+  color: colors.gray[900],
   lineHeight: '20px',
 
   ':hover': {
@@ -119,14 +89,14 @@ export const displayName = style({
 
 export const username = style({
   fontSize: '15px',
-  color: colors.gray500,
+  color: colors.gray[500],
   lineHeight: '20px',
   fontWeight: '400',
 });
 
 export const timestamp = style({
   fontSize: '15px',
-  color: colors.gray500,
+  color: colors.gray[500],
   lineHeight: '20px',
   fontWeight: '400',
 
@@ -136,14 +106,14 @@ export const timestamp = style({
 });
 
 export const separator = style({
-  color: colors.gray400,
+  color: colors.gray[400],
   margin: '0 2px',
 });
 
 export const text = style({
   fontSize: '15px',
   lineHeight: '20px',
-  color: colors.gray900,
+  color: colors.gray[900],
   marginBottom: '12px',
   whiteSpace: 'pre-wrap',
   wordBreak: 'break-word',
@@ -162,14 +132,14 @@ export const statItem = style({
   alignItems: 'center',
   gap: '6px',
   fontSize: '13px',
-  color: colors.gray500,
+  color: colors.gray[500],
   padding: '4px 8px',
   borderRadius: '12px',
   transition: 'all 0.2s ease-in-out',
   cursor: 'pointer',
 
   ':hover': {
-    backgroundColor: colors.gray100,
+    backgroundColor: colors.gray[100],
   },
 });
 
@@ -248,14 +218,14 @@ export const retweetHeader = style({
   marginBottom: '8px',
   paddingLeft: '52px', // アバターの幅 + gap分だけインデント
   fontSize: '13px',
-  color: colors.gray500,
+  color: colors.gray[500],
   fontWeight: '400',
   width: '100%',
 });
 
 export const retweetText = style({
   fontSize: '13px',
-  color: colors.gray500,
+  color: colors.gray[500],
   fontWeight: '400',
 });
 
