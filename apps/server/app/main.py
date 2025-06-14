@@ -10,7 +10,7 @@ from app.constants import (
     APP_VERSION,
 )
 from app.database import close_db, init_db
-from app.routers import auth, twitter_auth, users
+from app.routers import auth, target_accounts, twitter_auth, users
 
 
 @asynccontextmanager
@@ -28,6 +28,7 @@ app = FastAPI(lifespan=lifespan, title=APP_NAME, version=APP_VERSION)
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(twitter_auth.router)
+app.include_router(target_accounts.router)
 
 
 @app.get('/')
