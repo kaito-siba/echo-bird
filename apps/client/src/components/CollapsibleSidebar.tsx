@@ -138,12 +138,8 @@ export function CollapsibleSidebar({
         </button>
       </div>
 
-      {/* ナビゲーション */}
-      <div
-        className={
-          isCollapsed ? styles.sidebarContentHidden : styles.sidebarContent
-        }
-      >
+      {/* ナビゲーション - 畳んだ状態でもアイコンを表示 */}
+      <div className={styles.sidebarContent}>
         <nav className={styles.sidebarNav}>
           {navItems.map((item) => {
             // 現在のパスと一致するかチェックしてアクティブ状態を決定
@@ -153,11 +149,22 @@ export function CollapsibleSidebar({
               <Link
                 key={item.id}
                 to={item.path}
-                className={isActive ? styles.navItemActive : styles.navItem}
+                className={
+                  isActive
+                    ? isCollapsed
+                      ? styles.navItemActiveCollapsed
+                      : styles.navItemActive
+                    : isCollapsed
+                      ? styles.navItemCollapsed
+                      : styles.navItem
+                }
+                title={isCollapsed ? item.label : undefined} // ツールチップとして表示
               >
                 <span className={styles.navIcon}>{item.icon}</span>
                 <span
-                  className={isCollapsed ? styles.navTextHidden : styles.navText}
+                  className={
+                    isCollapsed ? styles.navTextHidden : styles.navText
+                  }
                 >
                   {item.label}
                 </span>
@@ -166,8 +173,12 @@ export function CollapsibleSidebar({
           })}
         </nav>
 
-        {/* 統計情報 */}
-        <div className={styles.statsSection}>
+        {/* 統計情報 - 畳んだ状態では非表示 */}
+        <div
+          className={
+            isCollapsed ? styles.statsSectionHidden : styles.statsSection
+          }
+        >
           <h3 className={styles.statsTitle}>統計</h3>
           {stats.map((stat) => (
             <div key={stat.label} className={styles.statItem}>
@@ -177,12 +188,19 @@ export function CollapsibleSidebar({
           ))}
         </div>
 
-        {/* ログアウトボタン */}
-        <div className={styles.logoutSection}>
+        {/* ログアウトボタン - 畳んだ状態でもアイコンを表示 */}
+        <div
+          className={
+            isCollapsed ? styles.logoutSectionCollapsed : styles.logoutSection
+          }
+        >
           <button
             type="button"
             onClick={handleLogout}
-            className={styles.logoutButton}
+            className={
+              isCollapsed ? styles.logoutButtonCollapsed : styles.logoutButton
+            }
+            title={isCollapsed ? 'ログアウト' : undefined} // ツールチップとして表示
           >
             <span className={styles.navIcon}>
               <svg

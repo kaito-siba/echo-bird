@@ -43,7 +43,7 @@ export const sidebar = style({
 export const sidebarCollapsed = style([
   sidebar,
   {
-    width: '80px',
+    width: '72px',
 
     '@media': {
       '(max-width: 1023px)': {
@@ -73,6 +73,7 @@ export const sidebarTitleHidden = style([
   sidebarTitle,
   {
     opacity: 0,
+    width: 0,
 
     '@media': {
       '(max-width: 1023px)': {
@@ -114,8 +115,6 @@ export const sidebarContent = style({
 export const sidebarContentHidden = style([
   sidebarContent,
   {
-    opacity: 0,
-
     '@media': {
       '(max-width: 1023px)': {
         opacity: 1,
@@ -146,12 +145,22 @@ export const navItem = style({
   backgroundColor: 'transparent',
   width: '100%',
   textAlign: 'left',
+  justifyContent: 'flex-start',
 
   ':hover': {
     backgroundColor: colors.gray[100],
     color: colors.gray[900],
   },
 });
+
+export const navItemCollapsed = style([
+  navItem,
+  {
+    justifyContent: 'center',
+    padding: '12px 8px',
+    gap: '0px',
+  },
+]);
 
 export const navItemActive = style([
   navItem,
@@ -166,6 +175,15 @@ export const navItemActive = style([
   },
 ]);
 
+export const navItemActiveCollapsed = style([
+  navItemActive,
+  {
+    justifyContent: 'center',
+    padding: '12px 8px',
+    gap: '0px',
+  },
+]);
+
 export const navIcon = style({
   width: '20px',
   height: '20px',
@@ -174,16 +192,20 @@ export const navIcon = style({
 
 export const navText = style({
   transition: 'opacity 0.2s ease-in-out',
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
 });
 
 export const navTextHidden = style([
   navText,
   {
     opacity: 0,
+    width: 0,
 
     '@media': {
       '(max-width: 1023px)': {
         opacity: 1,
+        width: 'auto',
       },
     },
   },
@@ -212,6 +234,7 @@ export const statsSection = style({
   backgroundColor: colors.gray[50],
   borderRadius: '12px',
   border: `1px solid ${colors.gray[200]}`,
+  transition: 'opacity 0.2s ease-in-out',
 });
 
 export const statsTitle = style({
@@ -239,10 +262,39 @@ export const statValue = style({
   color: colors.gray[900],
 });
 
-// ログアウトセクション
+// サイドバーの統計情報表示 - 畳んだ状態では非表示
+export const statsSectionHidden = style([
+  statsSection,
+  {
+    opacity: 0,
+    height: 0,
+    padding: 0,
+    marginTop: 0,
+    overflow: 'hidden',
+
+    '@media': {
+      '(max-width: 1023px)': {
+        opacity: 1,
+        height: 'auto',
+        padding: '16px',
+        marginTop: '24px',
+      },
+    },
+  },
+]);
+
+// ログアウトセクション - 畳んだ状態でも表示
 export const logoutSection = style({
   marginTop: '24px',
 });
+
+// 畳んだ状態でのログアウトセクションのスタイル
+export const logoutSectionCollapsed = style([
+  logoutSection,
+  {
+    marginTop: '16px',
+  },
+]);
 
 export const logoutButton = style([
   navItem,
@@ -256,5 +308,18 @@ export const logoutButton = style([
       backgroundColor: '#fee2e2', // 薄い赤色の背景
       color: '#b91c1c', // ホバー時にさらに濃い赤色
     },
+  },
+]);
+
+// 畳んだ状態でのログアウトボタンのスタイル
+export const logoutButtonCollapsed = style([
+  logoutButton,
+  {
+    justifyContent: 'center',
+    padding: '12px 8px',
+    marginTop: '8px',
+    paddingTop: '12px',
+    borderTop: 'none',
+    gap: '0px',
   },
 ]);

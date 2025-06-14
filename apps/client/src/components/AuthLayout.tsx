@@ -6,9 +6,5 @@ interface AuthLayoutProps {
 }
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
-  return (
-    <div className={styles.appContainer}>
-        {children}
-    </div>
-  );
+  return <div className={styles.appContainer}>{children}</div>;
 }
