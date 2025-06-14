@@ -88,6 +88,10 @@ export default function Sidebar() {
               <span>🎯</span>
               <span>ターゲットアカウント</span>
             </Link>
+            <Link to="/twitter-accounts" className={sidebarNavItem}>
+              <span>🐦</span>
+              <span>Twitter アカウント</span>
+            </Link>
           </>
         )}
 

@@ -1,6 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import {
   formContainer,
   formHeader,
@@ -20,9 +24,7 @@ import {
   createTargetAccount,
   type TargetAccountCreateRequest,
 } from '../integrations/tanstack-query/queries/target-account';
-import {
-  twitterAccountListQueryOptions,
-} from '../integrations/tanstack-query/queries/twitter-account';
+import { twitterAccountListQueryOptions } from '../integrations/tanstack-query/queries/twitter-account';
 
 export const Route = createFileRoute('/target-accounts/create')({
   component: TargetAccountCreate,
@@ -42,9 +44,8 @@ function TargetAccountCreate() {
   };
 
   // 認証済み Twitter アカウント一覧を取得
-  const { data: twitterAccountsData, error: twitterAccountsError } = useSuspenseQuery(
-    twitterAccountListQueryOptions,
-  );
+  const { data: twitterAccountsData, error: twitterAccountsError } =
+    useSuspenseQuery(twitterAccountListQueryOptions);
 
   // エラーハンドリング
   if (twitterAccountsError) {
@@ -54,7 +55,8 @@ function TargetAccountCreate() {
           <h1>新しいターゲットアカウントを追加</h1>
         </div>
         <div className={errorContainer}>
-          認証済み Twitter アカウントの取得に失敗しました: {twitterAccountsError.message}
+          認証済み Twitter アカウントの取得に失敗しました:{' '}
+          {twitterAccountsError.message}
         </div>
       </div>
     );
@@ -68,14 +70,11 @@ function TargetAccountCreate() {
           <h1>新しいターゲットアカウントを追加</h1>
         </div>
         <div className={errorContainer}>
-          認証済み Twitter アカウントがありません。まず Twitter アカウントを認証してください。
+          認証済み Twitter アカウントがありません。まず Twitter
+          アカウントを認証してください。
         </div>
         <div className={buttonGroup}>
-          <button
-            type="button"
-            onClick={handleCancel}
-            className={cancelButton}
-          >
+          <button type="button" onClick={handleCancel} className={cancelButton}>
             戻る
           </button>
         </div>
@@ -85,7 +84,10 @@ function TargetAccountCreate() {
 
   const [formData, setFormData] = useState({
     username: '',
-    twitter_account_id: twitterAccountsData.accounts.length > 0 ? twitterAccountsData.accounts[0].id : 0,
+    twitter_account_id:
+      twitterAccountsData.accounts.length > 0
+        ? twitterAccountsData.accounts[0].id
+        : 0,
     fetch_interval_minutes: 60,
     max_tweets_per_fetch: 50,
   });
@@ -127,7 +129,10 @@ function TargetAccountCreate() {
     // Twitter ユーザー名の形式チェック（@マークの有無を考慮）
     const usernamePattern = /^@?[a-zA-Z0-9_]{1,15}$/;
     const cleanUsername = formData.username.replace(/^@/, ''); // @マークを除去
-    if (formData.username.trim() && !usernamePattern.test(`@${cleanUsername}`)) {
+    if (
+      formData.username.trim() &&
+      !usernamePattern.test(`@${cleanUsername}`)
+    ) {
       newErrors.username =
         'Twitter ユーザー名は1-15文字の英数字とアンダースコアのみ使用可能です';
     }
@@ -141,7 +146,8 @@ function TargetAccountCreate() {
     }
 
     if (formData.fetch_interval_minutes > 1440) {
-      newErrors.fetch_interval_minutes = '取得間隔は1440分以下で設定してください';
+      newErrors.fetch_interval_minutes =
+        '取得間隔は1440分以下で設定してください';
     }
 
     if (formData.max_tweets_per_fetch < 1) {
@@ -195,7 +201,13 @@ function TargetAccountCreate() {
           {errors.username && (
             <span className={errorMessage}>{errors.username}</span>
           )}
-          <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+          <p
+            style={{
+              fontSize: '0.875rem',
+              color: '#6b7280',
+              marginTop: '0.25rem',
+            }}
+          >
             @ マークは自動で除去されます
           </p>
         </div>
@@ -208,7 +220,10 @@ function TargetAccountCreate() {
             id="twitter_account_id"
             value={formData.twitter_account_id}
             onChange={(e) =>
-              setFormData({ ...formData, twitter_account_id: Number(e.target.value) })
+              setFormData({
+                ...formData,
+                twitter_account_id: Number(e.target.value),
+              })
             }
             className={select}
           >
@@ -224,7 +239,13 @@ function TargetAccountCreate() {
           {errors.twitter_account_id && (
             <span className={errorMessage}>{errors.twitter_account_id}</span>
           )}
-          <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+          <p
+            style={{
+              fontSize: '0.875rem',
+              color: '#6b7280',
+              marginTop: '0.25rem',
+            }}
+          >
             ツイート取得に使用する認証済み Twitter アカウントを選択してください
           </p>
         </div>
@@ -249,9 +270,17 @@ function TargetAccountCreate() {
             placeholder="60"
           />
           {errors.fetch_interval_minutes && (
-            <span className={errorMessage}>{errors.fetch_interval_minutes}</span>
+            <span className={errorMessage}>
+              {errors.fetch_interval_minutes}
+            </span>
           )}
-          <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+          <p
+            style={{
+              fontSize: '0.875rem',
+              color: '#6b7280',
+              marginTop: '0.25rem',
+            }}
+          >
             ツイートを取得する間隔を分単位で設定します（1-1440分）
           </p>
         </div>
@@ -278,7 +307,13 @@ function TargetAccountCreate() {
           {errors.max_tweets_per_fetch && (
             <span className={errorMessage}>{errors.max_tweets_per_fetch}</span>
           )}
-          <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+          <p
+            style={{
+              fontSize: '0.875rem',
+              color: '#6b7280',
+              marginTop: '0.25rem',
+            }}
+          >
             1回の取得で取得する最大ツイート数を設定します（1-200件）
           </p>
         </div>

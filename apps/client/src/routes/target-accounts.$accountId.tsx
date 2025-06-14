@@ -155,7 +155,9 @@ function TargetAccountDetail() {
 
   const handleDelete = () => {
     if (
-      window.confirm('このターゲットアカウントを削除しますか？この操作は取り消せません。')
+      window.confirm(
+        'このターゲットアカウントを削除しますか？この操作は取り消せません。',
+      )
     ) {
       deleteTargetAccountMutation.mutate();
     }
@@ -187,7 +189,9 @@ function TargetAccountDetail() {
       <div className={formGroup}>
         <h3 className={label}>基本情報</h3>
         <p className={label}>内部 ID: {accountData.id}</p>
-        <p className={label}>Twitter ユーザー ID: {accountData.twitter_user_id}</p>
+        <p className={label}>
+          Twitter ユーザー ID: {accountData.twitter_user_id}
+        </p>
         <p className={label}>ユーザー名: @{accountData.username}</p>
         <p className={label}>表示名: {accountData.display_name || '未設定'}</p>
         <p className={label}>説明: {accountData.description || '未設定'}</p>
@@ -214,26 +218,41 @@ function TargetAccountDetail() {
           認証済み: {accountData.is_verified ? 'はい' : 'いいえ'}
         </p>
         <p className={label}>
-          Twitter Blue 認証済み: {accountData.is_blue_verified ? 'はい' : 'いいえ'}
+          Twitter Blue 認証済み:{' '}
+          {accountData.is_blue_verified ? 'はい' : 'いいえ'}
         </p>
       </div>
 
       {/* 統計情報 */}
       <div className={formGroup}>
         <h3 className={label}>統計情報</h3>
-        <p className={label}>フォロワー数: {formatNumber(accountData.followers_count)}</p>
-        <p className={label}>フォロー数: {formatNumber(accountData.following_count)}</p>
-        <p className={label}>ツイート数: {formatNumber(accountData.tweets_count)}</p>
-        <p className={label}>リスト登録数: {formatNumber(accountData.listed_count)}</p>
-        <p className={label}>いいね数: {formatNumber(accountData.favorites_count)}</p>
+        <p className={label}>
+          フォロワー数: {formatNumber(accountData.followers_count)}
+        </p>
+        <p className={label}>
+          フォロー数: {formatNumber(accountData.following_count)}
+        </p>
+        <p className={label}>
+          ツイート数: {formatNumber(accountData.tweets_count)}
+        </p>
+        <p className={label}>
+          リスト登録数: {formatNumber(accountData.listed_count)}
+        </p>
+        <p className={label}>
+          いいね数: {formatNumber(accountData.favorites_count)}
+        </p>
       </div>
 
       {/* エラー情報 */}
       {(accountData.consecutive_errors > 0 || accountData.last_error) && (
         <div className={formGroup}>
           <h3 className={label}>エラー情報</h3>
-          <p className={label}>連続エラー回数: {accountData.consecutive_errors}</p>
-          <p className={label}>最後のエラー: {accountData.last_error || '未設定'}</p>
+          <p className={label}>
+            連続エラー回数: {accountData.consecutive_errors}
+          </p>
+          <p className={label}>
+            最後のエラー: {accountData.last_error || '未設定'}
+          </p>
           <p className={label}>
             最後のエラー発生日時: {formatDate(accountData.last_error_at)}
           </p>
@@ -243,12 +262,18 @@ function TargetAccountDetail() {
       {/* 日時情報 */}
       <div className={formGroup}>
         <h3 className={label}>日時情報</h3>
-        <p className={label}>最終取得日時: {formatDate(accountData.last_fetched_at)}</p>
+        <p className={label}>
+          最終取得日時: {formatDate(accountData.last_fetched_at)}
+        </p>
         <p className={label}>
           アカウント作成日時: {formatDate(accountData.account_created_at)}
         </p>
-        <p className={label}>レコード作成日時: {formatDate(accountData.created_at)}</p>
-        <p className={label}>レコード更新日時: {formatDate(accountData.updated_at)}</p>
+        <p className={label}>
+          レコード作成日時: {formatDate(accountData.created_at)}
+        </p>
+        <p className={label}>
+          レコード更新日時: {formatDate(accountData.updated_at)}
+        </p>
       </div>
 
       {/* 編集可能なフォーム */}
@@ -287,7 +312,9 @@ function TargetAccountDetail() {
             className={input}
           />
           {errors.fetch_interval_minutes && (
-            <span className={errorMessage}>{errors.fetch_interval_minutes}</span>
+            <span className={errorMessage}>
+              {errors.fetch_interval_minutes}
+            </span>
           )}
         </div>
 
@@ -347,7 +374,9 @@ function TargetAccountDetail() {
             className={saveButton}
             disabled={fetchTweetsMutation.isPending}
           >
-            {fetchTweetsMutation.isPending ? 'ツイート取得中...' : 'ツイート取得実行'}
+            {fetchTweetsMutation.isPending
+              ? 'ツイート取得中...'
+              : 'ツイート取得実行'}
           </button>
 
           <button

@@ -51,9 +51,13 @@ function TargetAccounts() {
 
   // Filter accounts based on search term
   const filteredAccounts = useMemo(() => {
-    return data.accounts.filter((account) =>
-      account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (account.display_name && account.display_name.toLowerCase().includes(searchTerm.toLowerCase()))
+    return data.accounts.filter(
+      (account) =>
+        account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (account.display_name &&
+          account.display_name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())),
     );
   }, [data.accounts, searchTerm]);
 
@@ -116,7 +120,9 @@ function TargetAccounts() {
             <tr key={account.id} className={row}>
               <td className={cell}>{account.id}</td>
               <td className={cell}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
                   {account.profile_image_url && (
                     <img
                       src={account.profile_image_url}
@@ -144,8 +150,12 @@ function TargetAccounts() {
                   {account.is_active ? 'アクティブ' : '非アクティブ'}
                 </span>
               </td>
-              <td className={cell}>{account.followers_count.toLocaleString()}</td>
-              <td className={cell}>{formatInterval(account.fetch_interval_minutes)}</td>
+              <td className={cell}>
+                {account.followers_count.toLocaleString()}
+              </td>
+              <td className={cell}>
+                {formatInterval(account.fetch_interval_minutes)}
+              </td>
               <td className={cell}>{formatDate(account.last_fetched_at)}</td>
               <td className={cell}>
                 {account.consecutive_errors > 0 && (

@@ -85,7 +85,9 @@ async function updateTargetAccount(
   });
 }
 
-async function deleteTargetAccount(accountId: string): Promise<{ success: boolean; message: string }> {
+async function deleteTargetAccount(
+  accountId: string,
+): Promise<{ success: boolean; message: string }> {
   return apiClientJson(`/target-accounts/${accountId}`, {
     method: 'DELETE',
   });
@@ -117,5 +119,15 @@ export const targetAccountDetailQueryOptions = (accountId: string) =>
     retry: 2,
   });
 
-export type { TargetAccount, TargetAccountListResponse, TargetAccountCreateRequest, TargetAccountUpdateRequest };
-export { createTargetAccount, updateTargetAccount, deleteTargetAccount, fetchTweetsForAccount };
+export type {
+  TargetAccount,
+  TargetAccountListResponse,
+  TargetAccountCreateRequest,
+  TargetAccountUpdateRequest,
+};
+export {
+  createTargetAccount,
+  updateTargetAccount,
+  deleteTargetAccount,
+  fetchTweetsForAccount,
+};
