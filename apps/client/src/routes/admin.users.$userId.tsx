@@ -43,23 +43,7 @@ function UserEdit() {
   const queryClient = useQueryClient();
 
   // APIからユーザーデータを取得
-  const { data: userData, error } = useSuspenseQuery(
-    userDetailQueryOptions(userId),
-  );
-
-  // エラーハンドリング
-  if (error) {
-    return (
-      <div className={formContainer}>
-        <div className={formHeader}>
-          <h1>ユーザー編集</h1>
-        </div>
-        <div className={errorContainer}>
-          エラーが発生しました: {error.message}
-        </div>
-      </div>
-    );
-  }
+  const { data: userData } = useSuspenseQuery(userDetailQueryOptions(userId));
 
   const [formData, setFormData] = useState({
     username: userData.username,

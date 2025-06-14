@@ -14,7 +14,13 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as TimelineImport } from './routes/timeline'
 import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
+import { Route as TwitterAccountsIndexImport } from './routes/twitter-accounts.index'
+import { Route as TargetAccountsIndexImport } from './routes/target-accounts.index'
+import { Route as TwitterAccountsCreateImport } from './routes/twitter-accounts.create'
+import { Route as TwitterAccountsAccountIdImport } from './routes/twitter-accounts.$accountId'
 import { Route as TestApiImport } from './routes/test.api'
+import { Route as TargetAccountsCreateImport } from './routes/target-accounts.create'
+import { Route as TargetAccountsAccountIdImport } from './routes/target-accounts.$accountId'
 import { Route as DemoTanstackQueryImport } from './routes/demo.tanstack-query'
 import { Route as DemoStoreImport } from './routes/demo.store'
 import { Route as AdminUsersIndexImport } from './routes/admin.users.index'
@@ -41,9 +47,45 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const TwitterAccountsIndexRoute = TwitterAccountsIndexImport.update({
+  id: '/twitter-accounts/',
+  path: '/twitter-accounts/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TargetAccountsIndexRoute = TargetAccountsIndexImport.update({
+  id: '/target-accounts/',
+  path: '/target-accounts/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TwitterAccountsCreateRoute = TwitterAccountsCreateImport.update({
+  id: '/twitter-accounts/create',
+  path: '/twitter-accounts/create',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TwitterAccountsAccountIdRoute = TwitterAccountsAccountIdImport.update({
+  id: '/twitter-accounts/$accountId',
+  path: '/twitter-accounts/$accountId',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const TestApiRoute = TestApiImport.update({
   id: '/test/api',
   path: '/test/api',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TargetAccountsCreateRoute = TargetAccountsCreateImport.update({
+  id: '/target-accounts/create',
+  path: '/target-accounts/create',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TargetAccountsAccountIdRoute = TargetAccountsAccountIdImport.update({
+  id: '/target-accounts/$accountId',
+  path: '/target-accounts/$accountId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -116,11 +158,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoTanstackQueryImport
       parentRoute: typeof rootRoute
     }
+    '/target-accounts/$accountId': {
+      id: '/target-accounts/$accountId'
+      path: '/target-accounts/$accountId'
+      fullPath: '/target-accounts/$accountId'
+      preLoaderRoute: typeof TargetAccountsAccountIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/target-accounts/create': {
+      id: '/target-accounts/create'
+      path: '/target-accounts/create'
+      fullPath: '/target-accounts/create'
+      preLoaderRoute: typeof TargetAccountsCreateImport
+      parentRoute: typeof rootRoute
+    }
     '/test/api': {
       id: '/test/api'
       path: '/test/api'
       fullPath: '/test/api'
       preLoaderRoute: typeof TestApiImport
+      parentRoute: typeof rootRoute
+    }
+    '/twitter-accounts/$accountId': {
+      id: '/twitter-accounts/$accountId'
+      path: '/twitter-accounts/$accountId'
+      fullPath: '/twitter-accounts/$accountId'
+      preLoaderRoute: typeof TwitterAccountsAccountIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/twitter-accounts/create': {
+      id: '/twitter-accounts/create'
+      path: '/twitter-accounts/create'
+      fullPath: '/twitter-accounts/create'
+      preLoaderRoute: typeof TwitterAccountsCreateImport
+      parentRoute: typeof rootRoute
+    }
+    '/target-accounts/': {
+      id: '/target-accounts/'
+      path: '/target-accounts'
+      fullPath: '/target-accounts'
+      preLoaderRoute: typeof TargetAccountsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/twitter-accounts/': {
+      id: '/twitter-accounts/'
+      path: '/twitter-accounts'
+      fullPath: '/twitter-accounts'
+      preLoaderRoute: typeof TwitterAccountsIndexImport
       parentRoute: typeof rootRoute
     }
     '/admin/users/$userId': {
@@ -155,7 +239,13 @@ export interface FileRoutesByFullPath {
   '/timeline': typeof TimelineRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/target-accounts/$accountId': typeof TargetAccountsAccountIdRoute
+  '/target-accounts/create': typeof TargetAccountsCreateRoute
   '/test/api': typeof TestApiRoute
+  '/twitter-accounts/$accountId': typeof TwitterAccountsAccountIdRoute
+  '/twitter-accounts/create': typeof TwitterAccountsCreateRoute
+  '/target-accounts': typeof TargetAccountsIndexRoute
+  '/twitter-accounts': typeof TwitterAccountsIndexRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/users/create': typeof AdminUsersCreateRoute
   '/admin/users': typeof AdminUsersIndexRoute
@@ -167,7 +257,13 @@ export interface FileRoutesByTo {
   '/timeline': typeof TimelineRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/target-accounts/$accountId': typeof TargetAccountsAccountIdRoute
+  '/target-accounts/create': typeof TargetAccountsCreateRoute
   '/test/api': typeof TestApiRoute
+  '/twitter-accounts/$accountId': typeof TwitterAccountsAccountIdRoute
+  '/twitter-accounts/create': typeof TwitterAccountsCreateRoute
+  '/target-accounts': typeof TargetAccountsIndexRoute
+  '/twitter-accounts': typeof TwitterAccountsIndexRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/users/create': typeof AdminUsersCreateRoute
   '/admin/users': typeof AdminUsersIndexRoute
@@ -180,7 +276,13 @@ export interface FileRoutesById {
   '/timeline': typeof TimelineRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/target-accounts/$accountId': typeof TargetAccountsAccountIdRoute
+  '/target-accounts/create': typeof TargetAccountsCreateRoute
   '/test/api': typeof TestApiRoute
+  '/twitter-accounts/$accountId': typeof TwitterAccountsAccountIdRoute
+  '/twitter-accounts/create': typeof TwitterAccountsCreateRoute
+  '/target-accounts/': typeof TargetAccountsIndexRoute
+  '/twitter-accounts/': typeof TwitterAccountsIndexRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/users/create': typeof AdminUsersCreateRoute
   '/admin/users/': typeof AdminUsersIndexRoute
@@ -194,7 +296,13 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/demo/store'
     | '/demo/tanstack-query'
+    | '/target-accounts/$accountId'
+    | '/target-accounts/create'
     | '/test/api'
+    | '/twitter-accounts/$accountId'
+    | '/twitter-accounts/create'
+    | '/target-accounts'
+    | '/twitter-accounts'
     | '/admin/users/$userId'
     | '/admin/users/create'
     | '/admin/users'
@@ -205,7 +313,13 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/demo/store'
     | '/demo/tanstack-query'
+    | '/target-accounts/$accountId'
+    | '/target-accounts/create'
     | '/test/api'
+    | '/twitter-accounts/$accountId'
+    | '/twitter-accounts/create'
+    | '/target-accounts'
+    | '/twitter-accounts'
     | '/admin/users/$userId'
     | '/admin/users/create'
     | '/admin/users'
@@ -216,7 +330,13 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/demo/store'
     | '/demo/tanstack-query'
+    | '/target-accounts/$accountId'
+    | '/target-accounts/create'
     | '/test/api'
+    | '/twitter-accounts/$accountId'
+    | '/twitter-accounts/create'
+    | '/target-accounts/'
+    | '/twitter-accounts/'
     | '/admin/users/$userId'
     | '/admin/users/create'
     | '/admin/users/'
@@ -229,7 +349,13 @@ export interface RootRouteChildren {
   TimelineRoute: typeof TimelineRoute
   DemoStoreRoute: typeof DemoStoreRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  TargetAccountsAccountIdRoute: typeof TargetAccountsAccountIdRoute
+  TargetAccountsCreateRoute: typeof TargetAccountsCreateRoute
   TestApiRoute: typeof TestApiRoute
+  TwitterAccountsAccountIdRoute: typeof TwitterAccountsAccountIdRoute
+  TwitterAccountsCreateRoute: typeof TwitterAccountsCreateRoute
+  TargetAccountsIndexRoute: typeof TargetAccountsIndexRoute
+  TwitterAccountsIndexRoute: typeof TwitterAccountsIndexRoute
   AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
   AdminUsersCreateRoute: typeof AdminUsersCreateRoute
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
@@ -241,7 +367,13 @@ const rootRouteChildren: RootRouteChildren = {
   TimelineRoute: TimelineRoute,
   DemoStoreRoute: DemoStoreRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  TargetAccountsAccountIdRoute: TargetAccountsAccountIdRoute,
+  TargetAccountsCreateRoute: TargetAccountsCreateRoute,
   TestApiRoute: TestApiRoute,
+  TwitterAccountsAccountIdRoute: TwitterAccountsAccountIdRoute,
+  TwitterAccountsCreateRoute: TwitterAccountsCreateRoute,
+  TargetAccountsIndexRoute: TargetAccountsIndexRoute,
+  TwitterAccountsIndexRoute: TwitterAccountsIndexRoute,
   AdminUsersUserIdRoute: AdminUsersUserIdRoute,
   AdminUsersCreateRoute: AdminUsersCreateRoute,
   AdminUsersIndexRoute: AdminUsersIndexRoute,
@@ -262,7 +394,13 @@ export const routeTree = rootRoute
         "/timeline",
         "/demo/store",
         "/demo/tanstack-query",
+        "/target-accounts/$accountId",
+        "/target-accounts/create",
         "/test/api",
+        "/twitter-accounts/$accountId",
+        "/twitter-accounts/create",
+        "/target-accounts/",
+        "/twitter-accounts/",
         "/admin/users/$userId",
         "/admin/users/create",
         "/admin/users/"
@@ -283,8 +421,26 @@ export const routeTree = rootRoute
     "/demo/tanstack-query": {
       "filePath": "demo.tanstack-query.tsx"
     },
+    "/target-accounts/$accountId": {
+      "filePath": "target-accounts.$accountId.tsx"
+    },
+    "/target-accounts/create": {
+      "filePath": "target-accounts.create.tsx"
+    },
     "/test/api": {
       "filePath": "test.api.tsx"
+    },
+    "/twitter-accounts/$accountId": {
+      "filePath": "twitter-accounts.$accountId.tsx"
+    },
+    "/twitter-accounts/create": {
+      "filePath": "twitter-accounts.create.tsx"
+    },
+    "/target-accounts/": {
+      "filePath": "target-accounts.index.tsx"
+    },
+    "/twitter-accounts/": {
+      "filePath": "twitter-accounts.index.tsx"
     },
     "/admin/users/$userId": {
       "filePath": "admin.users.$userId.tsx"
