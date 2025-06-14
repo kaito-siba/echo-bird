@@ -51,7 +51,7 @@ export function Timeline({ targetAccountId }: TimelineProps) {
     <div className={styles.timeline}>
       {/* ヘッダー */}
       <div className={styles.header}>
-        <div>
+        <div className={styles.titleContainer}>
           <h1 className={styles.title}>タイムライン</h1>
           <div className={styles.subtitle}>
             {timelineData?.total ? `${timelineData.total} 件のツイート` : ''}
@@ -65,21 +65,22 @@ export function Timeline({ targetAccountId }: TimelineProps) {
         >
           {isFetching ? (
             <>
-              <div className={styles.loadingSpinner} />
-              <span style={{ marginLeft: '8px' }}>更新中...</span>
+              <div className={styles.refreshIconSpinning} />
+              更新中...
             </>
           ) : (
             <>
               <svg
-                width="16"
-                height="16"
+                className={styles.refreshIcon}
                 viewBox="0 0 24 24"
-                style={{ marginRight: '6px' }}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
               >
-                <path
-                  fill="currentColor"
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-1.57.46-3.03 1.24-4.26L6.7 6.3c-.78 1.33-1.2 2.86-1.2 4.7 0 4.41 3.59 8 8 8s8-3.59 8-8-3.59-8-8-8c-1.84 0-3.37.42-4.7 1.2L7.74 5.76C8.97 4.46 10.43 4 12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8z"
-                />
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                <path d="M3 21v-5h5" />
               </svg>
               更新
             </>
@@ -91,19 +92,45 @@ export function Timeline({ targetAccountId }: TimelineProps) {
       {isLoading ? (
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner} />
+          <div className={styles.loadingText}>ツイートを読み込み中...</div>
         </div>
       ) : isError ? (
         <div className={styles.errorContainer}>
-          <div className={styles.errorMessage}>
+          <svg
+            className={styles.errorIcon}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="15" y1="9" x2="9" y2="15" />
+            <line x1="9" y1="9" x2="15" y2="15" />
+          </svg>
+          <div className={styles.errorMessage}>エラーが発生しました</div>
+          <div className={styles.errorDescription}>
             {error instanceof Error
               ? error.message
-              : 'ツイートの読み込みに失敗しました'}
+              : 'ツイートの読み込みに失敗しました。しばらく時間をおいて再試行してください。'}
           </div>
           <button
             type="button"
             className={styles.retryButton}
             onClick={handleRetry}
           >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+              <path d="M21 3v5h-5" />
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+              <path d="M3 21v-5h5" />
+            </svg>
             再試行
           </button>
         </div>
@@ -141,7 +168,17 @@ export function Timeline({ targetAccountId }: TimelineProps) {
                 onClick={handlePreviousPage}
                 disabled={page === 1}
               >
-                ← 前のページ
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+                前のページ
               </button>
 
               <div className={styles.paginationInfo}>
@@ -154,7 +191,17 @@ export function Timeline({ targetAccountId }: TimelineProps) {
                 onClick={handleNextPage}
                 disabled={!timelineData.has_next}
               >
-                次のページ →
+                次のページ
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
               </button>
             </div>
           )}

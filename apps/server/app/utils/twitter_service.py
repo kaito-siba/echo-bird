@@ -263,11 +263,13 @@ class TwitterService:
             current_time = int(time.time())
 
             # リツイート・引用ツイートの場合の本文取得
-            is_retweet = hasattr(tweet_data, 'retweeted_status') or hasattr(
-                tweet_data, 'retweeted_tweet'
+            is_retweet = (
+                getattr(tweet_data, 'retweeted_status', None) is not None
+                or getattr(tweet_data, 'retweeted_tweet', None) is not None
             )
-            is_quote = hasattr(tweet_data, 'quoted_status') or hasattr(
-                tweet_data, 'quoted_tweet'
+            is_quote = (
+                getattr(tweet_data, 'quoted_status', None) is not None
+                or getattr(tweet_data, 'quoted_tweet', None) is not None
             )
 
             if is_retweet:
@@ -367,8 +369,8 @@ class TwitterService:
                 quotes_count=getattr(tweet_data, 'quote_count', 0),
                 views_count=getattr(tweet_data, 'view_count', 0),
                 bookmark_count=getattr(tweet_data, 'bookmark_count', 0),
-                is_retweet=hasattr(tweet_data, 'retweeted_status'),
-                is_quote=hasattr(tweet_data, 'quoted_status'),
+                is_retweet=is_retweet,
+                is_quote=is_quote,
                 retweeted_tweet_id=getattr(tweet_data, 'retweeted_status_id', None),
                 quoted_tweet_id=getattr(tweet_data, 'quoted_status_id', None),
                 is_reply=hasattr(tweet_data, 'in_reply_to_status_id'),
