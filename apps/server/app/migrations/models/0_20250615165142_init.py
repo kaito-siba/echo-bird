@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS "tweets" (
     "bookmark_count" INT,
     "is_retweet" BOOL NOT NULL DEFAULT False,
     "is_quote" BOOL NOT NULL DEFAULT False,
+    "is_quoted" BOOL NOT NULL DEFAULT False,
     "retweeted_tweet_id" VARCHAR(50),
     "quoted_tweet_id" VARCHAR(50),
     "is_reply" BOOL NOT NULL DEFAULT False,

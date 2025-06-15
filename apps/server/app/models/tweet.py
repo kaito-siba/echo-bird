@@ -64,6 +64,7 @@ class Tweet(Model):
     # リツイート・引用関連
     is_retweet = BooleanField(default=DEFAULT_IS_RETWEET)  # リツイートかどうか
     is_quote = BooleanField(default=DEFAULT_IS_QUOTE)  # 引用ツイートかどうか
+    is_quoted = BooleanField(default=False)  # 引用元ツイートとして保存されたかどうか
     retweeted_tweet_id = CharField(
         max_length=TWITTER_ID_LENGTH, null=True
     )  # リツイート元のツイート ID

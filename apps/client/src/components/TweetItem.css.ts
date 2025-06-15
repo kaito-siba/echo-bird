@@ -479,7 +479,7 @@ export const quotedTweetDisplayName = style({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  maxWidth: '120px',
+  maxWidth: '200px', // 通常ツイートと同じレベルに拡大
 });
 
 export const quotedTweetUsername = style({
@@ -487,7 +487,7 @@ export const quotedTweetUsername = style({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  maxWidth: '100px',
+  maxWidth: '150px', // 通常ツイートと同じレベルに拡大
 });
 
 export const quotedTweetTimestamp = style({
@@ -511,5 +511,6 @@ export const quotedTweetMediaContainer = style({
   overflow: 'hidden',
   border: `1px solid ${colors.gray[200]}`,
   backgroundColor: colors.gray[50],
-  maxWidth: '100%',
+  maxWidth: '450px', // 引用ツイートのメディアを少し大きめに
+  width: '100%',
 });

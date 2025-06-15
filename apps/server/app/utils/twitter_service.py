@@ -450,6 +450,7 @@ class TwitterService:
                 bookmark_count=getattr(quoted_tweet_data, 'bookmark_count', 0),
                 is_retweet=False,  # 引用元ツイート自体はリツイートではない
                 is_quote=False,  # 引用元ツイート自体は引用ツイートではない
+                is_quoted=True,  # 引用元ツイートとして保存
                 retweeted_tweet_id=None,
                 quoted_tweet_id=None,
                 is_reply=hasattr(quoted_tweet_data, 'in_reply_to_status_id'),

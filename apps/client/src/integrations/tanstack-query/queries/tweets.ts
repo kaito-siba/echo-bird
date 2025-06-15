@@ -27,6 +27,7 @@ export interface TweetResponse {
   bookmark_count: number | null;
   is_retweet: boolean;
   is_quote: boolean;
+  is_quoted: boolean;
   retweeted_tweet_id: string | null;
   quoted_tweet_id: string | null;
   is_reply: boolean;

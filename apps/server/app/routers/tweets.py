@@ -46,6 +46,7 @@ class TweetResponse(BaseModel):
     bookmark_count: int | None = Field(None, description='ブックマーク数')
     is_retweet: bool = Field(..., description='リツイートかどうか')
     is_quote: bool = Field(..., description='引用ツイートかどうか')
+    is_quoted: bool = Field(..., description='引用元ツイートとして保存されたかどうか')
     retweeted_tweet_id: str | None = Field(
         None, description='リツイート元のツイート ID'
     )
@@ -161,6 +162,7 @@ async def create_tweet_response(tweet: Tweet) -> TweetResponse:
                 bookmark_count=quoted_tweet.bookmark_count,
                 is_retweet=quoted_tweet.is_retweet,
                 is_quote=quoted_tweet.is_quote,
+                is_quoted=quoted_tweet.is_quoted,
                 retweeted_tweet_id=quoted_tweet.retweeted_tweet_id,
                 quoted_tweet_id=quoted_tweet.quoted_tweet_id,
                 is_reply=quoted_tweet.is_reply,
@@ -207,6 +209,7 @@ async def create_tweet_response(tweet: Tweet) -> TweetResponse:
         bookmark_count=tweet.bookmark_count,
         is_retweet=tweet.is_retweet,
         is_quote=tweet.is_quote,
+        is_quoted=tweet.is_quoted,
         retweeted_tweet_id=tweet.retweeted_tweet_id,
         quoted_tweet_id=tweet.quoted_tweet_id,
         is_reply=tweet.is_reply,
@@ -288,9 +291,10 @@ async def TweetTimelineAPI(
         target_account_ids = [target_account_id]
 
     # ツイート一覧を取得（ページネーション付き）
+    # is_quoted=False のツイートのみを取得（引用元ツイートを除外）
     offset = (page - 1) * page_size
     tweets_query = (
-        Tweet.filter(target_account_id__in=target_account_ids)
+        Tweet.filter(target_account_id__in=target_account_ids, is_quoted=False)
         .select_related('target_account')
         .order_by('-posted_at')
     )
@@ -335,9 +339,11 @@ async def TweetDetailAPI(
     ).all()
     target_account_ids = [account.id for account in target_accounts]
 
-    # ツイートを取得
+    # ツイートを取得（引用元ツイートは除外）
     tweet = (
-        await Tweet.filter(tweet_id=tweet_id, target_account_id__in=target_account_ids)
+        await Tweet.filter(
+            tweet_id=tweet_id, target_account_id__in=target_account_ids, is_quoted=False
+        )
         .select_related('target_account')
         .first()
     )
