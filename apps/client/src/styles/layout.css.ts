@@ -28,11 +28,18 @@ export const sidebar = style({
   borderRight: `1px solid ${colors.gray[200]}`,
   padding: '20px',
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  position: 'relative',
+  position: 'fixed',
+  top: '0',
+  left: '0',
+  height: '100vh',
+  zIndex: '1000',
+  overflowY: 'auto',
 
   '@media': {
     '(max-width: 1023px)': {
+      position: 'relative',
       width: '100%',
+      height: 'auto',
       borderRight: 'none',
       borderBottom: `1px solid ${colors.gray[200]}`,
       padding: '16px 20px',
@@ -47,7 +54,9 @@ export const sidebarCollapsed = style([
 
     '@media': {
       '(max-width: 1023px)': {
+        position: 'relative',
         width: '100%',
+        height: 'auto',
       },
     },
   },
@@ -215,17 +224,34 @@ export const mainContent = style({
   flex: 1,
   padding: '20px',
   minWidth: 0,
+  marginLeft: '280px',
 
   '@media': {
     '(max-width: 1023px)': {
+      marginLeft: '0',
       padding: '16px 20px',
     },
 
     '(max-width: 640px)': {
+      marginLeft: '0',
       padding: '0',
     },
   },
 });
+
+// サイドバー折りたたみ時のメインコンテンツスタイル
+export const mainContentCollapsed = style([
+  mainContent,
+  {
+    marginLeft: '72px',
+
+    '@media': {
+      '(max-width: 1023px)': {
+        marginLeft: '0',
+      },
+    },
+  },
+]);
 
 // サイドバーの統計情報表示
 export const statsSection = style({

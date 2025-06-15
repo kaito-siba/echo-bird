@@ -20,7 +20,15 @@ export default function Layout({ children }: LayoutProps) {
           isCollapsed={isSidebarCollapsed}
           onToggle={handleSidebarToggle}
         />
-        <main className={styles.mainContent}>{children}</main>
+        <main
+          className={
+            isSidebarCollapsed
+              ? styles.mainContentCollapsed
+              : styles.mainContent
+          }
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

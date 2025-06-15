@@ -14,9 +14,7 @@ import {
   errorContainer,
   statusBadge,
 } from '../styles/admin.css';
-import {
-  userListQueryOptions,
-} from '../integrations/tanstack-query/queries/user';
+import { userListQueryOptions } from '../integrations/tanstack-query/queries/user';
 import { authGuard } from '../utils/auth-guard';
 
 export const Route = createFileRoute('/admin/users/')({
