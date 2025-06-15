@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 // シンプルなユーティリティ関数の例
 function add(a: number, b: number): number {

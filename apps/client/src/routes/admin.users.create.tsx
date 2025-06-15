@@ -1,23 +1,23 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  formContainer,
-  formHeader,
-  formGroup,
-  label,
-  input,
+  type UserCreateRequest,
+  createUser,
+} from '../integrations/tanstack-query/queries/user';
+import {
   buttonGroup,
-  saveButton,
   cancelButton,
   errorMessage,
+  formContainer,
+  formGroup,
+  formHeader,
+  input,
+  label,
   mutationErrorContainer,
+  saveButton,
 } from '../styles/admin-form.css';
 import { authGuard } from '../utils/auth-guard';
-import {
-  createUser,
-  type UserCreateRequest,
-} from '../integrations/tanstack-query/queries/user';
 
 export const Route = createFileRoute('/admin/users/create')({
   component: UserCreate,

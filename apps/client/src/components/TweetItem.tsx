@@ -167,7 +167,9 @@ export function TweetItem({ tweet }: TweetItemProps) {
 
           {/* メディア表示 */}
           {tweet.media && tweet.media.length > 0 && (
-            <div className={`${styles.mediaContainer} ${styles.responsiveMediaContainer}`}>
+            <div
+              className={`${styles.mediaContainer} ${styles.responsiveMediaContainer}`}
+            >
               <div className={getMediaGridClass(tweet.media.length)}>
                 {tweet.media.map((media, index) => (
                   <div
@@ -194,10 +196,7 @@ export function TweetItem({ tweet }: TweetItemProps) {
                           preload="metadata"
                         />
                         <div className={styles.mediaOverlay}>
-                          <svg
-                            viewBox="0 0 24 24"
-                            className={styles.playIcon}
-                          >
+                          <svg viewBox="0 0 24 24" className={styles.playIcon}>
                             <path d="M8 5v14l11-7z" />
                           </svg>
                           動画

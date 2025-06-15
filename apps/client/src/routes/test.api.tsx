@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { apiRequest, API_ENDPOINTS } from '../utils/api';
+import { API_ENDPOINTS, apiRequest } from '../utils/api';
 
 export const Route = createFileRoute('/test/api')({
   component: ApiTestPage,
