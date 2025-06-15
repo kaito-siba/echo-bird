@@ -44,6 +44,39 @@ export function TweetItem({ tweet }: TweetItemProps) {
     return url.replace('_normal', '_bigger');
   };
 
+  // メディアグリッドのクラス名を取得する関数
+  const getMediaGridClass = (mediaCount: number): string => {
+    switch (mediaCount) {
+      case 1:
+        return styles.mediaGridSingle;
+      case 2:
+        return styles.mediaGridDouble;
+      case 3:
+        return styles.mediaGridTriple;
+      case 4:
+      default:
+        return styles.mediaGridQuad;
+    }
+  };
+
+  // メディアアイテムのクラス名を取得する関数
+  const getMediaItemClass = (mediaCount: number, index: number): string => {
+    // 3つのメディアの場合、最初のものを大きく表示
+    if (mediaCount === 3 && index === 0) {
+      return styles.mediaItemLarge;
+    }
+    if (mediaCount === 3 && index > 0) {
+      return styles.mediaItemSmall;
+    }
+    return styles.mediaItem;
+  };
+
+  // メディアクリック時の処理
+  const handleMediaClick = (mediaUrl: string): void => {
+    // 新しいタブでメディアを開く
+    window.open(mediaUrl, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <article className={`${styles.tweetItem} ${styles.responsiveContainer}`}>
       {/* リツイートヘッダー */}
@@ -131,6 +164,65 @@ export function TweetItem({ tweet }: TweetItemProps) {
           <div className={`${styles.text} ${styles.responsiveText}`}>
             {tweet.full_text || tweet.content}
           </div>
+
+          {/* メディア表示 */}
+          {tweet.media && tweet.media.length > 0 && (
+            <div className={`${styles.mediaContainer} ${styles.responsiveMediaContainer}`}>
+              <div className={getMediaGridClass(tweet.media.length)}>
+                {tweet.media.map((media, index) => (
+                  <div
+                    key={media.media_key}
+                    className={getMediaItemClass(tweet.media.length, index)}
+                    onClick={() => handleMediaClick(media.media_url)}
+                  >
+                    {media.media_type === 'photo' ? (
+                      <>
+                        <img
+                          src={media.media_url}
+                          alt={media.alt_text || 'ツイート画像'}
+                          className={styles.mediaImage}
+                          loading="lazy"
+                        />
+                      </>
+                    ) : media.media_type === 'video' ? (
+                      <>
+                        <video
+                          src={media.media_url}
+                          className={styles.mediaVideo}
+                          controls={false}
+                          muted
+                          preload="metadata"
+                        />
+                        <div className={styles.mediaOverlay}>
+                          <svg
+                            viewBox="0 0 24 24"
+                            className={styles.playIcon}
+                          >
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                          動画
+                        </div>
+                      </>
+                    ) : media.media_type === 'animated_gif' ? (
+                      <>
+                        <video
+                          src={media.media_url}
+                          className={styles.mediaVideo}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                        />
+                        <div className={styles.mediaOverlay}>
+                          <span className={styles.gifIcon}>GIF</span>
+                        </div>
+                      </>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* エンゲージメント統計 */}
           <div className={styles.engagementStats}>

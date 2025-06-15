@@ -260,3 +260,131 @@ export const responsiveText = style({
     },
   },
 });
+
+export const responsiveMediaContainer = style({
+  '@media': {
+    '(max-width: 640px)': {
+      maxWidth: '100%',
+    },
+    '(max-width: 480px)': {
+      maxWidth: 'calc(100vw - 80px)', // 画面幅から余白を引いた値
+    },
+  },
+});
+
+// メディア表示用スタイル
+export const mediaContainer = style({
+  marginTop: '12px',
+  borderRadius: '16px',
+  overflow: 'hidden',
+  border: `1px solid ${colors.gray[200]}`,
+  backgroundColor: colors.gray[50],
+  maxWidth: '500px',
+  width: '100%',
+});
+
+export const mediaGrid = style({
+  display: 'grid',
+  gap: '2px',
+});
+
+export const mediaGridSingle = style([
+  mediaGrid,
+  {
+    gridTemplateColumns: '1fr',
+  },
+]);
+
+export const mediaGridDouble = style([
+  mediaGrid,
+  {
+    gridTemplateColumns: '1fr 1fr',
+  },
+]);
+
+export const mediaGridTriple = style([
+  mediaGrid,
+  {
+    gridTemplateColumns: '1fr 1fr',
+    gridTemplateRows: '1fr 1fr',
+  },
+]);
+
+export const mediaGridQuad = style([
+  mediaGrid,
+  {
+    gridTemplateColumns: '1fr 1fr',
+    gridTemplateRows: '1fr 1fr',
+  },
+]);
+
+export const mediaItem = style({
+  position: 'relative',
+  backgroundColor: colors.gray[100],
+  minHeight: '200px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  transition: 'transform 0.2s ease-in-out',
+
+  ':hover': {
+    transform: 'scale(1.02)',
+  },
+});
+
+export const mediaImage = style({
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  display: 'block',
+});
+
+export const mediaVideo = style({
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  display: 'block',
+});
+
+export const mediaOverlay = style({
+  position: 'absolute',
+  top: '8px',
+  right: '8px',
+  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  color: colors.white,
+  padding: '4px 8px',
+  borderRadius: '12px',
+  fontSize: '12px',
+  fontWeight: '600',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '4px',
+});
+
+export const playIcon = style({
+  width: '12px',
+  height: '12px',
+  fill: 'currentColor',
+});
+
+export const gifIcon = style({
+  fontSize: '10px',
+  fontWeight: '700',
+  letterSpacing: '0.5px',
+});
+
+// メディアグリッドでの特別な配置（3つの場合）
+export const mediaItemLarge = style([
+  mediaItem,
+  {
+    gridRow: 'span 2',
+  },
+]);
+
+export const mediaItemSmall = style([
+  mediaItem,
+  {
+    gridRow: 'span 1',
+  },
+]);

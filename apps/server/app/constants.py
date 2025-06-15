@@ -81,6 +81,14 @@ MEDIA_STATUS_DOWNLOADING = 'downloading'
 MEDIA_STATUS_COMPLETED = 'completed'
 MEDIA_STATUS_FAILED = 'failed'
 
+
+# ==========================================
+# MinIO / S3 関連定数
+# ==========================================
+
+# S3 バケット名
+MEDIA_BUCKET_NAME = 'tweet-media'  # ツイートのメディアファイル保存用バケット
+
 # Twitter アカウントステータス
 TWITTER_ACCOUNT_STATUS_ACTIVE = 'Active'
 TWITTER_ACCOUNT_STATUS_SUSPENDED = 'Suspended'

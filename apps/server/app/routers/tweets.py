@@ -1,12 +1,31 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.constants import MEDIA_STATUS_COMPLETED
+from app.models.media import Media
 from app.models.target_account import TargetAccount
 from app.models.tweet import Tweet
 from app.models.user import User
 from app.utils.auth import get_current_user
+from app.utils.s3_client import get_media_public_url
 
 router = APIRouter(prefix='/api/v1/tweets', tags=['tweets'])
+
+
+class MediaResponse(BaseModel):
+    """メディア情報レスポンス"""
+
+    media_key: str = Field(..., description='メディアキー')
+    media_type: str = Field(
+        ..., description='メディアタイプ (photo, video, animated_gif)'
+    )
+    media_url: str = Field(
+        ..., description='メディアアクセスURL（TwitterオリジナルまたはMinIO）'
+    )
+    width: int | None = Field(None, description='幅')
+    height: int | None = Field(None, description='高さ')
+    alt_text: str | None = Field(None, description='代替テキスト')
+    duration_ms: int | None = Field(None, description='再生時間（ミリ秒、動画の場合）')
 
 
 class TweetResponse(BaseModel):
@@ -72,6 +91,85 @@ class TweetResponse(BaseModel):
     original_author_profile_image_url: str | None = Field(
         None,
         description='元ツイート作者のプロフィール画像 URL（リツイート・引用の場合）',
+    )
+
+    # メディア情報（新規追加）
+    media: list[MediaResponse] = Field(
+        default=[], description='ツイートに添付されたメディア一覧'
+    )
+
+
+async def get_tweet_media_info(tweet_id: int) -> list[MediaResponse]:
+    """指定されたツイートのメディア情報を取得"""
+    # ダウンロード状態に関係なく全メディア情報を取得
+    media_items = await Media.filter(tweet_id=tweet_id).all()
+
+    media_responses = []
+    for media in media_items:
+        # MinIOにダウンロード済みならMinIO URL、未ダウンロードならTwitterオリジナルURL
+        if media.is_downloaded == MEDIA_STATUS_COMPLETED:
+            media_url = get_media_public_url(media.media_key)
+        else:
+            media_url = media.media_url  # TwitterオリジナルURL
+
+        media_response = MediaResponse(
+            media_key=media.media_key,
+            media_type=media.media_type,
+            media_url=media_url,
+            width=media.width,
+            height=media.height,
+            alt_text=media.alt_text,
+            duration_ms=media.duration_ms,
+        )
+        media_responses.append(media_response)
+
+    return media_responses
+
+
+async def create_tweet_response(tweet: Tweet) -> TweetResponse:
+    """TweetモデルからTweetResponseを生成する（メディア情報込み）"""
+    # メディア情報を取得
+    media_info = await get_tweet_media_info(tweet.id)
+
+    return TweetResponse(
+        id=tweet.id,
+        tweet_id=tweet.tweet_id,
+        content=tweet.content,
+        full_text=tweet.full_text,
+        lang=tweet.lang,
+        likes_count=tweet.likes_count,
+        retweets_count=tweet.retweets_count,
+        replies_count=tweet.replies_count,
+        quotes_count=tweet.quotes_count,
+        views_count=tweet.views_count,
+        bookmark_count=tweet.bookmark_count,
+        is_retweet=tweet.is_retweet,
+        is_quote=tweet.is_quote,
+        retweeted_tweet_id=tweet.retweeted_tweet_id,
+        quoted_tweet_id=tweet.quoted_tweet_id,
+        is_reply=tweet.is_reply,
+        in_reply_to_tweet_id=tweet.in_reply_to_tweet_id,
+        in_reply_to_user_id=tweet.in_reply_to_user_id,
+        conversation_id=tweet.conversation_id,
+        hashtags=tweet.hashtags,
+        urls=tweet.urls,
+        user_mentions=tweet.user_mentions,
+        is_possibly_sensitive=tweet.is_possibly_sensitive,
+        has_media=tweet.has_media,
+        posted_at=tweet.posted_at,
+        created_at=tweet.created_at,
+        updated_at=tweet.updated_at,
+        # ターゲットアカウント情報
+        target_account_id=tweet.target_account.id,
+        target_account_username=tweet.target_account.username,
+        target_account_display_name=tweet.target_account.display_name,
+        target_account_profile_image_url=tweet.target_account.profile_image_url,
+        # リツイート・引用ツイート情報
+        original_author_username=tweet.original_author_username,
+        original_author_display_name=tweet.original_author_display_name,
+        original_author_profile_image_url=tweet.original_author_profile_image_url,
+        # メディア情報
+        media=media_info,
     )
 
 
@@ -142,44 +240,7 @@ async def TweetTimelineAPI(
     # レスポンス用にデータを変換
     tweet_responses = []
     for tweet in tweets:
-        tweet_response = TweetResponse(
-            id=tweet.id,
-            tweet_id=tweet.tweet_id,
-            content=tweet.content,
-            full_text=tweet.full_text,
-            lang=tweet.lang,
-            likes_count=tweet.likes_count,
-            retweets_count=tweet.retweets_count,
-            replies_count=tweet.replies_count,
-            quotes_count=tweet.quotes_count,
-            views_count=tweet.views_count,
-            bookmark_count=tweet.bookmark_count,
-            is_retweet=tweet.is_retweet,
-            is_quote=tweet.is_quote,
-            retweeted_tweet_id=tweet.retweeted_tweet_id,
-            quoted_tweet_id=tweet.quoted_tweet_id,
-            is_reply=tweet.is_reply,
-            in_reply_to_tweet_id=tweet.in_reply_to_tweet_id,
-            in_reply_to_user_id=tweet.in_reply_to_user_id,
-            conversation_id=tweet.conversation_id,
-            hashtags=tweet.hashtags,
-            urls=tweet.urls,
-            user_mentions=tweet.user_mentions,
-            is_possibly_sensitive=tweet.is_possibly_sensitive,
-            has_media=tweet.has_media,
-            posted_at=tweet.posted_at,
-            created_at=tweet.created_at,
-            updated_at=tweet.updated_at,
-            # ターゲットアカウント情報
-            target_account_id=tweet.target_account.id,
-            target_account_username=tweet.target_account.username,
-            target_account_display_name=tweet.target_account.display_name,
-            target_account_profile_image_url=tweet.target_account.profile_image_url,
-            # リツイート・引用ツイート情報
-            original_author_username=tweet.original_author_username,
-            original_author_display_name=tweet.original_author_display_name,
-            original_author_profile_image_url=tweet.original_author_profile_image_url,
-        )
+        tweet_response = await create_tweet_response(tweet)
         tweet_responses.append(tweet_response)
 
     # 次のページが存在するかチェック
@@ -223,41 +284,4 @@ async def TweetDetailAPI(
             detail='指定されたツイートが見つかりません',
         )
 
-    return TweetResponse(
-        id=tweet.id,
-        tweet_id=tweet.tweet_id,
-        content=tweet.content,
-        full_text=tweet.full_text,
-        lang=tweet.lang,
-        likes_count=tweet.likes_count,
-        retweets_count=tweet.retweets_count,
-        replies_count=tweet.replies_count,
-        quotes_count=tweet.quotes_count,
-        views_count=tweet.views_count,
-        bookmark_count=tweet.bookmark_count,
-        is_retweet=tweet.is_retweet,
-        is_quote=tweet.is_quote,
-        retweeted_tweet_id=tweet.retweeted_tweet_id,
-        quoted_tweet_id=tweet.quoted_tweet_id,
-        is_reply=tweet.is_reply,
-        in_reply_to_tweet_id=tweet.in_reply_to_tweet_id,
-        in_reply_to_user_id=tweet.in_reply_to_user_id,
-        conversation_id=tweet.conversation_id,
-        hashtags=tweet.hashtags,
-        urls=tweet.urls,
-        user_mentions=tweet.user_mentions,
-        is_possibly_sensitive=tweet.is_possibly_sensitive,
-        has_media=tweet.has_media,
-        posted_at=tweet.posted_at,
-        created_at=tweet.created_at,
-        updated_at=tweet.updated_at,
-        # ターゲットアカウント情報
-        target_account_id=tweet.target_account.id,
-        target_account_username=tweet.target_account.username,
-        target_account_display_name=tweet.target_account.display_name,
-        target_account_profile_image_url=tweet.target_account.profile_image_url,
-        # リツイート・引用ツイート情報
-        original_author_username=tweet.original_author_username,
-        original_author_display_name=tweet.original_author_display_name,
-        original_author_profile_image_url=tweet.original_author_profile_image_url,
-    )
+    return await create_tweet_response(tweet)

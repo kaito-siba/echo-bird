@@ -1,8 +1,19 @@
 import { queryOptions } from '@tanstack/react-query';
 import { apiClientJson } from '../../../utils/api-client';
 
+// メディア型定義
+export interface MediaResponse {
+  media_key: string;
+  media_type: 'photo' | 'video' | 'animated_gif';
+  media_url: string;
+  width: number | null;
+  height: number | null;
+  alt_text: string | null;
+  duration_ms: number | null;
+}
+
 // API レスポンス型定義
-interface TweetResponse {
+export interface TweetResponse {
   id: number;
   tweet_id: string;
   content: string;
@@ -27,6 +38,7 @@ interface TweetResponse {
   user_mentions: any[] | null;
   is_possibly_sensitive: boolean;
   has_media: boolean;
+  media: MediaResponse[];
   posted_at: number;
   created_at: number;
   updated_at: number;
@@ -107,4 +119,4 @@ export const tweetDetailQueryOptions = (tweetId: string) =>
     retry: 3,
   });
 
-export type { TweetResponse, TimelineResponse, TimelineParams };
+export type { TimelineResponse, TimelineParams };

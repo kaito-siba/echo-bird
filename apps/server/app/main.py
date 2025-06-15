@@ -11,13 +11,16 @@ from app.constants import (
     APP_VERSION,
 )
 from app.database import close_db, init_db
-from app.routers import auth, target_accounts, tweets, twitter_auth, users
+from app.routers import auth, media, target_accounts, tweets, twitter_auth, users
+from app.utils.s3_client import initialize_media_bucket
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     # 起動時の処理
     await init_db()
+    # MinIO メディアバケットを初期化
+    await initialize_media_bucket()
     yield
     # 終了時の処理
     await close_db()
@@ -43,6 +46,7 @@ app.include_router(users.router)
 app.include_router(twitter_auth.router)
 app.include_router(target_accounts.router)
 app.include_router(tweets.router)
+app.include_router(media.router)
 
 
 @app.get('/api/v1/')

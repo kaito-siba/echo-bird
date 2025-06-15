@@ -6,6 +6,7 @@ from typing import Any
 from twikit import Client
 from twikit.errors import TwitterException
 
+from app.models.media import Media
 from app.models.target_account import TargetAccount
 from app.models.tweet import Tweet
 from app.models.twitter_account import TwitterAccount
@@ -248,6 +249,7 @@ class TwitterService:
     async def _save_tweet(self, tweet_data: Any, target_account: TargetAccount) -> None:
         """
         ツイートデータをデータベースに保存
+        メディア情報も同時に保存し、ダウンロード処理をキューに追加
 
         Args:
             tweet_data: twikit から取得したツイートデータ
@@ -346,12 +348,16 @@ class TwitterService:
                 original_author_display_name = None
                 original_author_profile_image_url = None
 
+            # メディアの存在チェック
+            has_media = bool(getattr(tweet_data, 'media', None))
+
             # デバッグログ
             logger.info(
-                f'Tweet {tweet_data.id}: is_retweet={is_retweet}, is_quote={is_quote}, content_length={len(content)}, full_text_length={len(full_text)}'
+                f'Tweet {tweet_data.id}: is_retweet={is_retweet}, is_quote={is_quote}, has_media={has_media}, content_length={len(content)}, full_text_length={len(full_text)}'
             )
 
-            await Tweet.create(
+            # ツイートを保存
+            tweet = await Tweet.create(
                 tweet_id=tweet_data.id,
                 target_account=target_account,
                 content=content,
@@ -374,8 +380,8 @@ class TwitterService:
                 hashtags=getattr(tweet_data, 'hashtags', None),
                 urls=getattr(tweet_data, 'urls', None),
                 user_mentions=getattr(tweet_data, 'user_mentions', None),
-                is_possibly_sensitive=False,  # TODO delete it
-                has_media=getattr(tweet_data, 'has_media', False),
+                is_possibly_sensitive=getattr(tweet_data, 'possibly_sensitive', False),
+                has_media=has_media,
                 # 元ツイート作者情報
                 original_author_username=original_author_username,
                 original_author_display_name=original_author_display_name,
@@ -385,8 +391,86 @@ class TwitterService:
                 updated_at=current_time,
             )
 
+            # メディア情報の保存（ダウンロードは行わない）
+            if has_media:
+                await self._save_tweet_media(tweet_data, tweet)
+
         except Exception as ex:
             logger.error(f'Failed to save tweet {tweet_data.id}', exc_info=ex)
+
+    async def _save_tweet_media(self, tweet_data: Any, tweet: Tweet) -> None:
+        """
+        ツイートのメディア情報をデータベースに保存（ダウンロードは行わない）
+
+        Args:
+            tweet_data: twikit から取得したツイートデータ
+            tweet: 保存済みのツイートインスタンス
+        """
+        try:
+            media_list = getattr(tweet_data, 'media', [])
+            if not media_list:
+                return
+
+            current_time = int(time.time())
+
+            for media_item in media_list:
+                try:
+                    # メディア基本情報を取得
+                    media_key = getattr(media_item, 'id', None)
+                    media_type = getattr(media_item, 'type', 'photo')
+
+                    if media_type == 'video':
+                        media_url = media_item.streams[-1].url
+                    else:
+                        media_url = getattr(media_item, 'media_url', None)
+
+                    if not media_key or not media_url:
+                        logger.warning(
+                            f'Media item missing key or URL for tweet {tweet.tweet_id}'
+                        )
+                        continue
+
+                    # 既存のメディアレコードをチェック
+                    existing_media = await Media.filter(media_key=media_key).first()
+                    if existing_media:
+                        logger.info(f'Media {media_key} already exists, skipping')
+                        continue
+
+                    # メディア情報をデータベースに保存
+                    media = await Media.create(
+                        tweet=tweet,
+                        media_key=media_key,
+                        media_type=media_type,
+                        media_url=media_url,
+                        display_url=getattr(media_item, 'display_url', None),
+                        expanded_url=getattr(media_item, 'expanded_url', None),
+                        width=getattr(media_item, 'width', None),
+                        height=getattr(media_item, 'height', None),
+                        duration_ms=getattr(media_item, 'duration_ms', None),
+                        preview_image_url=getattr(
+                            media_item, 'preview_image_url', None
+                        ),
+                        variants=getattr(media_item, 'variants', None),
+                        alt_text=getattr(media_item, 'alt_text', None),
+                        additional_media_info=getattr(
+                            media_item, 'additional_media_info', None
+                        ),
+                        created_at=current_time,
+                        updated_at=current_time,
+                    )
+
+                    logger.info(f'Saved media {media_key} for tweet {tweet.tweet_id}')
+
+                except Exception as media_ex:
+                    logger.error(
+                        f'Failed to process media item for tweet {tweet.tweet_id}: {media_ex}'
+                    )
+                    # 個別のメディア処理に失敗してもツイート保存は続行
+
+        except Exception as ex:
+            logger.error(
+                f'Failed to save media for tweet {tweet.tweet_id}', exc_info=ex
+            )
 
     async def _update_fetch_success(
         self, target_account: TargetAccount, latest_tweet_id: str | None
@@ -401,8 +485,7 @@ class TwitterService:
         current_time = int(time.time())
         target_account.last_fetched_at = current_time
         target_account.consecutive_errors = 0
-        target_account.last_error = None
-        target_account.last_error_at = None
+        # エラー情報は必要時にのみ更新
 
         if latest_tweet_id:
             target_account.last_tweet_id = latest_tweet_id
