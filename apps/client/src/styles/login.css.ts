@@ -195,16 +195,15 @@ export const inputIconWrapper = style({
   zIndex: 1,
 });
 
+// フォーカス時のアイコンスタイル
+export const inputIconFocused = style({
+  color: colors.primary,
+});
+
 // インプットフィールドのコンテナ
 export const inputContainer = style({
   position: 'relative',
   width: '100%',
-  // フォーカス時のアイコン色変更
-  selectors: {
-    '&:focus-within .icon': {
-      color: colors.primary,
-    },
-  },
 });
 
 // フォーム全体のコンテナ
