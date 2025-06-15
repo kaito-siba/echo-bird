@@ -51,6 +51,8 @@ export interface TweetResponse {
   original_author_username: string | null;
   original_author_display_name: string | null;
   original_author_profile_image_url: string | null;
+  // 引用元ツイート情報
+  quoted_tweet: TweetResponse | null;
 }
 
 interface TimelineResponse {

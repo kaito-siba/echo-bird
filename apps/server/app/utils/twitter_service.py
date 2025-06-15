@@ -263,10 +263,8 @@ class TwitterService:
                 getattr(tweet_data, 'retweeted_status', None) is not None
                 or getattr(tweet_data, 'retweeted_tweet', None) is not None
             )
-            is_quote = (
-                getattr(tweet_data, 'quoted_status', None) is not None
-                or getattr(tweet_data, 'quoted_tweet', None) is not None
-            )
+            # twikitライブラリの正しいプロパティを使用
+            is_quote = getattr(tweet_data, 'is_quote_status', False)
 
             if is_retweet:
                 # リツイートの場合、元ツイートの本文を取得
@@ -304,18 +302,14 @@ class TwitterService:
                     original_author_display_name = None
                     original_author_profile_image_url = None
             elif is_quote:
-                # 引用ツイートの場合、引用部分 + 元ツイートの本文を結合
-                quoted_tweet = getattr(tweet_data, 'quoted_status', None) or getattr(
-                    tweet_data, 'quoted_tweet', None
-                )
+                # 引用ツイートの場合、引用コメント部分のみを保存（引用元は別途保存）
+                content = tweet_data.text
+                full_text = getattr(tweet_data, 'full_text', None) or tweet_data.text
+
+                # 引用元ツイートの情報を取得して保存
+                quoted_tweet = getattr(tweet_data, 'quote', None)
                 if quoted_tweet:
-                    quote_content = quoted_tweet.text
-                    quote_full_text = (
-                        getattr(quoted_tweet, 'full_text', None) or quoted_tweet.text
-                    )
-                    # 引用ツイートのコメント部分と引用元を結合
-                    content = f'{tweet_data.text}\n\n引用: {quote_content}'
-                    full_text = f'{getattr(tweet_data, "full_text", None) or tweet_data.text}\n\n引用: {quote_full_text}'
+                    await self._save_quoted_tweet(quoted_tweet, target_account)
                     # 引用元作者の情報を取得
                     quoted_author = getattr(quoted_tweet, 'user', None)
                     if quoted_author:
@@ -333,10 +327,6 @@ class TwitterService:
                         original_author_display_name = None
                         original_author_profile_image_url = None
                 else:
-                    content = tweet_data.text
-                    full_text = (
-                        getattr(tweet_data, 'full_text', None) or tweet_data.text
-                    )
                     original_author_username = None
                     original_author_display_name = None
                     original_author_profile_image_url = None
@@ -356,6 +346,13 @@ class TwitterService:
                 f'Tweet {tweet_data.id}: is_retweet={is_retweet}, is_quote={is_quote}, has_media={has_media}, content_length={len(content)}, full_text_length={len(full_text)}'
             )
 
+            # 引用ツイートIDの取得
+            quoted_tweet_id = None
+            if is_quote:
+                quoted_tweet = getattr(tweet_data, 'quote', None)
+                if quoted_tweet:
+                    quoted_tweet_id = quoted_tweet.id
+
             # ツイートを保存
             tweet = await Tweet.create(
                 tweet_id=tweet_data.id,
@@ -372,7 +369,7 @@ class TwitterService:
                 is_retweet=is_retweet,
                 is_quote=is_quote,
                 retweeted_tweet_id=getattr(tweet_data, 'retweeted_status_id', None),
-                quoted_tweet_id=getattr(tweet_data, 'quoted_status_id', None),
+                quoted_tweet_id=quoted_tweet_id,
                 is_reply=hasattr(tweet_data, 'in_reply_to_status_id'),
                 in_reply_to_tweet_id=getattr(tweet_data, 'in_reply_to_status_id', None),
                 in_reply_to_user_id=getattr(tweet_data, 'in_reply_to_user_id', None),
@@ -380,7 +377,7 @@ class TwitterService:
                 hashtags=getattr(tweet_data, 'hashtags', None),
                 urls=getattr(tweet_data, 'urls', None),
                 user_mentions=getattr(tweet_data, 'user_mentions', None),
-                is_possibly_sensitive=getattr(tweet_data, 'possibly_sensitive', False),
+                is_possibly_sensitive=False,  # TODO delete this column
                 has_media=has_media,
                 # 元ツイート作者情報
                 original_author_username=original_author_username,
@@ -397,6 +394,96 @@ class TwitterService:
 
         except Exception as ex:
             logger.error(f'Failed to save tweet {tweet_data.id}', exc_info=ex)
+
+    async def _save_quoted_tweet(
+        self, quoted_tweet_data: Any, target_account: TargetAccount
+    ) -> None:
+        """
+        引用元ツイートをデータベースに保存
+
+        Args:
+            quoted_tweet_data: 引用元ツイートのデータ
+            target_account: 引用ツイートの取得元アカウント
+        """
+        try:
+            # 既存の引用元ツイートをチェック
+            existing_quoted_tweet = await Tweet.filter(
+                tweet_id=quoted_tweet_data.id
+            ).first()
+            if existing_quoted_tweet:
+                logger.info(
+                    f'Quoted tweet {quoted_tweet_data.id} already exists, skipping'
+                )
+                return
+
+            current_time = int(time.time())
+
+            # 引用元ツイートの作者情報を取得
+            quoted_author = getattr(quoted_tweet_data, 'user', None)
+            if quoted_author:
+                quoted_author_username = getattr(quoted_author, 'screen_name', None)
+                quoted_author_display_name = getattr(quoted_author, 'name', None)
+                quoted_author_profile_image_url = getattr(
+                    quoted_author, 'profile_image_url', None
+                )
+            else:
+                quoted_author_username = None
+                quoted_author_display_name = None
+                quoted_author_profile_image_url = None
+
+            # 引用元ツイートのメディア存在チェック
+            has_media = bool(getattr(quoted_tweet_data, 'media', None))
+
+            # 引用元ツイートを保存
+            quoted_tweet = await Tweet.create(
+                tweet_id=quoted_tweet_data.id,
+                target_account=target_account,  # 同じターゲットアカウントに紐付け
+                content=quoted_tweet_data.text,
+                full_text=getattr(quoted_tweet_data, 'full_text', None)
+                or quoted_tweet_data.text,
+                lang=quoted_tweet_data.lang,
+                likes_count=getattr(quoted_tweet_data, 'favorite_count', 0),
+                retweets_count=getattr(quoted_tweet_data, 'retweet_count', 0),
+                replies_count=getattr(quoted_tweet_data, 'reply_count', 0),
+                quotes_count=getattr(quoted_tweet_data, 'quote_count', 0),
+                views_count=getattr(quoted_tweet_data, 'view_count', 0),
+                bookmark_count=getattr(quoted_tweet_data, 'bookmark_count', 0),
+                is_retweet=False,  # 引用元ツイート自体はリツイートではない
+                is_quote=False,  # 引用元ツイート自体は引用ツイートではない
+                retweeted_tweet_id=None,
+                quoted_tweet_id=None,
+                is_reply=hasattr(quoted_tweet_data, 'in_reply_to_status_id'),
+                in_reply_to_tweet_id=getattr(
+                    quoted_tweet_data, 'in_reply_to_status_id', None
+                ),
+                in_reply_to_user_id=getattr(
+                    quoted_tweet_data, 'in_reply_to_user_id', None
+                ),
+                conversation_id=getattr(quoted_tweet_data, 'conversation_id', None),
+                hashtags=getattr(quoted_tweet_data, 'hashtags', None),
+                urls=getattr(quoted_tweet_data, 'urls', None),
+                user_mentions=getattr(quoted_tweet_data, 'user_mentions', None),
+                is_possibly_sensitive=False,  # TODO delete this column
+                has_media=has_media,
+                # 引用元ツイートの作者情報
+                original_author_username=quoted_author_username,
+                original_author_display_name=quoted_author_display_name,
+                original_author_profile_image_url=quoted_author_profile_image_url,
+                posted_at=self._parse_twitter_date(quoted_tweet_data.created_at),
+                created_at=current_time,
+                updated_at=current_time,
+            )
+
+            # 引用元ツイートのメディア情報も保存
+            if has_media:
+                await self._save_tweet_media(quoted_tweet_data, quoted_tweet)
+
+            logger.info(f'Saved quoted tweet {quoted_tweet_data.id}')
+
+        except Exception as ex:
+            logger.error(
+                f'Failed to save quoted tweet {quoted_tweet_data.id}', exc_info=ex
+            )
 
     async def _save_tweet_media(self, tweet_data: Any, tweet: Tweet) -> None:
         """

@@ -414,3 +414,102 @@ export const mediaItemSmall = style([
     gridRow: 'span 1',
   },
 ]);
+
+export const mediaPlaceholder = style({
+  color: colors.gray[600],
+  fontSize: '14px',
+  fontWeight: '600',
+});
+
+// 引用ツイート用スタイル
+export const quotedTweetContainer = style({
+  marginTop: '12px',
+  border: `1px solid ${colors.gray[200]}`,
+  borderRadius: '12px',
+  padding: '12px',
+  backgroundColor: colors.gray[50],
+  cursor: 'pointer',
+  transition: 'background-color 0.2s ease-in-out',
+
+  ':hover': {
+    backgroundColor: colors.gray[100],
+  },
+});
+
+export const quotedTweetHeader = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  marginBottom: '8px',
+});
+
+export const quotedTweetAvatar = style({
+  width: '20px',
+  height: '20px',
+  borderRadius: '50%',
+  objectFit: 'cover',
+  flexShrink: 0,
+});
+
+export const quotedTweetAvatarFallback = style({
+  width: '20px',
+  height: '20px',
+  borderRadius: '50%',
+  backgroundColor: colors.gray[300],
+  color: colors.gray[600],
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '10px',
+  fontWeight: '600',
+  flexShrink: 0,
+});
+
+export const quotedTweetAuthor = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '4px',
+  fontSize: '14px',
+  minWidth: 0, // flexアイテムの縮小を許可
+});
+
+export const quotedTweetDisplayName = style({
+  fontWeight: '600',
+  color: colors.gray[900],
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  maxWidth: '120px',
+});
+
+export const quotedTweetUsername = style({
+  color: colors.gray[500],
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  maxWidth: '100px',
+});
+
+export const quotedTweetTimestamp = style({
+  color: colors.gray[500],
+  fontSize: '13px',
+  whiteSpace: 'nowrap',
+});
+
+export const quotedTweetText = style({
+  fontSize: '14px',
+  lineHeight: '18px',
+  color: colors.gray[800],
+  marginBottom: '8px',
+  wordWrap: 'break-word',
+  whiteSpace: 'pre-wrap',
+});
+
+export const quotedTweetMediaContainer = style({
+  marginTop: '8px',
+  borderRadius: '8px',
+  overflow: 'hidden',
+  border: `1px solid ${colors.gray[200]}`,
+  backgroundColor: colors.gray[50],
+  maxWidth: '100%',
+});

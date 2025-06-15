@@ -98,6 +98,11 @@ class TweetResponse(BaseModel):
         default=[], description='ツイートに添付されたメディア一覧'
     )
 
+    # 引用元ツイート情報（新規追加）
+    quoted_tweet: 'TweetResponse | None' = Field(
+        default=None, description='引用元ツイートの詳細情報'
+    )
+
 
 async def get_tweet_media_info(tweet_id: int) -> list[MediaResponse]:
     """指定されたツイートのメディア情報を取得"""
@@ -130,6 +135,63 @@ async def create_tweet_response(tweet: Tweet) -> TweetResponse:
     """TweetモデルからTweetResponseを生成する（メディア情報込み）"""
     # メディア情報を取得
     media_info = await get_tweet_media_info(tweet.id)
+
+    # 引用元ツイート情報を取得
+    quoted_tweet_response = None
+    if tweet.is_quote and tweet.quoted_tweet_id:
+        quoted_tweet = (
+            await Tweet.filter(tweet_id=tweet.quoted_tweet_id)
+            .select_related('target_account')
+            .first()
+        )
+        if quoted_tweet:
+            # 引用元ツイートのメディア情報を取得
+            quoted_media_info = await get_tweet_media_info(quoted_tweet.id)
+            quoted_tweet_response = TweetResponse(
+                id=quoted_tweet.id,
+                tweet_id=quoted_tweet.tweet_id,
+                content=quoted_tweet.content,
+                full_text=quoted_tweet.full_text,
+                lang=quoted_tweet.lang,
+                likes_count=quoted_tweet.likes_count,
+                retweets_count=quoted_tweet.retweets_count,
+                replies_count=quoted_tweet.replies_count,
+                quotes_count=quoted_tweet.quotes_count,
+                views_count=quoted_tweet.views_count,
+                bookmark_count=quoted_tweet.bookmark_count,
+                is_retweet=quoted_tweet.is_retweet,
+                is_quote=quoted_tweet.is_quote,
+                retweeted_tweet_id=quoted_tweet.retweeted_tweet_id,
+                quoted_tweet_id=quoted_tweet.quoted_tweet_id,
+                is_reply=quoted_tweet.is_reply,
+                in_reply_to_tweet_id=quoted_tweet.in_reply_to_tweet_id,
+                in_reply_to_user_id=quoted_tweet.in_reply_to_user_id,
+                conversation_id=quoted_tweet.conversation_id,
+                hashtags=quoted_tweet.hashtags,
+                urls=quoted_tweet.urls,
+                user_mentions=quoted_tweet.user_mentions,
+                is_possibly_sensitive=quoted_tweet.is_possibly_sensitive,
+                has_media=quoted_tweet.has_media,
+                posted_at=quoted_tweet.posted_at,
+                created_at=quoted_tweet.created_at,
+                updated_at=quoted_tweet.updated_at,
+                # ターゲットアカウント情報（引用元ツイートの場合は元の作者情報）
+                target_account_id=quoted_tweet.target_account.id,
+                target_account_username=quoted_tweet.original_author_username
+                or quoted_tweet.target_account.username,
+                target_account_display_name=quoted_tweet.original_author_display_name
+                or quoted_tweet.target_account.display_name,
+                target_account_profile_image_url=quoted_tweet.original_author_profile_image_url
+                or quoted_tweet.target_account.profile_image_url,
+                # リツイート・引用ツイート情報
+                original_author_username=quoted_tweet.original_author_username,
+                original_author_display_name=quoted_tweet.original_author_display_name,
+                original_author_profile_image_url=quoted_tweet.original_author_profile_image_url,
+                # メディア情報
+                media=quoted_media_info,
+                # 引用元ツイート（再帰を避けるためNone）
+                quoted_tweet=None,
+            )
 
     return TweetResponse(
         id=tweet.id,
@@ -170,6 +232,8 @@ async def create_tweet_response(tweet: Tweet) -> TweetResponse:
         original_author_profile_image_url=tweet.original_author_profile_image_url,
         # メディア情報
         media=media_info,
+        # 引用元ツイート情報
+        quoted_tweet=quoted_tweet_response,
     )
 
 
