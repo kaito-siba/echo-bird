@@ -172,6 +172,32 @@ export const shareIcon = style({
   height: '16px',
 });
 
+export const externalLinkButton = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '6px',
+  marginLeft: 'auto',
+  borderRadius: '8px',
+  transition: 'all 0.2s ease-in-out',
+  color: colors.gray[500],
+  textDecoration: 'none',
+
+  ':hover': {
+    backgroundColor: colors.gray[100],
+    color: colors.primary,
+  },
+
+  ':active': {
+    backgroundColor: colors.gray[200],
+  },
+});
+
+export const externalLinkIcon = style({
+  width: '16px',
+  height: '16px',
+});
+
 export const badge = style({
   display: 'inline-flex',
   alignItems: 'center',

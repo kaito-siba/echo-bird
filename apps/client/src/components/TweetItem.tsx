@@ -305,6 +305,32 @@ export function TweetItem({ tweet }: TweetItemProps) {
                 </span>
               </div>
             )}
+
+            {/* 外部リンクボタン */}
+            <a
+              href={`https://x.com/${tweet.is_retweet && tweet.original_author_username ? tweet.original_author_username : tweet.target_account_username}/status/${tweet.tweet_id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.externalLinkButton}
+              onClick={(e) => e.stopPropagation()}
+              aria-label="X で開く"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                className={styles.externalLinkIcon}
+              >
+                <path
+                  d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L21 3"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+              </svg>
+            </a>
           </div>
         </div>
       </div>
