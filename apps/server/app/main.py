@@ -12,7 +12,11 @@ from app.constants import (
 )
 from app.database import close_db, init_db
 from app.routers import auth, media, target_accounts, tweets, twitter_auth, users
+from app.services.tweet_scheduler import TweetScheduler
 from app.utils.s3_client import initialize_media_bucket
+
+# グローバルなスケジューラーインスタンス
+tweet_scheduler = TweetScheduler()
 
 
 @asynccontextmanager
@@ -21,8 +25,11 @@ async def lifespan(_app: FastAPI):
     await init_db()
     # MinIO メディアバケットを初期化
     await initialize_media_bucket()
+    # スケジューラーを開始
+    await tweet_scheduler.start()
     yield
     # 終了時の処理
+    await tweet_scheduler.stop()
     await close_db()
 
 

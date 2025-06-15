@@ -240,7 +240,7 @@ export function TweetItem({ tweet }: TweetItemProps) {
                         <div
                           key={media.media_key}
                           className={getMediaItemClass(
-                            tweet.quoted_tweet.media.length,
+                            tweet.quoted_tweet?.media?.length || 0,
                             index,
                           )}
                           onClick={() => handleMediaClick(media.media_url)}

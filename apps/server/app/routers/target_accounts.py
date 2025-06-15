@@ -7,6 +7,14 @@ from app.models.user import User
 from app.utils.auth import get_current_user
 from app.utils.twitter_service import TwitterService
 
+
+# スケジューラーを取得するための関数
+def get_tweet_scheduler():
+    from app.main import tweet_scheduler
+
+    return tweet_scheduler
+
+
 router = APIRouter(prefix='/api/v1/target-accounts', tags=['target_accounts'])
 
 
@@ -136,6 +144,17 @@ async def TargetAccountCreateAPI(
     )
 
     if success and target_account_info:
+        # スケジューラーにターゲットアカウントを追加
+        scheduler = get_tweet_scheduler()
+        try:
+            await scheduler.schedule_account(target_account_info)
+        except Exception as ex:
+            # スケジューラーエラーはログに出力するが、API応答には影響させない
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.error(f'Failed to schedule account {target_account_info.id}: {ex!s}')
+
         return TargetAccountCreateResponse(
             success=True,
             message='ターゲットアカウントの追加が完了しました',
@@ -223,6 +242,17 @@ async def TargetAccountUpdateAPI(
 
     await account.save()
 
+    # スケジューラーでターゲットアカウントを再スケジュール
+    scheduler = get_tweet_scheduler()
+    try:
+        await scheduler.reschedule_account(account)
+    except Exception as ex:
+        # スケジューラーエラーはログに出力するが、API応答には影響させない
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.error(f'Failed to reschedule account {account.id}: {ex!s}')
+
     return TargetAccountResponse.model_validate(account)
 
 
@@ -246,6 +276,17 @@ async def TargetAccountDeleteAPI(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='指定されたターゲットアカウントが見つかりません',
         )
+
+    # スケジューラーからターゲットアカウントのジョブを削除
+    scheduler = get_tweet_scheduler()
+    try:
+        await scheduler.unschedule_account(account_id)
+    except Exception as ex:
+        # スケジューラーエラーはログに出力するが、API応答には影響させない
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.error(f'Failed to unschedule account {account_id}: {ex!s}')
 
     await account.delete()
 
@@ -295,4 +336,22 @@ async def TargetAccountFetchTweetsAPI(
     return {
         'message': 'ツイート取得が完了しました',
         'fetched_count': fetched_count,
+    }
+
+
+@router.get('/scheduler/status')
+async def SchedulerStatusAPI(
+    current_user: User = Depends(get_current_user),
+) -> dict[str, list[dict] | int]:
+    """
+    スケジューラー状態確認 API
+
+    現在スケジュールされているジョブの一覧を取得します。
+    """
+    scheduler = get_tweet_scheduler()
+    jobs_info = scheduler.get_scheduled_jobs_info()
+
+    return {
+        'scheduled_jobs': jobs_info,
+        'total_jobs': len(jobs_info),
     }
