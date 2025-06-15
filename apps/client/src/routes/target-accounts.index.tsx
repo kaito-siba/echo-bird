@@ -1,19 +1,19 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useState, useMemo } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useMemo, useState } from 'react';
+import { targetAccountListQueryOptions } from '../integrations/tanstack-query/queries/target-account';
 import {
+  actionButton,
+  cell,
   container,
+  createButton,
   header,
   headerControls,
-  table,
   row,
-  cell,
   searchInput,
-  actionButton,
-  createButton,
   statusBadge,
+  table,
 } from '../styles/admin.css';
-import { targetAccountListQueryOptions } from '../integrations/tanstack-query/queries/target-account';
 import { authGuard } from '../utils/auth-guard';
 
 export const Route = createFileRoute('/target-accounts/')({

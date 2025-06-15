@@ -1,4 +1,4 @@
-import { style, keyframes } from '@vanilla-extract/css';
+import { keyframes, style } from '@vanilla-extract/css';
 import { colors } from '../styles/theme.css';
 
 const spin = keyframes({

@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { button, buttonVariants, buttonSizes } from './Button.css';
+import { button, buttonSizes, buttonVariants } from './Button.css';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: keyof typeof buttonVariants;

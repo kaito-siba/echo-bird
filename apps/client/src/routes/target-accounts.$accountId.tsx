@@ -1,31 +1,31 @@
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import {
-  useSuspenseQuery,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
-import {
-  formContainer,
-  formHeader,
-  formGroup,
-  label,
-  input,
-  checkbox,
-  buttonGroup,
-  saveButton,
-  cancelButton,
-  errorMessage,
-  mutationErrorContainer,
-} from '../styles/admin-form.css';
-import { authGuard } from '../utils/auth-guard';
-import {
-  targetAccountDetailQueryOptions,
-  updateTargetAccount,
+  type TargetAccountUpdateRequest,
   deleteTargetAccount,
   fetchTweetsForAccount,
-  type TargetAccountUpdateRequest,
+  targetAccountDetailQueryOptions,
+  updateTargetAccount,
 } from '../integrations/tanstack-query/queries/target-account';
+import {
+  buttonGroup,
+  cancelButton,
+  checkbox,
+  errorMessage,
+  formContainer,
+  formGroup,
+  formHeader,
+  input,
+  label,
+  mutationErrorContainer,
+  saveButton,
+} from '../styles/admin-form.css';
+import { authGuard } from '../utils/auth-guard';
 
 export const Route = createFileRoute('/target-accounts/$accountId')({
   component: TargetAccountDetail,

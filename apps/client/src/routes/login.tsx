@@ -1,23 +1,28 @@
+import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { LockIcon, UserIcon } from '../components/icons/LoginIcons';
 import {
-  loginContainer,
-  loginCard,
-  loginTitle,
-  formGroup,
-  formLabel,
-  formInput,
-  loginButton,
-  errorMessage,
-  successMessage,
-  loadingSpinner,
-} from '../styles/login.css';
-import {
+  type LoginRequest,
   login,
   setAuthToken,
-  type LoginRequest,
 } from '../integrations/tanstack-query/queries/auth';
+import {
+  errorMessage,
+  formContainer,
+  formGroup,
+  formInput,
+  formLabel,
+  inputContainer,
+  inputIconWrapper,
+  loadingSpinner,
+  loginButton,
+  loginCard,
+  loginContainer,
+  loginTitle,
+  serviceName,
+  successMessage,
+} from '../styles/login.css';
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -72,40 +77,51 @@ function LoginPage() {
 
   return (
     <div className={loginContainer}>
+      <h1 className={serviceName}>Echo Bird</h1>
       <div className={loginCard}>
-        <h1 className={loginTitle}>ログイン</h1>
+        <h2 className={loginTitle}>ログイン</h2>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className={formContainer}>
           <div className={formGroup}>
             <label htmlFor="username" className={formLabel}>
               ユーザー名
             </label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className={formInput}
-              placeholder="ユーザー名を入力してください"
-              disabled={isDisabled}
-              required
-            />
+            <div className={inputContainer}>
+              <div className={inputIconWrapper}>
+                <UserIcon className="icon" />
+              </div>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className={formInput}
+                placeholder="ユーザー名を入力してください"
+                disabled={isDisabled}
+                required
+              />
+            </div>
           </div>
 
           <div className={formGroup}>
             <label htmlFor="password" className={formLabel}>
               パスワード
             </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={formInput}
-              placeholder="パスワードを入力してください"
-              disabled={isDisabled}
-              required
-            />
+            <div className={inputContainer}>
+              <div className={inputIconWrapper}>
+                <LockIcon className="icon" />
+              </div>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={formInput}
+                placeholder="パスワードを入力してください"
+                disabled={isDisabled}
+                required
+              />
+            </div>
           </div>
 
           {/* エラーメッセージ表示 */}

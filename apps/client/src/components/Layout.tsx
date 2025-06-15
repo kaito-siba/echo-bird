@@ -1,6 +1,6 @@
-import { useState, type ReactNode } from 'react';
-import { CollapsibleSidebar } from './CollapsibleSidebar';
+import { type ReactNode, useState } from 'react';
 import * as styles from '../styles/layout.css';
+import { CollapsibleSidebar } from './CollapsibleSidebar';
 
 interface LayoutProps {
   children: ReactNode;
