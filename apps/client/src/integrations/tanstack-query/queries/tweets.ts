@@ -54,6 +54,9 @@ export interface TweetResponse {
   original_author_profile_image_url: string | null;
   // 引用元ツイート情報
   quoted_tweet: TweetResponse | null;
+  // ユーザー固有の情報
+  is_read: boolean;
+  is_bookmarked: boolean;
 }
 
 interface TimelineResponse {
@@ -68,6 +71,19 @@ interface TimelineParams {
   page?: number;
   page_size?: number;
   target_account_id?: number;
+}
+
+interface BookmarkedTweetsResponse {
+  tweets: TweetResponse[];
+  total: number;
+  page: number;
+  page_size: number;
+  has_next: boolean;
+}
+
+interface BookmarkedTweetsParams {
+  page?: number;
+  page_size?: number;
 }
 
 // タイムライン取得API
@@ -105,6 +121,39 @@ const fetchTweetDetail = async (tweetId: string): Promise<TweetResponse> => {
   });
 };
 
+// ブックマーク一覧取得API
+const fetchBookmarkedTweets = async (
+  params?: BookmarkedTweetsParams,
+): Promise<BookmarkedTweetsResponse> => {
+  const searchParams = new URLSearchParams();
+
+  if (params?.page) {
+    searchParams.append('page', params.page.toString());
+  }
+
+  if (params?.page_size) {
+    searchParams.append('page_size', params.page_size.toString());
+  }
+
+  const url = `/tweets/bookmarked${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+
+  return apiClientJson<BookmarkedTweetsResponse>(url, {
+    method: 'GET',
+  });
+};
+
+// ブックマーク切り替えAPI
+const toggleBookmark = async (
+  tweetId: number,
+): Promise<{ message: string; is_bookmarked: boolean }> => {
+  return apiClientJson<{ message: string; is_bookmarked: boolean }>(
+    `/tweets/bookmark/${tweetId}`,
+    {
+      method: 'POST',
+    },
+  );
+};
+
 // TanStack Query options
 export const timelineQueryOptions = (params?: TimelineParams) =>
   queryOptions({
@@ -122,4 +171,20 @@ export const tweetDetailQueryOptions = (tweetId: string) =>
     retry: 3,
   });
 
-export type { TimelineResponse, TimelineParams };
+export const bookmarkedTweetsQueryOptions = (params?: BookmarkedTweetsParams) =>
+  queryOptions({
+    queryKey: ['tweets', 'bookmarked', params],
+    queryFn: () => fetchBookmarkedTweets(params),
+    staleTime: 30 * 1000, // 30秒間キャッシュ
+    retry: 3,
+  });
+
+export type {
+  TimelineResponse,
+  TimelineParams,
+  BookmarkedTweetsResponse,
+  BookmarkedTweetsParams,
+};
+
+// ブックマーク切り替え関数をエクスポート
+export { toggleBookmark };

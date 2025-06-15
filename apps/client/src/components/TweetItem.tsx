@@ -1,4 +1,6 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { TweetResponse } from '../integrations/tanstack-query/queries/tweets';
+import { toggleBookmark } from '../integrations/tanstack-query/queries/tweets';
 import * as styles from './TweetItem.css';
 
 interface TweetItemProps {
@@ -6,6 +8,24 @@ interface TweetItemProps {
 }
 
 export function TweetItem({ tweet }: TweetItemProps) {
+  const queryClient = useQueryClient();
+
+  // ブックマーク切り替えMutation
+  const bookmarkMutation = useMutation({
+    mutationFn: (tweetId: number) => toggleBookmark(tweetId),
+    onSuccess: () => {
+      // タイムラインとブックマーク一覧のキャッシュを無効化
+      queryClient.invalidateQueries({ queryKey: ['tweets', 'timeline'] });
+      queryClient.invalidateQueries({ queryKey: ['tweets', 'bookmarked'] });
+    },
+  });
+
+  // ブックマークボタンクリックハンドラー
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // 親要素のクリックイベントを停止
+    bookmarkMutation.mutate(tweet.id);
+  };
+
   // Unix timestamp を日時文字列に変換
   const formatDate = (timestamp: number): string => {
     const date = new Date(timestamp * 1000);
@@ -172,20 +192,25 @@ export function TweetItem({ tweet }: TweetItemProps) {
                 {/* 引用元作者のプロフィール画像 */}
                 {tweet.quoted_tweet.target_account_profile_image_url ? (
                   <img
-                    src={getProfileImageUrl(tweet.quoted_tweet.target_account_profile_image_url)}
+                    src={getProfileImageUrl(
+                      tweet.quoted_tweet.target_account_profile_image_url,
+                    )}
                     alt={`@${tweet.quoted_tweet.target_account_username} のプロフィール画像`}
                     className={styles.quotedTweetAvatar}
                   />
                 ) : (
                   <div className={styles.quotedTweetAvatarFallback}>
-                    {tweet.quoted_tweet.target_account_username.charAt(0).toUpperCase()}
+                    {tweet.quoted_tweet.target_account_username
+                      .charAt(0)
+                      .toUpperCase()}
                   </div>
                 )}
 
                 {/* 引用元作者情報 */}
                 <div className={styles.quotedTweetAuthor}>
                   <span className={styles.quotedTweetDisplayName}>
-                    {tweet.quoted_tweet.target_account_display_name || tweet.quoted_tweet.target_account_username}
+                    {tweet.quoted_tweet.target_account_display_name ||
+                      tweet.quoted_tweet.target_account_username}
                   </span>
                   <span className={styles.quotedTweetUsername}>
                     @{tweet.quoted_tweet.target_account_username}
@@ -203,59 +228,64 @@ export function TweetItem({ tweet }: TweetItemProps) {
               </div>
 
               {/* 引用元ツイートのメディア */}
-              {tweet.quoted_tweet.media && tweet.quoted_tweet.media.length > 0 && (
-                <div className={styles.quotedTweetMediaContainer}>
-                  <div className={getMediaGridClass(tweet.quoted_tweet.media.length)}>
-                    {tweet.quoted_tweet.media.map((media, index) => (
-                      <div
-                        key={media.media_key}
-                        className={getMediaItemClass(tweet.quoted_tweet.media.length, index)}
-                        onClick={() => handleMediaClick(media.media_url)}
-                      >
-                        {media.media_type === 'photo' ? (
-                          <img
-                            src={media.media_url}
-                            alt={media.alt_text || '引用ツイート画像'}
-                            className={styles.mediaImage}
-                            loading="lazy"
-                          />
-                        ) : media.media_type === 'video' ? (
-                          <>
-                            <video
+              {tweet.quoted_tweet.media &&
+                tweet.quoted_tweet.media.length > 0 && (
+                  <div className={styles.quotedTweetMediaContainer}>
+                    <div
+                      className={getMediaGridClass(
+                        tweet.quoted_tweet.media.length,
+                      )}
+                    >
+                      {tweet.quoted_tweet.media.map((media, index) => (
+                        <div
+                          key={media.media_key}
+                          className={getMediaItemClass(
+                            tweet.quoted_tweet.media.length,
+                            index,
+                          )}
+                          onClick={() => handleMediaClick(media.media_url)}
+                        >
+                          {media.media_type === 'photo' ? (
+                            <img
                               src={media.media_url}
-                              className={styles.mediaVideo}
-                              controls={false}
-                              muted
-                              preload="metadata"
+                              alt={media.alt_text || '引用ツイート画像'}
+                              className={styles.mediaImage}
+                              loading="lazy"
                             />
-                            <div className={styles.mediaOverlay}>
-                              <svg
-                                viewBox="0 0 24 24"
-                                className={styles.playIcon}
-                              >
-                                <path
-                                  fill="currentColor"
-                                  d="M8 5v14l11-7z"
-                                />
-                              </svg>
-                            </div>
-                          </>
-                        ) : (
-                          <div className={styles.mediaPlaceholder}>
-                            GIF
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                          ) : media.media_type === 'video' ? (
+                            <>
+                              <video
+                                src={media.media_url}
+                                className={styles.mediaVideo}
+                                controls={false}
+                                muted
+                                preload="metadata"
+                              />
+                              <div className={styles.mediaOverlay}>
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  className={styles.playIcon}
+                                >
+                                  <path fill="currentColor" d="M8 5v14l11-7z" />
+                                </svg>
+                              </div>
+                            </>
+                          ) : (
+                            <div className={styles.mediaPlaceholder}>GIF</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           )}
 
           {/* メディア表示 */}
           {tweet.media && tweet.media.length > 0 && (
-            <div className={`${styles.mediaContainer} ${styles.responsiveMediaContainer}`}>
+            <div
+              className={`${styles.mediaContainer} ${styles.responsiveMediaContainer}`}
+            >
               <div className={getMediaGridClass(tweet.media.length)}>
                 {tweet.media.map((media, index) => (
                   <div
@@ -282,10 +312,7 @@ export function TweetItem({ tweet }: TweetItemProps) {
                           preload="metadata"
                         />
                         <div className={styles.mediaOverlay}>
-                          <svg
-                            viewBox="0 0 24 24"
-                            className={styles.playIcon}
-                          >
+                          <svg viewBox="0 0 24 24" className={styles.playIcon}>
                             <path d="M8 5v14l11-7z" />
                           </svg>
                           動画
@@ -393,6 +420,38 @@ export function TweetItem({ tweet }: TweetItemProps) {
                 </span>
               </div>
             )}
+
+            {/* ブックマークボタン */}
+            <button
+              onClick={handleBookmarkClick}
+              className={styles.statItem}
+              aria-label={
+                tweet.is_bookmarked
+                  ? 'ブックマークを削除'
+                  : 'ブックマークに追加'
+              }
+              disabled={bookmarkMutation.isPending}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                className={
+                  tweet.is_bookmarked
+                    ? styles.bookmarkIconActive
+                    : styles.bookmarkIcon
+                }
+              >
+                <path
+                  fill={tweet.is_bookmarked ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
+                />
+              </svg>
+            </button>
 
             {/* 外部リンクボタン */}
             <a

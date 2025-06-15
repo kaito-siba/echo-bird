@@ -172,6 +172,20 @@ export const shareIcon = style({
   height: '16px',
 });
 
+export const bookmarkIcon = style({
+  color: colors.gray[500],
+  width: '16px',
+  height: '16px',
+  transition: 'color 0.2s ease-in-out',
+});
+
+export const bookmarkIconActive = style([
+  bookmarkIcon,
+  {
+    color: colors.primary,
+  },
+]);
+
 export const externalLinkButton = style({
   display: 'flex',
   alignItems: 'center',

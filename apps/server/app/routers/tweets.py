@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.constants import MEDIA_STATUS_COMPLETED
+from app.models.bookmarked_tweet import BookmarkedTweet
 from app.models.media import Media
+from app.models.read_tweet import ReadTweet
 from app.models.target_account import TargetAccount
 from app.models.tweet import Tweet
 from app.models.user import User
@@ -104,6 +106,10 @@ class TweetResponse(BaseModel):
         default=None, description='引用元ツイートの詳細情報'
     )
 
+    # ユーザー固有の情報
+    is_read: bool = Field(False, description='既読済みかどうか')
+    is_bookmarked: bool = Field(False, description='ブックマーク済みかどうか')
+
 
 async def get_tweet_media_info(tweet_id: int) -> list[MediaResponse]:
     """指定されたツイートのメディア情報を取得"""
@@ -132,10 +138,24 @@ async def get_tweet_media_info(tweet_id: int) -> list[MediaResponse]:
     return media_responses
 
 
-async def create_tweet_response(tweet: Tweet) -> TweetResponse:
+async def create_tweet_response(
+    tweet: Tweet, current_user: User | None = None
+) -> TweetResponse:
     """TweetモデルからTweetResponseを生成する（メディア情報込み）"""
     # メディア情報を取得
     media_info = await get_tweet_media_info(tweet.id)
+
+    # 既読・ブックマーク状態を取得（ユーザーが指定されている場合）
+    is_read = False
+    is_bookmarked = False
+    if current_user:
+        read_tweet = await ReadTweet.filter(user=current_user, tweet=tweet).first()
+        is_read = read_tweet is not None
+
+        bookmarked_tweet = await BookmarkedTweet.filter(
+            user=current_user, tweet=tweet
+        ).first()
+        is_bookmarked = bookmarked_tweet is not None
 
     # 引用元ツイート情報を取得
     quoted_tweet_response = None
@@ -193,6 +213,9 @@ async def create_tweet_response(tweet: Tweet) -> TweetResponse:
                 media=quoted_media_info,
                 # 引用元ツイート（再帰を避けるためNone）
                 quoted_tweet=None,
+                # ユーザー固有の情報
+                is_read=is_read,
+                is_bookmarked=is_bookmarked,
             )
 
     return TweetResponse(
@@ -237,6 +260,9 @@ async def create_tweet_response(tweet: Tweet) -> TweetResponse:
         media=media_info,
         # 引用元ツイート情報
         quoted_tweet=quoted_tweet_response,
+        # ユーザー固有の情報
+        is_read=is_read,
+        is_bookmarked=is_bookmarked,
     )
 
 
@@ -308,13 +334,73 @@ async def TweetTimelineAPI(
     # レスポンス用にデータを変換
     tweet_responses = []
     for tweet in tweets:
-        tweet_response = await create_tweet_response(tweet)
+        tweet_response = await create_tweet_response(tweet, current_user)
         tweet_responses.append(tweet_response)
 
     # 次のページが存在するかチェック
     has_next = offset + page_size < total
 
     return TimelineResponse(
+        tweets=tweet_responses,
+        total=total,
+        page=page,
+        page_size=page_size,
+        has_next=has_next,
+    )
+
+
+class BookmarkedTweetsResponse(BaseModel):
+    """ブックマーク一覧取得レスポンス"""
+
+    tweets: list[TweetResponse] = Field(
+        ..., description='ブックマークされたツイート一覧'
+    )
+    total: int = Field(..., description='総ブックマーク数')
+    page: int = Field(..., description='現在のページ番号')
+    page_size: int = Field(..., description='1ページあたりのツイート数')
+    has_next: bool = Field(..., description='次のページが存在するかどうか')
+
+
+@router.get('/bookmarked', response_model=BookmarkedTweetsResponse)
+async def BookmarkedTweetsAPI(
+    current_user: User = Depends(get_current_user),
+    page: int = Query(1, ge=1, description='ページ番号'),
+    page_size: int = Query(20, ge=1, le=100, description='1ページあたりのツイート数'),
+) -> BookmarkedTweetsResponse:
+    """
+    ブックマーク一覧取得 API
+
+    現在のユーザーがブックマークしたツイート一覧を
+    ブックマーク日時順（新しいものから）で取得します。
+    """
+    # ブックマークされたツイートIDを取得（ページネーション付き）
+    offset = (page - 1) * page_size
+    bookmarked_tweets_query = (
+        BookmarkedTweet.filter(user=current_user)
+        .select_related('tweet__target_account')
+        .order_by('-bookmarked_at')
+    )
+
+    # 総数を取得
+    total = await bookmarked_tweets_query.count()
+
+    # ページネーション適用
+    bookmarked_tweets = (
+        await bookmarked_tweets_query.offset(offset).limit(page_size).all()
+    )
+
+    # レスポンス用にデータを変換
+    tweet_responses = []
+    for bookmarked_tweet in bookmarked_tweets:
+        tweet_response = await create_tweet_response(
+            bookmarked_tweet.tweet, current_user
+        )
+        tweet_responses.append(tweet_response)
+
+    # 次のページが存在するかチェック
+    has_next = offset + page_size < total
+
+    return BookmarkedTweetsResponse(
         tweets=tweet_responses,
         total=total,
         page=page,
@@ -354,4 +440,72 @@ async def TweetDetailAPI(
             detail='指定されたツイートが見つかりません',
         )
 
-    return await create_tweet_response(tweet)
+    return await create_tweet_response(tweet, current_user)
+
+
+@router.post('/bookmark/{tweet_id}', response_model=dict[str, str | bool])
+async def ToggleBookmarkAPI(
+    tweet_id: int,
+    current_user: User = Depends(get_current_user),
+) -> dict[str, str | bool]:
+    """
+    ブックマーク切り替え API
+
+    指定されたツイートのブックマーク状態を切り替えます。
+    ブックマーク済みの場合は削除、未ブックマークの場合は追加します。
+    """
+    # ツイートの存在確認
+    tweet = await Tweet.filter(id=tweet_id).first()
+    if not tweet:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='指定されたツイートが見つかりません',
+        )
+
+    # 既存のブックマークを確認
+    bookmarked_tweet = await BookmarkedTweet.filter(
+        user=current_user, tweet=tweet
+    ).first()
+
+    if bookmarked_tweet:
+        # ブックマーク済みの場合は削除
+        await bookmarked_tweet.delete()
+        return {
+            'message': 'ブックマークを削除しました',
+            'is_bookmarked': False,
+        }
+    else:
+        # 未ブックマークの場合は追加
+        await BookmarkedTweet.create(user=current_user, tweet=tweet)
+        return {
+            'message': 'ブックマークに追加しました',
+            'is_bookmarked': True,
+        }
+
+
+@router.post('/read/{tweet_id}', response_model=dict[str, str])
+async def MarkTweetAsReadAPI(
+    tweet_id: int,
+    current_user: User = Depends(get_current_user),
+) -> dict[str, str]:
+    """
+    既読状態更新 API
+
+    指定されたツイートを既読状態にします。
+    """
+    # ツイートの存在確認
+    tweet = await Tweet.filter(id=tweet_id).first()
+    if not tweet:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='指定されたツイートが見つかりません',
+        )
+
+    # 既存の既読記録を確認
+    read_tweet = await ReadTweet.filter(user=current_user, tweet=tweet).first()
+
+    if not read_tweet:
+        # 未読の場合は既読状態を作成
+        await ReadTweet.create(user=current_user, tweet=tweet)
+
+    return {'message': 'ツイートを既読にしました'}
