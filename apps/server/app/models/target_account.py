@@ -55,7 +55,7 @@ class TargetAccount(Model):
     # プロフィール画像
     profile_image_url = CharField(
         max_length=URL_MAX_LENGTH, null=True
-    )  # プロフィール画像 URL (twikit: User.profile_image_url_https)
+    )  # プロフィール画像 URL (twikit: User.profile_image_url)
     profile_banner_url = CharField(
         max_length=URL_MAX_LENGTH, null=True
     )  # ヘッダー画像 URL (twikit: User.profile_banner_url)

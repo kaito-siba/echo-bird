@@ -107,12 +107,8 @@ class TwitterService:
                 existing_target.description = target_user.description
                 existing_target.location = target_user.location
                 existing_target.url = target_user.url
-                existing_target.profile_image_url = getattr(
-                    target_user, 'profile_image_url_https', None
-                )
-                existing_target.profile_banner_url = getattr(
-                    target_user, 'profile_banner_url', None
-                )
+                existing_target.profile_image_url = target_user.profile_image_url
+                existing_target.profile_banner_url = target_user.profile_banner_url
                 existing_target.is_protected = getattr(target_user, 'protected', False)
                 existing_target.is_verified = getattr(target_user, 'verified', False)
                 existing_target.is_blue_verified = getattr(
@@ -147,9 +143,7 @@ class TwitterService:
                     description=target_user.description,
                     location=target_user.location,
                     url=target_user.url,
-                    profile_image_url=getattr(
-                        target_user, 'profile_image_url_https', None
-                    ),
+                    profile_image_url=getattr(target_user, 'profile_image_url', None),
                     profile_banner_url=getattr(target_user, 'profile_banner_url', None),
                     is_protected=getattr(target_user, 'protected', False),
                     is_verified=getattr(target_user, 'verified', False),
@@ -293,7 +287,7 @@ class TwitterService:
                             original_author, 'name', None
                         )
                         original_author_profile_image_url = getattr(
-                            original_author, 'profile_image_url_https', None
+                            original_author, 'profile_image_url', None
                         )
                     else:
                         original_author_username = None
@@ -330,7 +324,7 @@ class TwitterService:
                             quoted_author, 'name', None
                         )
                         original_author_profile_image_url = getattr(
-                            quoted_author, 'profile_image_url_https', None
+                            quoted_author, 'profile_image_url', None
                         )
                     else:
                         original_author_username = None
