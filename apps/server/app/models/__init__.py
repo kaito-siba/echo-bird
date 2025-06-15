@@ -3,6 +3,7 @@ from .bookmarked_tweet import BookmarkedTweet
 from .media import Media
 from .read_tweet import ReadTweet
 from .target_account import TargetAccount
+from .timeline import Timeline
 from .tweet import Tweet
 from .twitter_account import TwitterAccount
 from .user import User
@@ -12,6 +13,7 @@ __all__ = [
     'Media',
     'ReadTweet',
     'TargetAccount',
+    'Timeline',
     'Tweet',
     'TwitterAccount',
     'User',

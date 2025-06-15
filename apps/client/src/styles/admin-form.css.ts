@@ -44,6 +44,23 @@ export const input = style({
   },
 });
 
+export const textarea = style({
+  display: 'block',
+  width: '100%',
+  padding: '0.75rem',
+  border: '1px solid #e0e0e0',
+  borderRadius: '4px',
+  fontSize: '1rem',
+  fontFamily: 'inherit',
+  resize: 'vertical',
+  minHeight: '80px',
+  transition: 'border-color 0.2s',
+  ':focus': {
+    outline: 'none',
+    borderColor: '#1976d2',
+  },
+});
+
 export const select = style({
   display: 'block',
   width: '100%',
@@ -67,6 +84,18 @@ export const checkbox = style({
   cursor: 'pointer',
 });
 
+export const checkboxLabel = style({
+  display: 'flex',
+  alignItems: 'center',
+  marginBottom: '0.5rem',
+  cursor: 'pointer',
+  fontSize: '0.875rem',
+  color: '#333',
+  ':hover': {
+    backgroundColor: '#f5f5f5',
+  },
+});
+
 export const buttonGroup = style({
   display: 'flex',
   gap: '1rem',
@@ -87,6 +116,29 @@ export const saveButton = style({
   cursor: 'pointer',
   ':hover': {
     backgroundColor: '#1565c0',
+  },
+  ':disabled': {
+    backgroundColor: '#cccccc',
+    cursor: 'not-allowed',
+  },
+});
+
+export const submitButton = style({
+  padding: '0.75rem 2rem',
+  border: 'none',
+  borderRadius: '4px',
+  backgroundColor: '#1976d2',
+  color: 'white',
+  fontSize: '1rem',
+  fontWeight: '500',
+  transition: 'background-color 0.2s',
+  cursor: 'pointer',
+  ':hover': {
+    backgroundColor: '#1565c0',
+  },
+  ':disabled': {
+    backgroundColor: '#cccccc',
+    cursor: 'not-allowed',
   },
 });
 

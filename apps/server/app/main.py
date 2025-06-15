@@ -11,7 +11,15 @@ from app.constants import (
     APP_VERSION,
 )
 from app.database import close_db, init_db
-from app.routers import auth, media, target_accounts, tweets, twitter_auth, users
+from app.routers import (
+    auth,
+    media,
+    target_accounts,
+    timelines,
+    tweets,
+    twitter_auth,
+    users,
+)
 from app.services.tweet_scheduler import TweetScheduler
 from app.utils.s3_client import initialize_media_bucket
 
@@ -52,6 +60,7 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(twitter_auth.router)
 app.include_router(target_accounts.router)
+app.include_router(timelines.router)
 app.include_router(tweets.router)
 app.include_router(media.router)
 

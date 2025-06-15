@@ -17,9 +17,12 @@ import { Route as LoginImport } from './routes/login'
 import { Route as BookmarksImport } from './routes/bookmarks'
 import { Route as IndexImport } from './routes/index'
 import { Route as TwitterAccountsIndexImport } from './routes/twitter-accounts.index'
+import { Route as TimelinesIndexImport } from './routes/timelines.index'
 import { Route as TargetAccountsIndexImport } from './routes/target-accounts.index'
 import { Route as TwitterAccountsCreateImport } from './routes/twitter-accounts.create'
 import { Route as TwitterAccountsAccountIdImport } from './routes/twitter-accounts.$accountId'
+import { Route as TimelinesCreateImport } from './routes/timelines.create'
+import { Route as TimelinesTimelineIdImport } from './routes/timelines.$timelineId'
 import { Route as TestApiImport } from './routes/test.api'
 import { Route as TargetAccountsCreateImport } from './routes/target-accounts.create'
 import { Route as TargetAccountsAccountIdImport } from './routes/target-accounts.$accountId'
@@ -67,6 +70,12 @@ const TwitterAccountsIndexRoute = TwitterAccountsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const TimelinesIndexRoute = TimelinesIndexImport.update({
+  id: '/timelines/',
+  path: '/timelines/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const TargetAccountsIndexRoute = TargetAccountsIndexImport.update({
   id: '/target-accounts/',
   path: '/target-accounts/',
@@ -82,6 +91,18 @@ const TwitterAccountsCreateRoute = TwitterAccountsCreateImport.update({
 const TwitterAccountsAccountIdRoute = TwitterAccountsAccountIdImport.update({
   id: '/twitter-accounts/$accountId',
   path: '/twitter-accounts/$accountId',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TimelinesCreateRoute = TimelinesCreateImport.update({
+  id: '/timelines/create',
+  path: '/timelines/create',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TimelinesTimelineIdRoute = TimelinesTimelineIdImport.update({
+  id: '/timelines/$timelineId',
+  path: '/timelines/$timelineId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -207,6 +228,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestApiImport
       parentRoute: typeof rootRoute
     }
+    '/timelines/$timelineId': {
+      id: '/timelines/$timelineId'
+      path: '/timelines/$timelineId'
+      fullPath: '/timelines/$timelineId'
+      preLoaderRoute: typeof TimelinesTimelineIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/timelines/create': {
+      id: '/timelines/create'
+      path: '/timelines/create'
+      fullPath: '/timelines/create'
+      preLoaderRoute: typeof TimelinesCreateImport
+      parentRoute: typeof rootRoute
+    }
     '/twitter-accounts/$accountId': {
       id: '/twitter-accounts/$accountId'
       path: '/twitter-accounts/$accountId'
@@ -226,6 +261,13 @@ declare module '@tanstack/react-router' {
       path: '/target-accounts'
       fullPath: '/target-accounts'
       preLoaderRoute: typeof TargetAccountsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/timelines/': {
+      id: '/timelines/'
+      path: '/timelines'
+      fullPath: '/timelines'
+      preLoaderRoute: typeof TimelinesIndexImport
       parentRoute: typeof rootRoute
     }
     '/twitter-accounts/': {
@@ -272,9 +314,12 @@ export interface FileRoutesByFullPath {
   '/target-accounts/$accountId': typeof TargetAccountsAccountIdRoute
   '/target-accounts/create': typeof TargetAccountsCreateRoute
   '/test/api': typeof TestApiRoute
+  '/timelines/$timelineId': typeof TimelinesTimelineIdRoute
+  '/timelines/create': typeof TimelinesCreateRoute
   '/twitter-accounts/$accountId': typeof TwitterAccountsAccountIdRoute
   '/twitter-accounts/create': typeof TwitterAccountsCreateRoute
   '/target-accounts': typeof TargetAccountsIndexRoute
+  '/timelines': typeof TimelinesIndexRoute
   '/twitter-accounts': typeof TwitterAccountsIndexRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/users/create': typeof AdminUsersCreateRoute
@@ -292,9 +337,12 @@ export interface FileRoutesByTo {
   '/target-accounts/$accountId': typeof TargetAccountsAccountIdRoute
   '/target-accounts/create': typeof TargetAccountsCreateRoute
   '/test/api': typeof TestApiRoute
+  '/timelines/$timelineId': typeof TimelinesTimelineIdRoute
+  '/timelines/create': typeof TimelinesCreateRoute
   '/twitter-accounts/$accountId': typeof TwitterAccountsAccountIdRoute
   '/twitter-accounts/create': typeof TwitterAccountsCreateRoute
   '/target-accounts': typeof TargetAccountsIndexRoute
+  '/timelines': typeof TimelinesIndexRoute
   '/twitter-accounts': typeof TwitterAccountsIndexRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/users/create': typeof AdminUsersCreateRoute
@@ -313,9 +361,12 @@ export interface FileRoutesById {
   '/target-accounts/$accountId': typeof TargetAccountsAccountIdRoute
   '/target-accounts/create': typeof TargetAccountsCreateRoute
   '/test/api': typeof TestApiRoute
+  '/timelines/$timelineId': typeof TimelinesTimelineIdRoute
+  '/timelines/create': typeof TimelinesCreateRoute
   '/twitter-accounts/$accountId': typeof TwitterAccountsAccountIdRoute
   '/twitter-accounts/create': typeof TwitterAccountsCreateRoute
   '/target-accounts/': typeof TargetAccountsIndexRoute
+  '/timelines/': typeof TimelinesIndexRoute
   '/twitter-accounts/': typeof TwitterAccountsIndexRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/users/create': typeof AdminUsersCreateRoute
@@ -335,9 +386,12 @@ export interface FileRouteTypes {
     | '/target-accounts/$accountId'
     | '/target-accounts/create'
     | '/test/api'
+    | '/timelines/$timelineId'
+    | '/timelines/create'
     | '/twitter-accounts/$accountId'
     | '/twitter-accounts/create'
     | '/target-accounts'
+    | '/timelines'
     | '/twitter-accounts'
     | '/admin/users/$userId'
     | '/admin/users/create'
@@ -354,9 +408,12 @@ export interface FileRouteTypes {
     | '/target-accounts/$accountId'
     | '/target-accounts/create'
     | '/test/api'
+    | '/timelines/$timelineId'
+    | '/timelines/create'
     | '/twitter-accounts/$accountId'
     | '/twitter-accounts/create'
     | '/target-accounts'
+    | '/timelines'
     | '/twitter-accounts'
     | '/admin/users/$userId'
     | '/admin/users/create'
@@ -373,9 +430,12 @@ export interface FileRouteTypes {
     | '/target-accounts/$accountId'
     | '/target-accounts/create'
     | '/test/api'
+    | '/timelines/$timelineId'
+    | '/timelines/create'
     | '/twitter-accounts/$accountId'
     | '/twitter-accounts/create'
     | '/target-accounts/'
+    | '/timelines/'
     | '/twitter-accounts/'
     | '/admin/users/$userId'
     | '/admin/users/create'
@@ -394,9 +454,12 @@ export interface RootRouteChildren {
   TargetAccountsAccountIdRoute: typeof TargetAccountsAccountIdRoute
   TargetAccountsCreateRoute: typeof TargetAccountsCreateRoute
   TestApiRoute: typeof TestApiRoute
+  TimelinesTimelineIdRoute: typeof TimelinesTimelineIdRoute
+  TimelinesCreateRoute: typeof TimelinesCreateRoute
   TwitterAccountsAccountIdRoute: typeof TwitterAccountsAccountIdRoute
   TwitterAccountsCreateRoute: typeof TwitterAccountsCreateRoute
   TargetAccountsIndexRoute: typeof TargetAccountsIndexRoute
+  TimelinesIndexRoute: typeof TimelinesIndexRoute
   TwitterAccountsIndexRoute: typeof TwitterAccountsIndexRoute
   AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
   AdminUsersCreateRoute: typeof AdminUsersCreateRoute
@@ -414,9 +477,12 @@ const rootRouteChildren: RootRouteChildren = {
   TargetAccountsAccountIdRoute: TargetAccountsAccountIdRoute,
   TargetAccountsCreateRoute: TargetAccountsCreateRoute,
   TestApiRoute: TestApiRoute,
+  TimelinesTimelineIdRoute: TimelinesTimelineIdRoute,
+  TimelinesCreateRoute: TimelinesCreateRoute,
   TwitterAccountsAccountIdRoute: TwitterAccountsAccountIdRoute,
   TwitterAccountsCreateRoute: TwitterAccountsCreateRoute,
   TargetAccountsIndexRoute: TargetAccountsIndexRoute,
+  TimelinesIndexRoute: TimelinesIndexRoute,
   TwitterAccountsIndexRoute: TwitterAccountsIndexRoute,
   AdminUsersUserIdRoute: AdminUsersUserIdRoute,
   AdminUsersCreateRoute: AdminUsersCreateRoute,
@@ -443,9 +509,12 @@ export const routeTree = rootRoute
         "/target-accounts/$accountId",
         "/target-accounts/create",
         "/test/api",
+        "/timelines/$timelineId",
+        "/timelines/create",
         "/twitter-accounts/$accountId",
         "/twitter-accounts/create",
         "/target-accounts/",
+        "/timelines/",
         "/twitter-accounts/",
         "/admin/users/$userId",
         "/admin/users/create",
@@ -482,6 +551,12 @@ export const routeTree = rootRoute
     "/test/api": {
       "filePath": "test.api.tsx"
     },
+    "/timelines/$timelineId": {
+      "filePath": "timelines.$timelineId.tsx"
+    },
+    "/timelines/create": {
+      "filePath": "timelines.create.tsx"
+    },
     "/twitter-accounts/$accountId": {
       "filePath": "twitter-accounts.$accountId.tsx"
     },
@@ -490,6 +565,9 @@ export const routeTree = rootRoute
     },
     "/target-accounts/": {
       "filePath": "target-accounts.index.tsx"
+    },
+    "/timelines/": {
+      "filePath": "timelines.index.tsx"
     },
     "/twitter-accounts/": {
       "filePath": "twitter-accounts.index.tsx"
