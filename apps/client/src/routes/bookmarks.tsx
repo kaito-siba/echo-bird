@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { bookmarkedTweetsQueryOptions } from '../integrations/tanstack-query/queries/tweets';
+import { targetAccountListQueryOptions } from '../integrations/tanstack-query/queries/target-account';
 import { TweetItem } from '../components/TweetItem';
 import { authGuard } from '../utils/auth-guard';
 
@@ -12,7 +13,11 @@ export const Route = createFileRoute('/bookmarks')({
 
 function BookmarksPage() {
   const [page, setPage] = useState(1);
+  const [selectedAccountId, setSelectedAccountId] = useState<number | undefined>(undefined);
   const pageSize = 20;
+
+  // ターゲットアカウント一覧を取得
+  const { data: accountsData } = useQuery(targetAccountListQueryOptions);
 
   // ブックマーク一覧を取得
   const {
@@ -20,7 +25,11 @@ function BookmarksPage() {
     isLoading,
     error,
     refetch,
-  } = useQuery(bookmarkedTweetsQueryOptions({ page, page_size: pageSize }));
+  } = useQuery(bookmarkedTweetsQueryOptions({ 
+    page, 
+    page_size: pageSize,
+    target_account_id: selectedAccountId,
+  }));
 
   if (isLoading) {
     return (
@@ -115,6 +124,35 @@ function BookmarksPage() {
           >
             {total} 件のツイート
           </p>
+        )}
+        {/* アカウントフィルター */}
+        {accountsData && accountsData.accounts.length > 0 && (
+          <div style={{ marginTop: '12px' }}>
+            <select
+              value={selectedAccountId || ''}
+              onChange={(e) => {
+                setSelectedAccountId(e.target.value ? Number(e.target.value) : undefined);
+                setPage(1); // フィルター変更時はページを1に戻す
+              }}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                backgroundColor: '#fff',
+                fontSize: '14px',
+                color: '#374151',
+                cursor: 'pointer',
+                minWidth: '200px',
+              }}
+            >
+              <option value="">すべてのアカウント</option>
+              {accountsData.accounts.map(account => (
+                <option key={account.id} value={account.id}>
+                  @{account.username} {account.display_name && `(${account.display_name})`}
+                </option>
+              ))}
+            </select>
+          </div>
         )}
       </div>
 

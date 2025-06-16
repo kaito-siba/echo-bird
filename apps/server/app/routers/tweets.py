@@ -366,6 +366,9 @@ async def BookmarkedTweetsAPI(
     current_user: User = Depends(get_current_user),
     page: int = Query(1, ge=1, description='ページ番号'),
     page_size: int = Query(20, ge=1, le=100, description='1ページあたりのツイート数'),
+    target_account_id: int | None = Query(
+        None, description='特定のターゲットアカウントのツイートのみ取得'
+    ),
 ) -> BookmarkedTweetsResponse:
     """
     ブックマーク一覧取得 API
@@ -373,13 +376,33 @@ async def BookmarkedTweetsAPI(
     現在のユーザーがブックマークしたツイート一覧を
     ブックマーク日時順（新しいものから）で取得します。
     """
+    # target_account_id が指定されている場合、ユーザーに紐づいたアカウントか確認
+    if target_account_id is not None:
+        # ユーザーに紐づいたターゲットアカウントのIDを取得
+        target_accounts = await TargetAccount.filter(
+            user=current_user, is_active=True
+        ).all()
+        target_account_ids = [account.id for account in target_accounts]
+
+        if target_account_id not in target_account_ids:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='指定されたターゲットアカウントが見つかりません',
+            )
+
     # ブックマークされたツイートIDを取得（ページネーション付き）
     offset = (page - 1) * page_size
-    bookmarked_tweets_query = (
-        BookmarkedTweet.filter(user=current_user)
-        .select_related('tweet__target_account')
-        .order_by('-bookmarked_at')
-    )
+    bookmarked_tweets_query = BookmarkedTweet.filter(user=current_user)
+
+    # target_account_id が指定されている場合、フィルタリング
+    if target_account_id is not None:
+        bookmarked_tweets_query = bookmarked_tweets_query.filter(
+            tweet__target_account_id=target_account_id
+        )
+
+    bookmarked_tweets_query = bookmarked_tweets_query.select_related(
+        'tweet__target_account'
+    ).order_by('-bookmarked_at')
 
     # 総数を取得
     total = await bookmarked_tweets_query.count()

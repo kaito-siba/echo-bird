@@ -84,6 +84,7 @@ interface BookmarkedTweetsResponse {
 interface BookmarkedTweetsParams {
   page?: number;
   page_size?: number;
+  target_account_id?: number;
 }
 
 // タイムライン取得API
@@ -133,6 +134,13 @@ const fetchBookmarkedTweets = async (
 
   if (params?.page_size) {
     searchParams.append('page_size', params.page_size.toString());
+  }
+
+  if (params?.target_account_id) {
+    searchParams.append(
+      'target_account_id',
+      params.target_account_id.toString(),
+    );
   }
 
   const url = `/tweets/bookmarked${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;

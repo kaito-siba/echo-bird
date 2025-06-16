@@ -11,7 +11,7 @@ import { TweetItem } from '../components/TweetItem';
 
 export const Route = createFileRoute('/timelines/$timelineId')({
   loader: ({ context, params }) => {
-    const timelineId = parseInt(params.timelineId);
+    const timelineId = Number.parseInt(params.timelineId);
     return Promise.all([
       context.queryClient.ensureQueryData(
         timelineDetailQueryOptions(timelineId),
@@ -32,10 +32,10 @@ function TimelineDetail() {
 
   // データ取得
   const { data: timeline } = useSuspenseQuery(
-    timelineDetailQueryOptions(parseInt(timelineId)),
+    timelineDetailQueryOptions(Number.parseInt(timelineId)),
   );
   const { data: tweetsData } = useSuspenseQuery(
-    timelineTweetsQueryOptions(parseInt(timelineId), currentPage, pageSize),
+    timelineTweetsQueryOptions(Number.parseInt(timelineId), currentPage, pageSize),
   );
 
   const deleteTimelineMutation = useDeleteTimelineMutation();
