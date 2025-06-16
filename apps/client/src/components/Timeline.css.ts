@@ -36,21 +36,24 @@ export const header = style({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  padding: '20px 24px',
-  borderBottom: `1px solid ${colors.gray[200]}`,
+  padding: '20px 24px 0px 24px',
   backgroundColor: colors.white,
   position: 'sticky',
   top: 0,
   zIndex: 10,
   backdropFilter: 'blur(12px)',
+  gap: '16px',
 
   '@media': {
     '(max-width: 640px)': {
-      padding: '16px 20px',
+      padding: '16px 20px 0px 20px',
+      flexDirection: 'column',
+      gap: '12px',
+      alignItems: 'flex-start',
     },
 
     '(min-width: 1024px)': {
-      padding: '24px 32px',
+      padding: '24px 32px 0px 32px',
     },
   },
 });
@@ -350,4 +353,103 @@ export const statsLabel = style({
   fontWeight: '500',
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
+});
+
+// タイムライン選択関連のスタイル（タブ形式）
+export const timelineTabContainer = style({
+  display: 'flex',
+  borderBottom: `1px solid ${colors.gray[200]}`,
+  marginTop: '20px',
+  marginBottom: '16px',
+  marginLeft: '0px',
+  marginRight: '0px',
+  overflowX: 'auto',
+  scrollbarWidth: 'none',
+  msOverflowStyle: 'none',
+  position: 'sticky',
+  top: '88px',
+  backgroundColor: colors.white,
+  zIndex: 9,
+  paddingLeft: '24px',
+  paddingRight: '24px',
+
+  '::-webkit-scrollbar': {
+    display: 'none',
+  },
+
+  '@media': {
+    '(max-width: 640px)': {
+      marginTop: '16px',
+      marginBottom: '12px',
+      paddingLeft: '20px',
+      paddingRight: '20px',
+      top: '80px',
+    },
+
+    '(min-width: 1024px)': {
+      paddingLeft: '32px',
+      paddingRight: '32px',
+      top: '100px',
+    },
+  },
+});
+
+export const timelineTab = style({
+  display: 'flex',
+  alignItems: 'center',
+  padding: '14px 20px',
+  fontSize: '15px',
+  fontWeight: '500',
+  color: colors.gray[500],
+  backgroundColor: 'transparent',
+  border: '1px solid transparent',
+  borderBottom: '1px solid transparent',
+  cursor: 'pointer',
+  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+  whiteSpace: 'nowrap',
+  position: 'relative',
+  borderRadius: '6px 6px 0 0',
+  marginBottom: '-1px',
+  boxSizing: 'border-box',
+
+  ':hover': {
+    color: colors.gray[700],
+    backgroundColor: colors.gray[50],
+  },
+
+  '@media': {
+    '(max-width: 640px)': {
+      padding: '12px 16px',
+      fontSize: '14px',
+    },
+  },
+});
+
+export const timelineTabActive = style([
+  timelineTab,
+  {
+    color: colors.primary,
+    borderBottomColor: colors.white,
+    fontWeight: '600',
+    backgroundColor: colors.white,
+    borderLeft: `1px solid ${colors.gray[200]}`,
+    borderRight: `1px solid ${colors.gray[200]}`,
+    borderTop: `1px solid ${colors.gray[200]}`,
+    zIndex: 1,
+
+    ':hover': {
+      color: colors.primary,
+      backgroundColor: colors.white,
+    },
+  },
+]);
+
+export const timelineTabDefault = style({
+  fontSize: '11px',
+  color: colors.gray[400],
+  marginLeft: '6px',
+  fontWeight: '400',
+  backgroundColor: colors.gray[100],
+  padding: '2px 6px',
+  borderRadius: '4px',
 });
