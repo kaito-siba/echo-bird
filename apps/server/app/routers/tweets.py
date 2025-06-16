@@ -566,6 +566,6 @@ async def _process_tweet_media_for_bookmark(tweet: Tweet) -> None:
                 # バックグラウンドタスクとして実行（awaitしない）
                 asyncio.create_task(
                     _process_single_media_background(
-                        media.id, media.media_key, tweet.tweet_id
+                        media.id, media.media_key, quoted_tweet.tweet_id
                     )
                 )
