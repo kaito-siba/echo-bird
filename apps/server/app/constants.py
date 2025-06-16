@@ -19,7 +19,7 @@ DEFAULT_DATABASE_URL = 'postgres://postgres:password@localhost:5432/echo_bird'
 
 # JWT 設定
 JWT_ALGORITHM = 'HS256'
-JWT_ACCESS_TOKEN_EXPIRE_MINUTES = 30
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES = 360  # 6時間 (360分)
 JWT_SECRET_KEY = 'your-secret-key-here'  # 本番環境では環境変数から取得
 
 
