@@ -3,10 +3,11 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict
 
+from app.constants import API_PREFIX, JWT_ACCESS_TOKEN_EXPIRE_MINUTES
 from app.models.user import User
 from app.utils.auth import authenticate_user, create_access_token, get_current_user
 
-router = APIRouter(prefix='/api/v1/auth', tags=['auth'])
+router = APIRouter(prefix=f'{API_PREFIX}/auth', tags=['auth'])
 
 
 class LoginRequest(BaseModel):
@@ -47,7 +48,7 @@ async def LoginAPI(request: LoginRequest) -> TokenResponse:
             headers={'WWW-Authenticate': 'Bearer'},
         )
 
-    access_token_expires = timedelta(minutes=30)
+    access_token_expires = timedelta(minutes=JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={'sub': str(user.id)}, expires_delta=access_token_expires
     )
