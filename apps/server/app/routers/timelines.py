@@ -342,21 +342,23 @@ async def TimelineTweetsAPI(
             has_next=False,
         )
 
-    # ツイート総数取得
-    total_tweets = await Tweet.filter(target_account_id__in=target_account_ids).count()
-
-    # ページネーション計算
+    # ツイート一覧を取得（ページネーション付き）
+    # is_quoted=False のツイートのみを取得（引用元ツイートを除外）
     offset = (page - 1) * page_size
-    has_next = offset + page_size < total_tweets
-
-    # ツイート取得（時系列順）
-    tweets = (
-        await Tweet.filter(target_account_id__in=target_account_ids)
+    tweets_query = (
+        Tweet.filter(target_account_id__in=target_account_ids, is_quoted=False)
         .select_related('target_account')
         .order_by('-posted_at')
-        .offset(offset)
-        .limit(page_size)
     )
+
+    # 総数を取得
+    total_tweets = await tweets_query.count()
+
+    # ページネーション適用
+    tweets = await tweets_query.offset(offset).limit(page_size).all()
+
+    # 次のページが存在するかチェック
+    has_next = offset + page_size < total_tweets
 
     # レスポンス生成
     tweet_responses = []
