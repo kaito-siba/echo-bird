@@ -297,6 +297,16 @@ class TwitterService:
                         original_author_display_name = None
                         original_author_profile_image_url = None
 
+                    # リツイート元が引用ツイートかどうかをチェック
+                    retweeted_is_quote = getattr(
+                        retweeted_tweet, 'is_quote_status', False
+                    )
+                    if retweeted_is_quote:
+                        # 引用ツイートをリツイートした場合、引用元ツイートも保存
+                        quoted_tweet = getattr(retweeted_tweet, 'quote', None)
+                        if quoted_tweet:
+                            await self._save_quoted_tweet(quoted_tweet, target_account)
+
                     # リツイートの場合、メディアは元ツイートから取得
                     media_source_data = retweeted_tweet
                 else:
@@ -347,17 +357,29 @@ class TwitterService:
             # メディアの存在チェック（適切なデータソースから）
             has_media = bool(getattr(media_source_data, 'media', None))
 
-            # デバッグログ
-            logger.info(
-                f'Tweet {tweet_data.id}: is_retweet={is_retweet}, is_quote={is_quote}, has_media={has_media}, content_length={len(content)}, full_text_length={len(full_text)}, media_source={"retweeted_tweet" if is_retweet and media_source_data != tweet_data else "original"}'
-            )
-
             # 引用ツイートIDの取得
             quoted_tweet_id = None
-            if is_quote:
+            if is_quote and not is_retweet:
+                # 直接的な引用ツイートの場合
                 quoted_tweet = getattr(tweet_data, 'quote', None)
                 if quoted_tweet:
                     quoted_tweet_id = quoted_tweet.id
+            elif is_retweet and 'retweeted_tweet' in locals():
+                # リツイートの場合（引用リツイートをリツイートした場合も含む）
+                retweeted_is_quote = getattr(retweeted_tweet, 'is_quote_status', False)
+                if retweeted_is_quote:
+                    quoted_tweet = getattr(retweeted_tweet, 'quote', None)
+                    if quoted_tweet:
+                        quoted_tweet_id = quoted_tweet.id
+
+            # デバッグログ
+            retweeted_is_quote = False
+            if is_retweet and 'retweeted_tweet' in locals():
+                retweeted_is_quote = getattr(retweeted_tweet, 'is_quote_status', False)
+
+            logger.info(
+                f'Tweet {tweet_data.id}: is_retweet={is_retweet}, is_quote={is_quote}, retweeted_is_quote={retweeted_is_quote}, has_media={has_media}, content_length={len(content)}, full_text_length={len(full_text)}, quoted_tweet_id={quoted_tweet_id}, media_source={"retweeted_tweet" if is_retweet and media_source_data != tweet_data else "original"}'
+            )
 
             # ツイートを保存
             tweet = await Tweet.create(

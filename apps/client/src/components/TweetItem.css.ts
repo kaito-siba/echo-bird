@@ -528,3 +528,15 @@ export const quotedTweetMediaContainer = style({
   maxWidth: '450px', // 引用ツイートのメディアを少し大きめに
   width: '100%',
 });
+
+export const placeholderMedia = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: colors.gray[100],
+  color: colors.gray[500],
+  fontSize: '12px',
+  fontWeight: '500',
+  height: '100%',
+  minHeight: '100px',
+});

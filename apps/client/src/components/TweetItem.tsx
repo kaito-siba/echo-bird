@@ -249,29 +249,109 @@ export function TweetItem({ tweet }: TweetItemProps) {
                             <img
                               src={media.media_url}
                               alt={media.alt_text || '引用ツイート画像'}
-                              className={styles.mediaImage}
                               loading="lazy"
                             />
                           ) : media.media_type === 'video' ? (
-                            <>
-                              <video
-                                src={media.media_url}
-                                className={styles.mediaVideo}
-                                controls={false}
-                                muted
-                                preload="metadata"
-                              />
-                              <div className={styles.mediaOverlay}>
-                                <svg
-                                  viewBox="0 0 24 24"
-                                  className={styles.playIcon}
-                                >
-                                  <path fill="currentColor" d="M8 5v14l11-7z" />
-                                </svg>
-                              </div>
-                            </>
+                            <video
+                              src={media.media_url}
+                              controls={false}
+                              muted
+                              playsInline
+                              onMouseEnter={(e) => e.currentTarget.play()}
+                              onMouseLeave={(e) => e.currentTarget.pause()}
+                            />
                           ) : (
-                            <div className={styles.mediaPlaceholder}>GIF</div>
+                            <div className={styles.placeholderMedia}>
+                              メディアを読み込めません
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+            </div>
+          )}
+
+          {/* 引用リツイートをリツイートした場合の引用元ツイート表示 */}
+          {tweet.is_retweet && !tweet.is_quote && tweet.quoted_tweet && (
+            <div className={styles.quotedTweetContainer}>
+              <div className={styles.quotedTweetHeader}>
+                {/* 引用元作者のプロフィール画像 */}
+                {tweet.quoted_tweet.target_account_profile_image_url ? (
+                  <img
+                    src={getProfileImageUrl(
+                      tweet.quoted_tweet.target_account_profile_image_url,
+                    )}
+                    alt={`@${tweet.quoted_tweet.target_account_username} のプロフィール画像`}
+                    className={styles.quotedTweetAvatar}
+                  />
+                ) : (
+                  <div className={styles.quotedTweetAvatarFallback}>
+                    {tweet.quoted_tweet.target_account_username
+                      .charAt(0)
+                      .toUpperCase()}
+                  </div>
+                )}
+
+                {/* 引用元作者情報 */}
+                <div className={styles.quotedTweetAuthor}>
+                  <span className={styles.quotedTweetDisplayName}>
+                    {tweet.quoted_tweet.target_account_display_name ||
+                      tweet.quoted_tweet.target_account_username}
+                  </span>
+                  <span className={styles.quotedTweetUsername}>
+                    @{tweet.quoted_tweet.target_account_username}
+                  </span>
+                  <span className={styles.separator}>·</span>
+                  <span className={styles.quotedTweetTimestamp}>
+                    {formatDate(tweet.quoted_tweet.posted_at)}
+                  </span>
+                </div>
+              </div>
+
+              {/* 引用元ツイート本文 */}
+              <div className={styles.quotedTweetText}>
+                {tweet.quoted_tweet.full_text || tweet.quoted_tweet.content}
+              </div>
+
+              {/* 引用元ツイートのメディア */}
+              {tweet.quoted_tweet.media &&
+                tweet.quoted_tweet.media.length > 0 && (
+                  <div className={styles.quotedTweetMediaContainer}>
+                    <div
+                      className={getMediaGridClass(
+                        tweet.quoted_tweet.media.length,
+                      )}
+                    >
+                      {tweet.quoted_tweet.media.map((media, index) => (
+                        <div
+                          key={media.media_key}
+                          className={getMediaItemClass(
+                            tweet.quoted_tweet?.media?.length || 0,
+                            index,
+                          )}
+                          onClick={() => handleMediaClick(media.media_url)}
+                        >
+                          {media.media_type === 'photo' ? (
+                            <img
+                              src={media.media_url}
+                              alt={media.alt_text || '引用ツイート画像'}
+                              loading="lazy"
+                            />
+                          ) : media.media_type === 'video' ? (
+                            <video
+                              src={media.media_url}
+                              controls={false}
+                              muted
+                              playsInline
+                              onMouseEnter={(e) => e.currentTarget.play()}
+                              onMouseLeave={(e) => e.currentTarget.pause()}
+                            />
+                          ) : (
+                            <div className={styles.placeholderMedia}>
+                              メディアを読み込めません
+                            </div>
                           )}
                         </div>
                       ))}
