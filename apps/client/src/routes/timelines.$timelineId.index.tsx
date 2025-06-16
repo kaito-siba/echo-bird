@@ -9,7 +9,7 @@ import {
 import { container, header, headerControls } from '../styles/admin.css';
 import { TweetItem } from '../components/TweetItem';
 
-export const Route = createFileRoute('/timelines/$timelineId')({
+export const Route = createFileRoute('/timelines/$timelineId/')({
   loader: ({ context, params }) => {
     const timelineId = Number.parseInt(params.timelineId);
     return Promise.all([
