@@ -266,6 +266,9 @@ class TwitterService:
             # twikitライブラリの正しいプロパティを使用
             is_quote = getattr(tweet_data, 'is_quote_status', False)
 
+            # メディア取得用のデータソースを決定
+            media_source_data = tweet_data  # デフォルトは元のツイートデータ
+
             if is_retweet:
                 # リツイートの場合、元ツイートの本文を取得
                 retweeted_tweet = getattr(
@@ -293,6 +296,9 @@ class TwitterService:
                         original_author_username = None
                         original_author_display_name = None
                         original_author_profile_image_url = None
+
+                    # リツイートの場合、メディアは元ツイートから取得
+                    media_source_data = retweeted_tweet
                 else:
                     content = tweet_data.text
                     full_text = (
@@ -338,12 +344,12 @@ class TwitterService:
                 original_author_display_name = None
                 original_author_profile_image_url = None
 
-            # メディアの存在チェック
-            has_media = bool(getattr(tweet_data, 'media', None))
+            # メディアの存在チェック（適切なデータソースから）
+            has_media = bool(getattr(media_source_data, 'media', None))
 
             # デバッグログ
             logger.info(
-                f'Tweet {tweet_data.id}: is_retweet={is_retweet}, is_quote={is_quote}, has_media={has_media}, content_length={len(content)}, full_text_length={len(full_text)}'
+                f'Tweet {tweet_data.id}: is_retweet={is_retweet}, is_quote={is_quote}, has_media={has_media}, content_length={len(content)}, full_text_length={len(full_text)}, media_source={"retweeted_tweet" if is_retweet and media_source_data != tweet_data else "original"}'
             )
 
             # 引用ツイートIDの取得
@@ -388,9 +394,9 @@ class TwitterService:
                 updated_at=current_time,
             )
 
-            # メディア情報の保存（ダウンロードは行わない）
+            # メディア情報の保存（適切なデータソースを使用）
             if has_media:
-                await self._save_tweet_media(tweet_data, tweet)
+                await self._save_tweet_media(media_source_data, tweet)
 
         except Exception as ex:
             logger.error(f'Failed to save tweet {tweet_data.id}', exc_info=ex)
