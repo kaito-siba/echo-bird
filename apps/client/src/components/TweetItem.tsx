@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import type { TweetResponse } from '../integrations/tanstack-query/queries/tweets';
 import { toggleBookmark } from '../integrations/tanstack-query/queries/tweets';
 import * as styles from './TweetItem.css';
@@ -9,6 +10,7 @@ interface TweetItemProps {
 
 export function TweetItem({ tweet }: TweetItemProps) {
   const queryClient = useQueryClient();
+  const [hoveredMediaKey, setHoveredMediaKey] = useState<string | null>(null);
 
   // ブックマーク切り替えMutation
   const bookmarkMutation = useMutation({
@@ -65,11 +67,15 @@ export function TweetItem({ tweet }: TweetItemProps) {
   };
 
   // メディアグリッドのクラス名を取得する関数
-  const getMediaGridClass = (mediaCount: number): string => {
+  const getMediaGridClass = (mediaCount: number, media?: any[]): string => {
     switch (mediaCount) {
       case 1:
         return styles.mediaGridSingle;
       case 2:
+        // 2枚の場合、横長画像が多い場合は縦並びレイアウトを使用
+        if (media && isWideMediaLayout(media)) {
+          return styles.mediaGridDoubleVertical;
+        }
         return styles.mediaGridDouble;
       case 3:
         return styles.mediaGridTriple;
@@ -79,8 +85,59 @@ export function TweetItem({ tweet }: TweetItemProps) {
     }
   };
 
+  // メディアが横長レイアウトに適しているかを判定
+  const isWideMediaLayout = (media: any[]): boolean => {
+    // 2枚の場合、両方とも横長（width > height）であれば縦並びレイアウトを使用
+    if (media.length === 2) {
+      return media.every((m) => {
+        // widthとheightが利用可能な場合のみ判定
+        if (m.width && m.height) {
+          return m.width > m.height * 1.5; // 横長の判定（1.5倍以上）
+        }
+        return false;
+      });
+    }
+    return false;
+  };
+
   // メディアアイテムのクラス名を取得する関数
-  const getMediaItemClass = (mediaCount: number, index: number): string => {
+  const getMediaItemClass = (
+    mediaCount: number,
+    index: number,
+    media?: any[],
+  ): string => {
+    // 単一メディアの場合、適切なアスペクト比を保つ
+    if (mediaCount === 1) {
+      return styles.mediaItemSingle;
+    }
+    // 2枚の横長画像の場合、横長スタイルを適用
+    if (mediaCount === 2 && media && isWideMediaLayout(media)) {
+      return styles.mediaItemWide;
+    }
+    // 3つのメディアの場合、最初のものを大きく表示
+    if (mediaCount === 3 && index === 0) {
+      return styles.mediaItemLarge;
+    }
+    if (mediaCount === 3 && index > 0) {
+      return styles.mediaItemSmall;
+    }
+    return styles.mediaItem;
+  };
+
+  // 引用ツイート用のメディアアイテムクラス取得関数
+  const getQuotedTweetMediaItemClass = (
+    mediaCount: number,
+    index: number,
+    media?: any[],
+  ): string => {
+    // 単一メディアの場合
+    if (mediaCount === 1) {
+      return styles.quotedTweetMediaItemSingle;
+    }
+    // 2枚の横長画像の場合
+    if (mediaCount === 2 && media && isWideMediaLayout(media)) {
+      return styles.quotedTweetMediaItemWide;
+    }
     // 3つのメディアの場合、最初のものを大きく表示
     if (mediaCount === 3 && index === 0) {
       return styles.mediaItemLarge;
@@ -230,36 +287,75 @@ export function TweetItem({ tweet }: TweetItemProps) {
               {/* 引用元ツイートのメディア */}
               {tweet.quoted_tweet.media &&
                 tweet.quoted_tweet.media.length > 0 && (
-                  <div className={styles.quotedTweetMediaContainer}>
+                  <div
+                    className={
+                      tweet.quoted_tweet.media.length === 1
+                        ? styles.quotedTweetMediaContainerSingle
+                        : styles.quotedTweetMediaContainer
+                    }
+                  >
                     <div
                       className={getMediaGridClass(
                         tweet.quoted_tweet.media.length,
+                        tweet.quoted_tweet?.media,
                       )}
                     >
                       {tweet.quoted_tweet.media.map((media, index) => (
                         <div
                           key={media.media_key}
-                          className={getMediaItemClass(
+                          className={getQuotedTweetMediaItemClass(
                             tweet.quoted_tweet?.media?.length || 0,
                             index,
+                            tweet.quoted_tweet?.media,
                           )}
                           onClick={() => handleMediaClick(media.media_url)}
+                          onMouseEnter={() =>
+                            setHoveredMediaKey(media.media_key)
+                          }
+                          onMouseLeave={() => setHoveredMediaKey(null)}
                         >
                           {media.media_type === 'photo' ? (
                             <img
                               src={media.media_url}
                               alt={media.alt_text || '引用ツイート画像'}
+                              className={
+                                (tweet.quoted_tweet?.media?.length || 0) === 1
+                                  ? styles.quotedTweetMediaImage
+                                  : styles.quotedTweetMediaImageMultiple
+                              }
                               loading="lazy"
                             />
                           ) : media.media_type === 'video' ? (
-                            <video
-                              src={media.media_url}
-                              controls={false}
-                              muted
-                              playsInline
-                              onMouseEnter={(e) => e.currentTarget.play()}
-                              onMouseLeave={(e) => e.currentTarget.pause()}
-                            />
+                            <>
+                              <video
+                                src={media.media_url}
+                                className={
+                                  (tweet.quoted_tweet?.media?.length || 0) === 1
+                                    ? styles.quotedTweetMediaVideo
+                                    : styles.quotedTweetMediaVideoMultiple
+                                }
+                                controls={false}
+                                muted
+                                playsInline
+                                onMouseEnter={(e) => e.currentTarget.play()}
+                                onMouseLeave={(e) => e.currentTarget.pause()}
+                              />
+                              <div
+                                className={
+                                  hoveredMediaKey === media.media_key
+                                    ? styles.mediaOverlayHidden
+                                    : styles.mediaOverlay
+                                }
+                              >
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  className={styles.playIcon}
+                                >
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                                動画
+                              </div>
+                            </>
                           ) : (
                             <div className={styles.placeholderMedia}>
                               メディアを読み込めません
@@ -318,36 +414,75 @@ export function TweetItem({ tweet }: TweetItemProps) {
               {/* 引用元ツイートのメディア */}
               {tweet.quoted_tweet.media &&
                 tweet.quoted_tweet.media.length > 0 && (
-                  <div className={styles.quotedTweetMediaContainer}>
+                  <div
+                    className={
+                      tweet.quoted_tweet.media.length === 1
+                        ? styles.quotedTweetMediaContainerSingle
+                        : styles.quotedTweetMediaContainer
+                    }
+                  >
                     <div
                       className={getMediaGridClass(
                         tweet.quoted_tweet.media.length,
+                        tweet.quoted_tweet?.media,
                       )}
                     >
                       {tweet.quoted_tweet.media.map((media, index) => (
                         <div
                           key={media.media_key}
-                          className={getMediaItemClass(
+                          className={getQuotedTweetMediaItemClass(
                             tweet.quoted_tweet?.media?.length || 0,
                             index,
+                            tweet.quoted_tweet?.media,
                           )}
                           onClick={() => handleMediaClick(media.media_url)}
+                          onMouseEnter={() =>
+                            setHoveredMediaKey(media.media_key)
+                          }
+                          onMouseLeave={() => setHoveredMediaKey(null)}
                         >
                           {media.media_type === 'photo' ? (
                             <img
                               src={media.media_url}
                               alt={media.alt_text || '引用ツイート画像'}
+                              className={
+                                (tweet.quoted_tweet?.media?.length || 0) === 1
+                                  ? styles.quotedTweetMediaImage
+                                  : styles.quotedTweetMediaImageMultiple
+                              }
                               loading="lazy"
                             />
                           ) : media.media_type === 'video' ? (
-                            <video
-                              src={media.media_url}
-                              controls={false}
-                              muted
-                              playsInline
-                              onMouseEnter={(e) => e.currentTarget.play()}
-                              onMouseLeave={(e) => e.currentTarget.pause()}
-                            />
+                            <>
+                              <video
+                                src={media.media_url}
+                                className={
+                                  (tweet.quoted_tweet?.media?.length || 0) === 1
+                                    ? styles.quotedTweetMediaVideo
+                                    : styles.quotedTweetMediaVideoMultiple
+                                }
+                                controls={false}
+                                muted
+                                playsInline
+                                onMouseEnter={(e) => e.currentTarget.play()}
+                                onMouseLeave={(e) => e.currentTarget.pause()}
+                              />
+                              <div
+                                className={
+                                  hoveredMediaKey === media.media_key
+                                    ? styles.mediaOverlayHidden
+                                    : styles.mediaOverlay
+                                }
+                              >
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  className={styles.playIcon}
+                                >
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                                動画
+                              </div>
+                            </>
                           ) : (
                             <div className={styles.placeholderMedia}>
                               メディアを読み込めません
@@ -364,21 +499,37 @@ export function TweetItem({ tweet }: TweetItemProps) {
           {/* メディア表示 */}
           {tweet.media && tweet.media.length > 0 && (
             <div
-              className={`${styles.mediaContainer} ${styles.responsiveMediaContainer}`}
+              className={`${
+                tweet.media.length === 1
+                  ? styles.mediaContainerSingle
+                  : styles.mediaContainer
+              } ${styles.responsiveMediaContainer}`}
             >
-              <div className={getMediaGridClass(tweet.media.length)}>
+              <div
+                className={getMediaGridClass(tweet.media.length, tweet.media)}
+              >
                 {tweet.media.map((media, index) => (
                   <div
                     key={media.media_key}
-                    className={getMediaItemClass(tweet.media.length, index)}
+                    className={getMediaItemClass(
+                      tweet.media.length,
+                      index,
+                      tweet.media,
+                    )}
                     onClick={() => handleMediaClick(media.media_url)}
+                    onMouseEnter={() => setHoveredMediaKey(media.media_key)}
+                    onMouseLeave={() => setHoveredMediaKey(null)}
                   >
                     {media.media_type === 'photo' ? (
                       <>
                         <img
                           src={media.media_url}
                           alt={media.alt_text || 'ツイート画像'}
-                          className={styles.mediaImage}
+                          className={
+                            tweet.media.length === 1
+                              ? styles.mediaImage
+                              : styles.mediaImageMultiple
+                          }
                           loading="lazy"
                         />
                       </>
@@ -386,12 +537,24 @@ export function TweetItem({ tweet }: TweetItemProps) {
                       <>
                         <video
                           src={media.media_url}
-                          className={styles.mediaVideo}
+                          className={
+                            tweet.media.length === 1
+                              ? styles.mediaVideo
+                              : styles.mediaVideoMultiple
+                          }
                           controls={false}
                           muted
                           preload="metadata"
+                          onMouseEnter={(e) => e.currentTarget.play()}
+                          onMouseLeave={(e) => e.currentTarget.pause()}
                         />
-                        <div className={styles.mediaOverlay}>
+                        <div
+                          className={
+                            hoveredMediaKey === media.media_key
+                              ? styles.mediaOverlayHidden
+                              : styles.mediaOverlay
+                          }
+                        >
                           <svg viewBox="0 0 24 24" className={styles.playIcon}>
                             <path d="M8 5v14l11-7z" />
                           </svg>
@@ -402,13 +565,23 @@ export function TweetItem({ tweet }: TweetItemProps) {
                       <>
                         <video
                           src={media.media_url}
-                          className={styles.mediaVideo}
+                          className={
+                            tweet.media.length === 1
+                              ? styles.mediaVideo
+                              : styles.mediaVideoMultiple
+                          }
                           autoPlay
                           loop
                           muted
                           playsInline
                         />
-                        <div className={styles.mediaOverlay}>
+                        <div
+                          className={
+                            hoveredMediaKey === media.media_key
+                              ? styles.mediaOverlayHidden
+                              : styles.mediaOverlay
+                          }
+                        >
                           <span className={styles.gifIcon}>GIF</span>
                         </div>
                       </>

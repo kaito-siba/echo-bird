@@ -312,26 +312,31 @@ export const responsiveMediaContainer = style({
   },
 });
 
-// メディア表示用スタイル
+// メディア表示用スタイル - 公式Twitter風の柔軟レイアウト
 export const mediaContainer = style({
   marginTop: '12px',
   borderRadius: '16px',
   overflow: 'hidden',
-  border: `1px solid ${colors.gray[200]}`,
-  backgroundColor: colors.gray[50],
+  border: `1px solid ${colors.gray[300]}`,
+  backgroundColor: colors.gray[100],
   maxWidth: '500px',
   width: '100%',
+  // 複数メディアの場合は柔軟な高さ調整
+  maxHeight: '400px',
 });
 
 export const mediaGrid = style({
   display: 'grid',
-  gap: '2px',
+  gap: '1px',
+  height: '100%',
+  width: '100%',
 });
 
 export const mediaGridSingle = style([
   mediaGrid,
   {
     gridTemplateColumns: '1fr',
+    gridTemplateRows: '1fr',
   },
 ]);
 
@@ -339,13 +344,25 @@ export const mediaGridDouble = style([
   mediaGrid,
   {
     gridTemplateColumns: '1fr 1fr',
+    gridTemplateRows: '1fr',
+  },
+]);
+
+// 横長画像用の縦並びレイアウト
+export const mediaGridDoubleVertical = style([
+  mediaGrid,
+  {
+    gridTemplateColumns: '1fr',
+    gridTemplateRows: '1fr 1fr',
+    height: 'auto',
+    maxHeight: '600px',
   },
 ]);
 
 export const mediaGridTriple = style([
   mediaGrid,
   {
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: '2fr 1fr',
     gridTemplateRows: '1fr 1fr',
   },
 ]);
@@ -360,51 +377,121 @@ export const mediaGridQuad = style([
 
 export const mediaItem = style({
   position: 'relative',
-  backgroundColor: colors.gray[100],
-  minHeight: '200px',
+  backgroundColor: colors.gray[200],
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   cursor: 'pointer',
-  transition: 'transform 0.2s ease-in-out',
+  overflow: 'hidden',
+  transition: 'filter 0.2s ease-in-out',
 
   ':hover': {
-    transform: 'scale(1.02)',
+    filter: 'brightness(0.95)',
   },
 });
 
+// 単一メディア用のスタイル - メディアサイズに適応
+export const mediaItemSingle = style([
+  mediaItem,
+  {
+    // 単一メディアの場合はメディアの自然なサイズに合わせる
+    minHeight: 'auto',
+    maxHeight: '400px',
+    width: 'auto',
+    height: 'auto',
+    display: 'block',
+  },
+]);
+
+// 単一メディア用のコンテナスタイル（メディアサイズに合わせる）
+export const mediaContainerSingle = style([
+  {
+    marginTop: '12px',
+    borderRadius: '16px',
+    overflow: 'hidden',
+    border: `1px solid ${colors.gray[300]}`,
+    backgroundColor: colors.gray[100],
+    maxWidth: '500px',
+    width: 'fit-content', // メディアサイズに合わせる
+    maxHeight: '400px',
+    display: 'inline-block', // コンテンツサイズに合わせる
+  },
+]);
+
+// 単一メディア用の画像スタイル（外枠フィット）
 export const mediaImage = style({
+  maxWidth: '100%',
+  maxHeight: '100%',
+  width: 'auto',
+  height: 'auto',
+  objectFit: 'contain', // 画像全体を表示領域内に収める
+  objectPosition: 'center',
+  display: 'block',
+  backgroundColor: colors.gray[100], // 余白部分の背景色
+});
+
+// 複数メディア用の画像スタイル（セクション埋め）
+export const mediaImageMultiple = style({
   width: '100%',
   height: '100%',
-  objectFit: 'cover',
+  objectFit: 'cover', // 画像をクロップしてセクションを完全に埋める
+  objectPosition: 'center',
   display: 'block',
 });
 
+// 単一メディア用の動画スタイル（外枠フィット）
 export const mediaVideo = style({
+  maxWidth: '100%',
+  maxHeight: '100%',
+  width: 'auto',
+  height: 'auto',
+  objectFit: 'contain', // 動画全体を表示領域内に収める
+  objectPosition: 'center',
+  display: 'block',
+  backgroundColor: colors.gray[100], // 余白部分の背景色
+});
+
+// 複数メディア用の動画スタイル（セクション埋め）
+export const mediaVideoMultiple = style({
   width: '100%',
   height: '100%',
-  objectFit: 'cover',
+  objectFit: 'cover', // 動画をクロップしてセクションを完全に埋める
+  objectPosition: 'center',
   display: 'block',
 });
 
 export const mediaOverlay = style({
   position: 'absolute',
-  top: '8px',
-  right: '8px',
-  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  backgroundColor: 'rgba(0, 0, 0, 0.7)',
   color: colors.white,
-  padding: '4px 8px',
-  borderRadius: '12px',
+  padding: '8px 12px',
+  borderRadius: '16px',
   fontSize: '12px',
-  fontWeight: '600',
+  fontWeight: 'bold',
   display: 'flex',
   alignItems: 'center',
   gap: '4px',
+  // スムーズなフェードアウト効果
+  transition: 'opacity 0.2s ease-in-out, visibility 0.2s ease-in-out',
+  opacity: 1,
+  visibility: 'visible',
 });
 
+// ホバー時に非表示にするオーバーレイスタイル
+export const mediaOverlayHidden = style([
+  mediaOverlay,
+  {
+    opacity: 0,
+    visibility: 'hidden',
+  },
+]);
+
 export const playIcon = style({
-  width: '12px',
-  height: '12px',
+  width: '16px',
+  height: '16px',
   fill: 'currentColor',
 });
 
@@ -426,6 +513,16 @@ export const mediaItemSmall = style([
   mediaItem,
   {
     gridRow: 'span 1',
+  },
+]);
+
+// 横長画像用のメディアアイテム（高さ調整）
+export const mediaItemWide = style([
+  mediaItem,
+  {
+    aspectRatio: '16 / 9', // 横長画像に適した比率
+    minHeight: '150px',
+    maxHeight: '200px',
   },
 ]);
 
@@ -519,14 +616,94 @@ export const quotedTweetText = style({
   whiteSpace: 'pre-wrap',
 });
 
+// 引用ツイート用の複数メディアコンテナ（柔軟レイアウト）
 export const quotedTweetMediaContainer = style({
   marginTop: '8px',
-  borderRadius: '8px',
+  borderRadius: '12px',
   overflow: 'hidden',
-  border: `1px solid ${colors.gray[200]}`,
-  backgroundColor: colors.gray[50],
+  border: `1px solid ${colors.gray[300]}`,
+  backgroundColor: colors.gray[100],
   maxWidth: '450px', // 引用ツイートのメディアを少し大きめに
   width: '100%',
+  // 複数メディアの場合は柔軟な高さ調整
+  maxHeight: '300px',
+});
+
+// 引用ツイート用の単一メディアコンテナ（メディアサイズに合わせる）
+export const quotedTweetMediaContainerSingle = style({
+  marginTop: '8px',
+  borderRadius: '12px',
+  overflow: 'hidden',
+  border: `1px solid ${colors.gray[300]}`,
+  backgroundColor: colors.gray[100],
+  maxWidth: '450px',
+  width: 'fit-content', // メディアサイズに合わせる
+  maxHeight: '250px',
+  display: 'inline-block', // コンテンツサイズに合わせる
+});
+
+// 引用ツイート用の単一メディアアイテム
+export const quotedTweetMediaItemSingle = style([
+  mediaItem,
+  {
+    minHeight: 'auto',
+    maxHeight: '250px',
+    width: 'auto',
+    height: 'auto',
+    display: 'block',
+  },
+]);
+
+// 引用ツイート用の横長メディアアイテム
+export const quotedTweetMediaItemWide = style([
+  mediaItem,
+  {
+    aspectRatio: '16 / 9',
+    minHeight: '100px',
+    maxHeight: '150px',
+  },
+]);
+
+// 引用ツイート用の単一メディア画像スタイル（外枠フィット）
+export const quotedTweetMediaImage = style({
+  maxWidth: '100%',
+  maxHeight: '100%',
+  width: 'auto',
+  height: 'auto',
+  objectFit: 'contain',
+  objectPosition: 'center',
+  display: 'block',
+  backgroundColor: colors.gray[100],
+});
+
+// 引用ツイート用の複数メディア画像スタイル（セクション埋め）
+export const quotedTweetMediaImageMultiple = style({
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  objectPosition: 'center',
+  display: 'block',
+});
+
+// 引用ツイート用の単一メディア動画スタイル（外枠フィット）
+export const quotedTweetMediaVideo = style({
+  maxWidth: '100%',
+  maxHeight: '100%',
+  width: 'auto',
+  height: 'auto',
+  objectFit: 'contain',
+  objectPosition: 'center',
+  display: 'block',
+  backgroundColor: colors.gray[100],
+});
+
+// 引用ツイート用の複数メディア動画スタイル（セクション埋め）
+export const quotedTweetMediaVideoMultiple = style({
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  objectPosition: 'center',
+  display: 'block',
 });
 
 export const placeholderMedia = style({
