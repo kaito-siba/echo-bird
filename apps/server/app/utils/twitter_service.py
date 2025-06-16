@@ -268,6 +268,8 @@ class TwitterService:
 
             # メディア取得用のデータソースを決定
             media_source_data = tweet_data  # デフォルトは元のツイートデータ
+            # URLs取得用のデータソースを決定
+            urls_source_data = tweet_data  # デフォルトは元のツイートデータ
 
             if is_retweet:
                 # リツイートの場合、元ツイートの本文を取得
@@ -307,8 +309,9 @@ class TwitterService:
                         if quoted_tweet:
                             await self._save_quoted_tweet(quoted_tweet, target_account)
 
-                    # リツイートの場合、メディアは元ツイートから取得
+                    # リツイートの場合、メディアとURLsは元ツイートから取得
                     media_source_data = retweeted_tweet
+                    urls_source_data = retweeted_tweet
                 else:
                     content = tweet_data.text
                     full_text = (
@@ -402,9 +405,9 @@ class TwitterService:
                 in_reply_to_tweet_id=getattr(tweet_data, 'in_reply_to_status_id', None),
                 in_reply_to_user_id=getattr(tweet_data, 'in_reply_to_user_id', None),
                 conversation_id=getattr(tweet_data, 'conversation_id', None),
-                hashtags=getattr(tweet_data, 'hashtags', None),
-                urls=getattr(tweet_data, 'urls', None),
-                user_mentions=getattr(tweet_data, 'user_mentions', None),
+                hashtags=getattr(urls_source_data, 'hashtags', None),
+                urls=getattr(urls_source_data, 'urls', None),
+                user_mentions=getattr(urls_source_data, 'user_mentions', None),
                 is_possibly_sensitive=False,  # TODO delete this column
                 has_media=has_media,
                 # 元ツイート作者情報

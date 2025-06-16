@@ -154,6 +154,116 @@ export function TweetItem({ tweet }: TweetItemProps) {
     window.open(mediaUrl, '_blank', 'noopener,noreferrer');
   };
 
+  // ツイート本文内のURLを検出してリンクに変換する関数（短縮URLを元URLに置換）
+  const parseTextWithUrls = (
+    text: string,
+    urls?: any[],
+    media?: any[],
+  ): React.ReactNode => {
+    // メディアが存在する場合、本文からメディア短縮URLを除去
+    let processedText = text;
+    if (media && media.length > 0) {
+      // 本文末尾の短縮URL（t.co）を除去（メディア付きツイートでよく見られるパターン）
+      processedText = text
+        .replace(/\s*https?:\/\/t\.co\/[A-Za-z0-9]+\s*$/, '')
+        .trim();
+    }
+
+    if (!urls || urls.length === 0) {
+      // URLデータがない場合は従来通りの処理（処理済みテキストを使用）
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      const parts = processedText.split(urlRegex);
+
+      return parts.map((part, index) => {
+        if (urlRegex.test(part)) {
+          return (
+            <a
+              key={index}
+              href={part}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.urlLink}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {part}
+            </a>
+          );
+        }
+        return part;
+      });
+    }
+
+    // URLs データを使用して短縮URLを元URLに置換
+    // Unicode対応の文字配列に変換（絵文字対応）
+    const textChars = Array.from(processedText);
+
+    const urlReplacements: Array<{
+      shortUrl: string;
+      displayUrl: string;
+      expandedUrl: string;
+      startIndex: number;
+      endIndex: number;
+    }> = [];
+
+    // URLデータを処理して前から後ろの順でソート
+    urls
+      .filter(
+        (urlData) => urlData.url && urlData.display_url && urlData.expanded_url,
+      )
+      .sort((a, b) => a.indices[0] - b.indices[0]) // 前から後ろの順
+      .forEach((urlData) => {
+        const { url, display_url, expanded_url, indices } = urlData;
+        const [start, end] = indices;
+
+        urlReplacements.push({
+          shortUrl: url,
+          displayUrl: display_url,
+          expandedUrl: expanded_url,
+          startIndex: start,
+          endIndex: end,
+        });
+      });
+
+    // テキストをJSX要素の配列に変換
+    const elements: React.ReactNode[] = [];
+    let lastIndex = 0;
+
+    urlReplacements.forEach((replacement, idx) => {
+      const { displayUrl, expandedUrl, startIndex, endIndex } = replacement;
+
+      // URL前のテキスト部分を追加
+      if (startIndex > lastIndex) {
+        const beforeText = textChars.slice(lastIndex, startIndex).join('');
+        elements.push(beforeText);
+      }
+
+      // URLリンクを追加（display_urlを表示、expanded_urlにリンク）
+      elements.push(
+        <a
+          key={`url-${idx}`}
+          href={expandedUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.urlLink}
+          onClick={(e) => e.stopPropagation()}
+          title={expandedUrl} // ホバー時に完全URLを表示
+        >
+          {displayUrl}
+        </a>,
+      );
+
+      lastIndex = endIndex;
+    });
+
+    // 残りのテキスト部分を追加
+    if (lastIndex < textChars.length) {
+      const remainingText = textChars.slice(lastIndex).join('');
+      elements.push(remainingText);
+    }
+
+    return elements.length > 0 ? elements : processedText;
+  };
+
   return (
     <article className={`${styles.tweetItem} ${styles.responsiveContainer}`}>
       {/* リツイートヘッダー */}
@@ -239,7 +349,11 @@ export function TweetItem({ tweet }: TweetItemProps) {
 
           {/* ツイート本文 */}
           <div className={`${styles.text} ${styles.responsiveText}`}>
-            {tweet.full_text || tweet.content}
+            {parseTextWithUrls(
+              tweet.full_text || tweet.content,
+              tweet.urls || undefined,
+              tweet.media || undefined,
+            )}
           </div>
 
           {/* 引用ツイート表示 */}
@@ -281,7 +395,11 @@ export function TweetItem({ tweet }: TweetItemProps) {
 
               {/* 引用元ツイート本文 */}
               <div className={styles.quotedTweetText}>
-                {tweet.quoted_tweet.full_text || tweet.quoted_tweet.content}
+                {parseTextWithUrls(
+                  tweet.quoted_tweet.full_text || tweet.quoted_tweet.content,
+                  tweet.quoted_tweet.urls || undefined,
+                  tweet.quoted_tweet.media || undefined,
+                )}
               </div>
 
               {/* 引用元ツイートのメディア */}
@@ -408,7 +526,11 @@ export function TweetItem({ tweet }: TweetItemProps) {
 
               {/* 引用元ツイート本文 */}
               <div className={styles.quotedTweetText}>
-                {tweet.quoted_tweet.full_text || tweet.quoted_tweet.content}
+                {parseTextWithUrls(
+                  tweet.quoted_tweet.full_text || tweet.quoted_tweet.content,
+                  tweet.quoted_tweet.urls || undefined,
+                  tweet.quoted_tweet.media || undefined,
+                )}
               </div>
 
               {/* 引用元ツイートのメディア */}
