@@ -1,3 +1,5 @@
+import asyncio
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -516,9 +518,29 @@ async def MarkTweetAsReadAPI(
     return {'message': 'ツイートを既読にしました'}
 
 
+async def _process_single_media_background(
+    media_id: int, media_key: str, tweet_id: str
+) -> None:
+    """
+    単一メディアをバックグラウンドで処理する内部関数
+
+    Args:
+        media_id: メディアID
+        media_key: メディアキー（ログ用）
+        tweet_id: ツイートID（ログ用）
+    """
+    try:
+        await process_single_media(media_id)
+    except Exception as ex:
+        # ログに記録（バックグラウンド処理のため例外は再発生させない）
+        print(
+            f'Failed to process media {media_key} for bookmarked tweet {tweet_id}: {ex}'
+        )
+
+
 async def _process_tweet_media_for_bookmark(tweet: Tweet) -> None:
     """
-    ブックマーク時にツイートのメディアを MinIO に保存する処理
+    ブックマーク時にツイートのメディアを MinIO に保存する処理（バックグラウンド実行）
 
     Args:
         tweet: ブックマークされたツイート
@@ -526,26 +548,24 @@ async def _process_tweet_media_for_bookmark(tweet: Tweet) -> None:
     # ツイート自身のメディアを処理
     main_media_items = await Media.filter(tweet=tweet).all()
 
-    # メインツイートのメディアをダウンロード開始
+    # メインツイートのメディアをバックグラウンドでダウンロード開始
     for media in main_media_items:
-        try:
-            # 非同期でメディアダウンロードを開始（バックグラウンド処理）
-            await process_single_media(media.id)
-        except Exception as ex:
-            # ログに記録するが、ブックマーク処理は継続
-            print(f'Failed to process media {media.media_key} for bookmarked tweet {tweet.tweet_id}: {ex}')
+        # バックグラウンドタスクとして実行（awaitしない）
+        asyncio.create_task(
+            _process_single_media_background(media.id, media.media_key, tweet.tweet_id)
+        )
 
-    # 引用ツイートがある場合、その メディアも処理
+    # 引用ツイートがある場合、そのメディアも処理
     if tweet.is_quote and tweet.quoted_tweet_id:
         quoted_tweet = await Tweet.filter(tweet_id=tweet.quoted_tweet_id).first()
         if quoted_tweet:
             quoted_media_items = await Media.filter(tweet=quoted_tweet).all()
 
-            # 引用ツイートのメディアもダウンロード開始
+            # 引用ツイートのメディアもバックグラウンドでダウンロード開始
             for media in quoted_media_items:
-                try:
-                    # 非同期でメディアダウンロードを開始（バックグラウンド処理）
-                    await process_single_media(media.id)
-                except Exception as ex:
-                    # ログに記録するが、ブックマーク処理は継続
-                    print(f'Failed to process quoted tweet media {media.media_key} for bookmarked tweet {tweet.tweet_id}: {ex}')
+                # バックグラウンドタスクとして実行（awaitしない）
+                asyncio.create_task(
+                    _process_single_media_background(
+                        media.id, media.media_key, tweet.tweet_id
+                    )
+                )
