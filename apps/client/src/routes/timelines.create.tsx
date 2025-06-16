@@ -27,7 +27,9 @@ export const Route = createFileRoute('/timelines/create')({
 
 function CreateTimeline() {
   const navigate = useNavigate();
-  const { data: targetAccountsData } = useSuspenseQuery(targetAccountListQueryOptions);
+  const { data: targetAccountsData } = useSuspenseQuery(
+    targetAccountListQueryOptions,
+  );
   const createTimelineMutation = useCreateTimelineMutation();
 
   // フォーム状態
@@ -76,10 +78,10 @@ function CreateTimeline() {
 
   // ターゲットアカウント選択の切り替え
   const handleTargetAccountToggle = (accountId: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       target_account_ids: prev.target_account_ids.includes(accountId)
-        ? prev.target_account_ids.filter(id => id !== accountId)
+        ? prev.target_account_ids.filter((id) => id !== accountId)
         : [...prev.target_account_ids, accountId],
     }));
   };
@@ -88,7 +90,9 @@ function CreateTimeline() {
     <div className={formContainer}>
       <div className={formHeader}>
         <h1>新しいタイムラインを作成</h1>
-        <p>複数のターゲットアカウントを組み合わせたカスタムタイムラインを作成できます。</p>
+        <p>
+          複数のターゲットアカウントを組み合わせたカスタムタイムラインを作成できます。
+        </p>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -100,7 +104,9 @@ function CreateTimeline() {
           <input
             type="text"
             value={formData.name}
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, name: e.target.value }))
+            }
             placeholder="例: 技術系アカウント"
             className={input}
             maxLength={255}
@@ -113,7 +119,9 @@ function CreateTimeline() {
           <label className={label}>説明（任意）</label>
           <textarea
             value={formData.description}
-            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, description: e.target.value }))
+            }
             placeholder="このタイムラインについての説明を入力してください..."
             className={textarea}
             rows={3}
@@ -125,30 +133,41 @@ function CreateTimeline() {
           <label className={label}>
             ターゲットアカウント <span style={{ color: 'red' }}>*</span>
           </label>
-          <p style={{ fontSize: '0.875rem', color: '#666', marginBottom: '1rem' }}>
+          <p
+            style={{
+              fontSize: '0.875rem',
+              color: '#666',
+              marginBottom: '1rem',
+            }}
+          >
             タイムラインに含めるターゲットアカウントを選択してください（複数選択可能）
           </p>
 
-          <div style={{
-            maxHeight: '300px',
-            overflowY: 'auto',
-            border: '1px solid #e0e0e0',
-            borderRadius: '4px',
-            padding: '1rem'
-          }}>
+          <div
+            style={{
+              maxHeight: '300px',
+              overflowY: 'auto',
+              border: '1px solid #e0e0e0',
+              borderRadius: '4px',
+              padding: '1rem',
+            }}
+          >
             {targetAccountsData.accounts.length > 0 ? (
               targetAccountsData.accounts.map((account) => (
-                <label
-                  key={account.id}
-                  className={checkboxLabel}
-                >
+                <label key={account.id} className={checkboxLabel}>
                   <input
                     type="checkbox"
                     checked={formData.target_account_ids.includes(account.id)}
                     onChange={() => handleTargetAccountToggle(account.id)}
                     className={checkbox}
                   />
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
                     {account.profile_image_url && (
                       <img
                         src={account.profile_image_url}
@@ -165,11 +184,13 @@ function CreateTimeline() {
                       {account.display_name && ` (${account.display_name})`}
                     </span>
                     {!account.is_active && (
-                      <span style={{
-                        fontSize: '12px',
-                        color: '#f44336',
-                        fontWeight: 'bold'
-                      }}>
+                      <span
+                        style={{
+                          fontSize: '12px',
+                          color: '#f44336',
+                          fontWeight: 'bold',
+                        }}
+                      >
                         非アクティブ
                       </span>
                     )}
@@ -189,7 +210,13 @@ function CreateTimeline() {
           </div>
 
           {formData.target_account_ids.length > 0 && (
-            <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.5rem' }}>
+            <p
+              style={{
+                fontSize: '0.875rem',
+                color: '#666',
+                marginTop: '0.5rem',
+              }}
+            >
               {formData.target_account_ids.length}個のアカウントを選択中
             </p>
           )}
@@ -203,11 +230,18 @@ function CreateTimeline() {
             <input
               type="checkbox"
               checked={formData.is_active}
-              onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  is_active: e.target.checked,
+                }))
+              }
               className={checkbox}
             />
             アクティブ状態
-            <span style={{ fontSize: '0.875rem', color: '#666', marginLeft: '8px' }}>
+            <span
+              style={{ fontSize: '0.875rem', color: '#666', marginLeft: '8px' }}
+            >
               （アクティブでないタイムラインは表示されません）
             </span>
           </label>
@@ -216,22 +250,25 @@ function CreateTimeline() {
             <input
               type="checkbox"
               checked={formData.is_default}
-              onChange={(e) => setFormData(prev => ({ ...prev, is_default: e.target.checked }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  is_default: e.target.checked,
+                }))
+              }
               className={checkbox}
             />
             デフォルトタイムライン
-            <span style={{ fontSize: '0.875rem', color: '#666', marginLeft: '8px' }}>
+            <span
+              style={{ fontSize: '0.875rem', color: '#666', marginLeft: '8px' }}
+            >
               （メインのタイムラインとして使用）
             </span>
           </label>
         </div>
 
         {/* エラーメッセージ */}
-        {error && (
-          <div className={errorMessage}>
-            {error}
-          </div>
-        )}
+        {error && <div className={errorMessage}>{error}</div>}
 
         {/* ボタン */}
         <div className={buttonGroup}>
@@ -240,7 +277,9 @@ function CreateTimeline() {
             disabled={createTimelineMutation.isPending}
             className={submitButton}
           >
-            {createTimelineMutation.isPending ? '作成中...' : 'タイムラインを作成'}
+            {createTimelineMutation.isPending
+              ? '作成中...'
+              : 'タイムラインを作成'}
           </button>
           <button
             type="button"

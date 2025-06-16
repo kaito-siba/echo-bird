@@ -1,7 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
-import { timelineListQueryOptions, useDeleteTimelineMutation } from '../integrations/tanstack-query/queries/timeline';
+import {
+  timelineListQueryOptions,
+  useDeleteTimelineMutation,
+} from '../integrations/tanstack-query/queries/timeline';
 import {
   container,
   header,
@@ -31,9 +34,10 @@ function Timelines() {
 
   // 検索フィルタリング
   const filteredTimelines = useMemo(() => {
-    return data.timelines.filter((timeline) =>
-      timeline.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      timeline.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    return data.timelines.filter(
+      (timeline) =>
+        timeline.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        timeline.description?.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [data.timelines, searchTerm]);
 
@@ -44,7 +48,11 @@ function Timelines() {
 
   // タイムライン削除
   const handleDelete = async (timelineId: number, timelineName: string) => {
-    if (window.confirm(`「${timelineName}」を削除しますか？この操作は取り消せません。`)) {
+    if (
+      window.confirm(
+        `「${timelineName}」を削除しますか？この操作は取り消せません。`,
+      )
+    ) {
       try {
         await deleteTimelineMutation.mutateAsync(timelineId);
         alert('タイムラインを削除しました');
@@ -93,16 +101,20 @@ function Timelines() {
             <tr key={timeline.id} className={row}>
               <td className={cell}>{timeline.id}</td>
               <td className={cell}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
                   {timeline.name}
                   {timeline.is_default && (
-                    <span style={{
-                      fontSize: '12px',
-                      background: '#2196F3',
-                      color: 'white',
-                      padding: '2px 6px',
-                      borderRadius: '4px'
-                    }}>
+                    <span
+                      style={{
+                        fontSize: '12px',
+                        background: '#2196F3',
+                        color: 'white',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                      }}
+                    >
                       デフォルト
                     </span>
                   )}
@@ -154,7 +166,9 @@ function Timelines() {
               <td className={cell}>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
-                    onClick={() => navigate({ to: `/timelines/${timeline.id}` })}
+                    onClick={() =>
+                      navigate({ to: `/timelines/${timeline.id}` })
+                    }
                     style={{
                       padding: '4px 8px',
                       border: '1px solid #2196F3',
@@ -168,7 +182,9 @@ function Timelines() {
                     表示
                   </button>
                   <button
-                    onClick={() => navigate({ to: `/timelines/${timeline.id}/edit` })}
+                    onClick={() =>
+                      navigate({ to: `/timelines/${timeline.id}/edit` })
+                    }
                     style={{
                       padding: '4px 8px',
                       border: '1px solid #4CAF50',
@@ -206,7 +222,9 @@ function Timelines() {
 
       {filteredTimelines.length === 0 && (
         <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-          {searchTerm ? '検索条件に一致するタイムラインが見つかりません。' : 'タイムラインがまだ作成されていません。'}
+          {searchTerm
+            ? '検索条件に一致するタイムラインが見つかりません。'
+            : 'タイムラインがまだ作成されていません。'}
         </div>
       )}
     </div>

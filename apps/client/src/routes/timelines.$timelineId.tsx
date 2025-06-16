@@ -4,7 +4,7 @@ import { useState } from 'react';
 import {
   timelineDetailQueryOptions,
   timelineTweetsQueryOptions,
-  useDeleteTimelineMutation
+  useDeleteTimelineMutation,
 } from '../integrations/tanstack-query/queries/timeline';
 import { container, header, headerControls } from '../styles/admin.css';
 
@@ -12,8 +12,12 @@ export const Route = createFileRoute('/timelines/$timelineId')({
   loader: ({ context, params }) => {
     const timelineId = parseInt(params.timelineId);
     return Promise.all([
-      context.queryClient.ensureQueryData(timelineDetailQueryOptions(timelineId)),
-      context.queryClient.ensureQueryData(timelineTweetsQueryOptions(timelineId, 1, 20)),
+      context.queryClient.ensureQueryData(
+        timelineDetailQueryOptions(timelineId),
+      ),
+      context.queryClient.ensureQueryData(
+        timelineTweetsQueryOptions(timelineId, 1, 20),
+      ),
     ]);
   },
   component: TimelineDetail,
@@ -27,10 +31,10 @@ function TimelineDetail() {
 
   // データ取得
   const { data: timeline } = useSuspenseQuery(
-    timelineDetailQueryOptions(parseInt(timelineId))
+    timelineDetailQueryOptions(parseInt(timelineId)),
   );
   const { data: tweetsData } = useSuspenseQuery(
-    timelineTweetsQueryOptions(parseInt(timelineId), currentPage, pageSize)
+    timelineTweetsQueryOptions(parseInt(timelineId), currentPage, pageSize),
   );
 
   const deleteTimelineMutation = useDeleteTimelineMutation();
@@ -95,7 +99,11 @@ function TimelineDetail() {
 
   // タイムライン削除
   const handleDelete = async () => {
-    if (window.confirm(`「${timeline.name}」を削除しますか？この操作は取り消せません。`)) {
+    if (
+      window.confirm(
+        `「${timeline.name}」を削除しますか？この操作は取り消せません。`,
+      )
+    ) {
       try {
         await deleteTimelineMutation.mutateAsync(timeline.id);
         alert('タイムラインを削除しました');
@@ -284,32 +292,52 @@ function TimelineDetail() {
       </div>
 
       {/* タイムライン情報 */}
-      <div style={{
-        background: 'white',
-        padding: '1.5rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        marginBottom: '2rem',
-      }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+      <div
+        style={{
+          background: 'white',
+          padding: '1.5rem',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          marginBottom: '2rem',
+        }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '1rem',
+          }}
+        >
           <div>
             <h3 style={{ margin: '0 0 0.5rem 0', color: '#333' }}>基本情報</h3>
-            <p><strong>ID:</strong> {timeline.id}</p>
-            <p><strong>ステータス:</strong>
-              <span style={{
-                marginLeft: '8px',
-                padding: '2px 8px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                background: timeline.is_active ? '#4CAF50' : '#f44336',
-                color: 'white',
-              }}>
+            <p>
+              <strong>ID:</strong> {timeline.id}
+            </p>
+            <p>
+              <strong>ステータス:</strong>
+              <span
+                style={{
+                  marginLeft: '8px',
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  background: timeline.is_active ? '#4CAF50' : '#f44336',
+                  color: 'white',
+                }}
+              >
                 {timeline.is_active ? 'アクティブ' : '非アクティブ'}
               </span>
             </p>
-            <p><strong>デフォルト:</strong> {timeline.is_default ? 'はい' : 'いいえ'}</p>
-            <p><strong>作成日時:</strong> {formatDate(timeline.created_at)}</p>
-            <p><strong>更新日時:</strong> {formatDate(timeline.updated_at)}</p>
+            <p>
+              <strong>デフォルト:</strong>{' '}
+              {timeline.is_default ? 'はい' : 'いいえ'}
+            </p>
+            <p>
+              <strong>作成日時:</strong> {formatDate(timeline.created_at)}
+            </p>
+            <p>
+              <strong>更新日時:</strong> {formatDate(timeline.updated_at)}
+            </p>
           </div>
 
           <div>
@@ -351,22 +379,24 @@ function TimelineDetail() {
       </div>
 
       {/* ツイート一覧 */}
-      <div style={{
-        background: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      }}>
-        <div style={{
-          padding: '1.5rem',
-          borderBottom: '1px solid #e0e0e0',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
+      <div
+        style={{
+          background: 'white',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <div
+          style={{
+            padding: '1.5rem',
+            borderBottom: '1px solid #e0e0e0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <h2 style={{ margin: 0 }}>ツイート一覧</h2>
-          <span style={{ color: '#666' }}>
-            {tweetsData.total}件のツイート
-          </span>
+          <span style={{ color: '#666' }}>{tweetsData.total}件のツイート</span>
         </div>
 
         {tweetsData.tweets.length > 0 ? (
@@ -396,7 +426,9 @@ function TimelineDetail() {
                         />
                       </svg>
                       <span>
-                        {tweet.target_account_display_name || tweet.target_account_username} がリツイート
+                        {tweet.target_account_display_name ||
+                          tweet.target_account_username}{' '}
+                        がリツイート
                       </span>
                     </div>
                   )}
@@ -406,9 +438,12 @@ function TimelineDetail() {
                     {/* プロフィール画像 */}
                     <div style={{ flexShrink: 0 }}>
                       {/* リツイートの場合は元作者のプロフィール画像、通常は投稿者のプロフィール画像 */}
-                      {tweet.is_retweet && tweet.original_author_profile_image_url ? (
+                      {tweet.is_retweet &&
+                      tweet.original_author_profile_image_url ? (
                         <img
-                          src={getProfileImageUrl(tweet.original_author_profile_image_url)}
+                          src={getProfileImageUrl(
+                            tweet.original_author_profile_image_url,
+                          )}
                           alt={`@${tweet.original_author_username} のプロフィール画像`}
                           style={{
                             width: '48px',
@@ -418,7 +453,9 @@ function TimelineDetail() {
                         />
                       ) : tweet.target_account_profile_image_url ? (
                         <img
-                          src={getProfileImageUrl(tweet.target_account_profile_image_url)}
+                          src={getProfileImageUrl(
+                            tweet.target_account_profile_image_url,
+                          )}
                           alt={`@${tweet.target_account_username} のプロフィール画像`}
                           style={{
                             width: '48px',
@@ -442,8 +479,12 @@ function TimelineDetail() {
                           }}
                         >
                           {tweet.is_retweet && tweet.original_author_username
-                            ? tweet.original_author_username.charAt(0).toUpperCase()
-                            : tweet.target_account_username.charAt(0).toUpperCase()}
+                            ? tweet.original_author_username
+                                .charAt(0)
+                                .toUpperCase()
+                            : tweet.target_account_username
+                                .charAt(0)
+                                .toUpperCase()}
                         </div>
                       )}
                     </div>
@@ -451,18 +492,28 @@ function TimelineDetail() {
                     {/* ツイート内容 */}
                     <div style={{ flex: 1 }}>
                       {/* ヘッダー */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          marginBottom: '8px',
+                        }}
+                      >
                         <strong>
-                          {tweet.is_retweet && tweet.original_author_display_name
+                          {tweet.is_retweet &&
+                          tweet.original_author_display_name
                             ? tweet.original_author_display_name
                             : tweet.is_retweet && tweet.original_author_username
                               ? tweet.original_author_username
                               : tweet.is_retweet
                                 ? '元ツイート作者'
-                                : tweet.target_account_display_name || tweet.target_account_username}
+                                : tweet.target_account_display_name ||
+                                  tweet.target_account_username}
                         </strong>
                         <span style={{ color: '#536471' }}>
-                          @{tweet.is_retweet && tweet.original_author_username
+                          @
+                          {tweet.is_retweet && tweet.original_author_username
                             ? tweet.original_author_username
                             : tweet.is_retweet
                               ? 'original_author'
@@ -473,24 +524,28 @@ function TimelineDetail() {
                           {formatDate(tweet.posted_at)}
                         </span>
                         {tweet.is_reply && (
-                          <span style={{
-                            fontSize: '12px',
-                            background: '#1DA1F2',
-                            color: 'white',
-                            padding: '2px 6px',
-                            borderRadius: '10px'
-                          }}>
+                          <span
+                            style={{
+                              fontSize: '12px',
+                              background: '#1DA1F2',
+                              color: 'white',
+                              padding: '2px 6px',
+                              borderRadius: '10px',
+                            }}
+                          >
                             返信
                           </span>
                         )}
                         {tweet.is_quote && (
-                          <span style={{
-                            fontSize: '12px',
-                            background: '#17BF63',
-                            color: 'white',
-                            padding: '2px 6px',
-                            borderRadius: '10px'
-                          }}>
+                          <span
+                            style={{
+                              fontSize: '12px',
+                              background: '#17BF63',
+                              color: 'white',
+                              padding: '2px 6px',
+                              borderRadius: '10px',
+                            }}
+                          >
                             引用
                           </span>
                         )}
@@ -505,9 +560,13 @@ function TimelineDetail() {
                       {tweet.is_quote && tweet.quoted_tweet && (
                         <div className="quoted-tweet">
                           <div className="quoted-tweet-header">
-                            {tweet.quoted_tweet.target_account_profile_image_url ? (
+                            {tweet.quoted_tweet
+                              .target_account_profile_image_url ? (
                               <img
-                                src={getProfileImageUrl(tweet.quoted_tweet.target_account_profile_image_url)}
+                                src={getProfileImageUrl(
+                                  tweet.quoted_tweet
+                                    .target_account_profile_image_url,
+                                )}
                                 alt={`@${tweet.quoted_tweet.target_account_username} のプロフィール画像`}
                                 className="quoted-tweet-avatar"
                               />
@@ -526,12 +585,15 @@ function TimelineDetail() {
                                   fontWeight: 'bold',
                                 }}
                               >
-                                {tweet.quoted_tweet.target_account_username.charAt(0).toUpperCase()}
+                                {tweet.quoted_tweet.target_account_username
+                                  .charAt(0)
+                                  .toUpperCase()}
                               </div>
                             )}
                             <div className="quoted-tweet-author">
                               <span className="quoted-tweet-display-name">
-                                {tweet.quoted_tweet.target_account_display_name ||
+                                {tweet.quoted_tweet
+                                  .target_account_display_name ||
                                   tweet.quoted_tweet.target_account_username}
                               </span>
                               <span className="quoted-tweet-username">
@@ -545,181 +607,238 @@ function TimelineDetail() {
                           </div>
 
                           {/* 引用元ツイート本文 */}
-                          <div style={{ marginBottom: '8px', lineHeight: '1.5' }}>
-                            {tweet.quoted_tweet.full_text || tweet.quoted_tweet.content}
+                          <div
+                            style={{ marginBottom: '8px', lineHeight: '1.5' }}
+                          >
+                            {tweet.quoted_tweet.full_text ||
+                              tweet.quoted_tweet.content}
                           </div>
 
                           {/* 引用元ツイートのメディア */}
-                          {tweet.quoted_tweet.media && tweet.quoted_tweet.media.length > 0 && (
-                            <div style={{
-                              marginTop: '8px',
-                              maxWidth: '400px'
-                            }}>
-                              <div className={getMediaGridClass(tweet.quoted_tweet.media.length)}>
-                                {tweet.quoted_tweet.media.map((media: any, index: number) => (
-                                  <div
-                                    key={media.media_key}
-                                    className="media-item"
-                                    onClick={() => handleMediaClick(media.media_url)}
-                                  >
-                                    {media.media_type === 'photo' ? (
-                                      <img
-                                        src={media.media_url}
-                                        alt={media.alt_text || '引用ツイート画像'}
-                                        loading="lazy"
-                                      />
-                                    ) : media.media_type === 'video' ? (
-                                      <>
-                                        <video
-                                          src={media.media_url}
-                                          muted
-                                          preload="metadata"
-                                        />
-                                        <div className="media-overlay">
-                                          <svg viewBox="0 0 24 24" className="play-icon">
-                                            <path d="M8 5v14l11-7z" />
-                                          </svg>
-                                          動画
-                                        </div>
-                                      </>
-                                    ) : media.media_type === 'animated_gif' ? (
-                                      <>
-                                        <video
-                                          src={media.media_url}
-                                          autoPlay
-                                          loop
-                                          muted
-                                          playsInline
-                                        />
-                                        <div className="media-overlay">
-                                          GIF
-                                        </div>
-                                      </>
-                                    ) : null}
-                                  </div>
-                                ))}
+                          {tweet.quoted_tweet.media &&
+                            tweet.quoted_tweet.media.length > 0 && (
+                              <div
+                                style={{
+                                  marginTop: '8px',
+                                  maxWidth: '400px',
+                                }}
+                              >
+                                <div
+                                  className={getMediaGridClass(
+                                    tweet.quoted_tweet.media.length,
+                                  )}
+                                >
+                                  {tweet.quoted_tweet.media.map(
+                                    (media: any, index: number) => (
+                                      <div
+                                        key={media.media_key}
+                                        className="media-item"
+                                        onClick={() =>
+                                          handleMediaClick(media.media_url)
+                                        }
+                                      >
+                                        {media.media_type === 'photo' ? (
+                                          <img
+                                            src={media.media_url}
+                                            alt={
+                                              media.alt_text ||
+                                              '引用ツイート画像'
+                                            }
+                                            loading="lazy"
+                                          />
+                                        ) : media.media_type === 'video' ? (
+                                          <>
+                                            <video
+                                              src={media.media_url}
+                                              muted
+                                              preload="metadata"
+                                            />
+                                            <div className="media-overlay">
+                                              <svg
+                                                viewBox="0 0 24 24"
+                                                className="play-icon"
+                                              >
+                                                <path d="M8 5v14l11-7z" />
+                                              </svg>
+                                              動画
+                                            </div>
+                                          </>
+                                        ) : media.media_type ===
+                                          'animated_gif' ? (
+                                          <>
+                                            <video
+                                              src={media.media_url}
+                                              autoPlay
+                                              loop
+                                              muted
+                                              playsInline
+                                            />
+                                            <div className="media-overlay">
+                                              GIF
+                                            </div>
+                                          </>
+                                        ) : null}
+                                      </div>
+                                    ),
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
                         </div>
                       )}
 
                       {/* 引用リツイートをリツイートした場合の引用元ツイート表示 */}
-                      {tweet.is_retweet && !tweet.is_quote && tweet.quoted_tweet && (
-                        <div className="quoted-tweet">
-                          <div className="quoted-tweet-header">
-                            {tweet.quoted_tweet.target_account_profile_image_url ? (
-                              <img
-                                src={getProfileImageUrl(tweet.quoted_tweet.target_account_profile_image_url)}
-                                alt={`@${tweet.quoted_tweet.target_account_username} のプロフィール画像`}
-                                className="quoted-tweet-avatar"
-                              />
-                            ) : (
-                              <div
-                                style={{
-                                  width: '20px',
-                                  height: '20px',
-                                  borderRadius: '50%',
-                                  background: '#1DA1F2',
-                                  color: 'white',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontSize: '10px',
-                                  fontWeight: 'bold',
-                                }}
-                              >
-                                {tweet.quoted_tweet.target_account_username.charAt(0).toUpperCase()}
+                      {tweet.is_retweet &&
+                        !tweet.is_quote &&
+                        tweet.quoted_tweet && (
+                          <div className="quoted-tweet">
+                            <div className="quoted-tweet-header">
+                              {tweet.quoted_tweet
+                                .target_account_profile_image_url ? (
+                                <img
+                                  src={getProfileImageUrl(
+                                    tweet.quoted_tweet
+                                      .target_account_profile_image_url,
+                                  )}
+                                  alt={`@${tweet.quoted_tweet.target_account_username} のプロフィール画像`}
+                                  className="quoted-tweet-avatar"
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '50%',
+                                    background: '#1DA1F2',
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '10px',
+                                    fontWeight: 'bold',
+                                  }}
+                                >
+                                  {tweet.quoted_tweet.target_account_username
+                                    .charAt(0)
+                                    .toUpperCase()}
+                                </div>
+                              )}
+                              <div className="quoted-tweet-author">
+                                <span className="quoted-tweet-display-name">
+                                  {tweet.quoted_tweet
+                                    .target_account_display_name ||
+                                    tweet.quoted_tweet.target_account_username}
+                                </span>
+                                <span className="quoted-tweet-username">
+                                  @{tweet.quoted_tweet.target_account_username}
+                                </span>
+                                <span className="separator">·</span>
+                                <span className="quoted-tweet-timestamp">
+                                  {formatDate(tweet.quoted_tweet.posted_at)}
+                                </span>
                               </div>
-                            )}
-                            <div className="quoted-tweet-author">
-                              <span className="quoted-tweet-display-name">
-                                {tweet.quoted_tweet.target_account_display_name ||
-                                  tweet.quoted_tweet.target_account_username}
-                              </span>
-                              <span className="quoted-tweet-username">
-                                @{tweet.quoted_tweet.target_account_username}
-                              </span>
-                              <span className="separator">·</span>
-                              <span className="quoted-tweet-timestamp">
-                                {formatDate(tweet.quoted_tweet.posted_at)}
-                              </span>
                             </div>
-                          </div>
 
-                          {/* 引用元ツイート本文 */}
-                          <div style={{ marginBottom: '8px', lineHeight: '1.5' }}>
-                            {tweet.quoted_tweet.full_text || tweet.quoted_tweet.content}
-                          </div>
+                            {/* 引用元ツイート本文 */}
+                            <div
+                              style={{ marginBottom: '8px', lineHeight: '1.5' }}
+                            >
+                              {tweet.quoted_tweet.full_text ||
+                                tweet.quoted_tweet.content}
+                            </div>
 
-                          {/* 引用元ツイートのメディア */}
-                          {tweet.quoted_tweet.media && tweet.quoted_tweet.media.length > 0 && (
-                            <div style={{
-                              marginTop: '8px',
-                              maxWidth: '400px'
-                            }}>
-                              <div className={getMediaGridClass(tweet.quoted_tweet.media.length)}>
-                                {tweet.quoted_tweet.media.map((media: any, index: number) => (
+                            {/* 引用元ツイートのメディア */}
+                            {tweet.quoted_tweet.media &&
+                              tweet.quoted_tweet.media.length > 0 && (
+                                <div
+                                  style={{
+                                    marginTop: '8px',
+                                    maxWidth: '400px',
+                                  }}
+                                >
                                   <div
-                                    key={media.media_key}
-                                    className="media-item"
-                                    onClick={() => handleMediaClick(media.media_url)}
+                                    className={getMediaGridClass(
+                                      tweet.quoted_tweet.media.length,
+                                    )}
                                   >
-                                    {media.media_type === 'photo' ? (
-                                      <img
-                                        src={media.media_url}
-                                        alt={media.alt_text || '引用ツイート画像'}
-                                        loading="lazy"
-                                      />
-                                    ) : media.media_type === 'video' ? (
-                                      <>
-                                        <video
-                                          src={media.media_url}
-                                          muted
-                                          preload="metadata"
-                                        />
-                                        <div className="media-overlay">
-                                          <svg viewBox="0 0 24 24" className="play-icon">
-                                            <path d="M8 5v14l11-7z" />
-                                          </svg>
-                                          動画
+                                    {tweet.quoted_tweet.media.map(
+                                      (media: any, index: number) => (
+                                        <div
+                                          key={media.media_key}
+                                          className="media-item"
+                                          onClick={() =>
+                                            handleMediaClick(media.media_url)
+                                          }
+                                        >
+                                          {media.media_type === 'photo' ? (
+                                            <img
+                                              src={media.media_url}
+                                              alt={
+                                                media.alt_text ||
+                                                '引用ツイート画像'
+                                              }
+                                              loading="lazy"
+                                            />
+                                          ) : media.media_type === 'video' ? (
+                                            <>
+                                              <video
+                                                src={media.media_url}
+                                                muted
+                                                preload="metadata"
+                                              />
+                                              <div className="media-overlay">
+                                                <svg
+                                                  viewBox="0 0 24 24"
+                                                  className="play-icon"
+                                                >
+                                                  <path d="M8 5v14l11-7z" />
+                                                </svg>
+                                                動画
+                                              </div>
+                                            </>
+                                          ) : media.media_type ===
+                                            'animated_gif' ? (
+                                            <>
+                                              <video
+                                                src={media.media_url}
+                                                autoPlay
+                                                loop
+                                                muted
+                                                playsInline
+                                              />
+                                              <div className="media-overlay">
+                                                GIF
+                                              </div>
+                                            </>
+                                          ) : null}
                                         </div>
-                                      </>
-                                    ) : media.media_type === 'animated_gif' ? (
-                                      <>
-                                        <video
-                                          src={media.media_url}
-                                          autoPlay
-                                          loop
-                                          muted
-                                          playsInline
-                                        />
-                                        <div className="media-overlay">
-                                          GIF
-                                        </div>
-                                      </>
-                                    ) : null}
+                                      ),
+                                    )}
                                   </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                                </div>
+                              )}
+                          </div>
+                        )}
 
                       {/* メディア表示 */}
                       {tweet.media && tweet.media.length > 0 && (
-                        <div style={{
-                          marginTop: '12px',
-                          marginBottom: '12px',
-                          maxWidth: '500px'
-                        }}>
-                          <div className={getMediaGridClass(tweet.media.length)}>
+                        <div
+                          style={{
+                            marginTop: '12px',
+                            marginBottom: '12px',
+                            maxWidth: '500px',
+                          }}
+                        >
+                          <div
+                            className={getMediaGridClass(tweet.media.length)}
+                          >
                             {tweet.media.map((media: any, index: number) => (
                               <div
                                 key={media.media_key}
                                 className="media-item"
-                                onClick={() => handleMediaClick(media.media_url)}
+                                onClick={() =>
+                                  handleMediaClick(media.media_url)
+                                }
                               >
                                 {media.media_type === 'photo' ? (
                                   <img
@@ -735,7 +854,10 @@ function TimelineDetail() {
                                       preload="metadata"
                                     />
                                     <div className="media-overlay">
-                                      <svg viewBox="0 0 24 24" className="play-icon">
+                                      <svg
+                                        viewBox="0 0 24 24"
+                                        className="play-icon"
+                                      >
                                         <path d="M8 5v14l11-7z" />
                                       </svg>
                                       動画
@@ -750,9 +872,7 @@ function TimelineDetail() {
                                       muted
                                       playsInline
                                     />
-                                    <div className="media-overlay">
-                                      GIF
-                                    </div>
+                                    <div className="media-overlay">GIF</div>
                                   </>
                                 ) : null}
                               </div>
@@ -762,11 +882,20 @@ function TimelineDetail() {
                       )}
 
                       {/* エンゲージメント */}
-                      <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#666' }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: '16px',
+                          fontSize: '14px',
+                          color: '#666',
+                        }}
+                      >
                         <span>❤️ {tweet.likes_count}</span>
                         <span>🔄 {tweet.retweets_count}</span>
                         <span>💬 {tweet.replies_count}</span>
-                        {tweet.views_count && <span>👁️ {tweet.views_count}</span>}
+                        {tweet.views_count && (
+                          <span>👁️ {tweet.views_count}</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -776,13 +905,15 @@ function TimelineDetail() {
 
             {/* ページネーション */}
             {totalPages > 1 && (
-              <div style={{
-                padding: '1rem',
-                borderTop: '1px solid #e0e0e0',
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '8px',
-              }}>
+              <div
+                style={{
+                  padding: '1rem',
+                  borderTop: '1px solid #e0e0e0',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: '8px',
+                }}
+              >
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
@@ -807,9 +938,11 @@ function TimelineDetail() {
                   style={{
                     padding: '8px 12px',
                     border: '1px solid #e0e0e0',
-                    background: currentPage === totalPages ? '#f5f5f5' : 'white',
+                    background:
+                      currentPage === totalPages ? '#f5f5f5' : 'white',
                     borderRadius: '4px',
-                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                    cursor:
+                      currentPage === totalPages ? 'not-allowed' : 'pointer',
                   }}
                 >
                   次のページ
@@ -818,11 +951,13 @@ function TimelineDetail() {
             )}
           </>
         ) : (
-          <div style={{
-            padding: '3rem',
-            textAlign: 'center',
-            color: '#666'
-          }}>
+          <div
+            style={{
+              padding: '3rem',
+              textAlign: 'center',
+              color: '#666',
+            }}
+          >
             このタイムラインにはまだツイートがありません。
             <br />
             ターゲットアカウントからツイートが取得されると表示されます。

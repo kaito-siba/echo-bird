@@ -1,4 +1,8 @@
-import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { apiClientJson } from '../../../utils/api-client';
 
 // サーバー側のレスポンスインターフェース
@@ -60,7 +64,11 @@ export const timelineDetailQueryOptions = (timelineId: number) =>
   });
 
 // タイムライン内ツイート取得
-export const timelineTweetsQueryOptions = (timelineId: number, page = 1, pageSize = 20) =>
+export const timelineTweetsQueryOptions = (
+  timelineId: number,
+  page = 1,
+  pageSize = 20,
+) =>
   queryOptions({
     queryKey: ['timeline-tweets', timelineId, page, pageSize],
     queryFn: async () => {
