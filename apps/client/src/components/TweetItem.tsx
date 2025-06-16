@@ -309,7 +309,9 @@ export function TweetItem({ tweet }: TweetItemProps) {
                             tweet.quoted_tweet?.media,
                           )}
                           onClick={() => handleMediaClick(media.media_url)}
-                          onMouseEnter={() => setHoveredMediaKey(media.media_key)}
+                          onMouseEnter={() =>
+                            setHoveredMediaKey(media.media_key)
+                          }
                           onMouseLeave={() => setHoveredMediaKey(null)}
                         >
                           {media.media_type === 'photo' ? (
@@ -345,7 +347,10 @@ export function TweetItem({ tweet }: TweetItemProps) {
                                     : styles.mediaOverlay
                                 }
                               >
-                                <svg viewBox="0 0 24 24" className={styles.playIcon}>
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  className={styles.playIcon}
+                                >
                                   <path d="M8 5v14l11-7z" />
                                 </svg>
                                 動画
@@ -431,7 +436,9 @@ export function TweetItem({ tweet }: TweetItemProps) {
                             tweet.quoted_tweet?.media,
                           )}
                           onClick={() => handleMediaClick(media.media_url)}
-                          onMouseEnter={() => setHoveredMediaKey(media.media_key)}
+                          onMouseEnter={() =>
+                            setHoveredMediaKey(media.media_key)
+                          }
                           onMouseLeave={() => setHoveredMediaKey(null)}
                         >
                           {media.media_type === 'photo' ? (
@@ -467,7 +474,10 @@ export function TweetItem({ tweet }: TweetItemProps) {
                                     : styles.mediaOverlay
                                 }
                               >
-                                <svg viewBox="0 0 24 24" className={styles.playIcon}>
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  className={styles.playIcon}
+                                >
                                   <path d="M8 5v14l11-7z" />
                                 </svg>
                                 動画
@@ -495,7 +505,9 @@ export function TweetItem({ tweet }: TweetItemProps) {
                   : styles.mediaContainer
               } ${styles.responsiveMediaContainer}`}
             >
-              <div className={getMediaGridClass(tweet.media.length, tweet.media)}>
+              <div
+                className={getMediaGridClass(tweet.media.length, tweet.media)}
+              >
                 {tweet.media.map((media, index) => (
                   <div
                     key={media.media_key}
