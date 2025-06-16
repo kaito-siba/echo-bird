@@ -6,6 +6,7 @@ from app.models.bookmarked_tweet import BookmarkedTweet
 from app.models.media import Media
 from app.models.read_tweet import ReadTweet
 from app.models.target_account import TargetAccount
+from app.models.timeline import Timeline
 from app.models.tweet import Tweet
 from app.models.user import User
 from app.utils.auth import get_current_user
@@ -369,13 +370,56 @@ async def BookmarkedTweetsAPI(
     target_account_id: int | None = Query(
         None, description='特定のターゲットアカウントのツイートのみ取得'
     ),
+    timeline_id: int | None = Query(
+        None, description='特定のタイムラインに所属するアカウントのツイートのみ取得'
+    ),
 ) -> BookmarkedTweetsResponse:
     """
     ブックマーク一覧取得 API
 
     現在のユーザーがブックマークしたツイート一覧を
     ブックマーク日時順（新しいものから）で取得します。
+    target_account_id と timeline_id は相互排他的に指定可能です。
     """
+    # target_account_id と timeline_id の両方が指定されている場合はエラー
+    if target_account_id is not None and timeline_id is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='target_account_id と timeline_id は同時に指定できません',
+        )
+
+    timeline_target_account_ids = None
+
+    # timeline_id が指定されている場合
+    if timeline_id is not None:
+        # タイムラインの存在確認とユーザー所有権チェック
+        timeline = (
+            await Timeline.filter(id=timeline_id, user=current_user, is_active=True)
+            .prefetch_related('target_accounts')
+            .first()
+        )
+
+        if not timeline:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='指定されたタイムラインが見つかりません',
+            )
+
+        # タイムラインに所属するターゲットアカウントのIDを取得
+        timeline_target_account_ids = [
+            account.id for account in timeline.target_accounts if account.is_active
+        ]
+
+        # タイムラインにアクティブなターゲットアカウントが存在しない場合
+        if not timeline_target_account_ids:
+            return BookmarkedTweetsResponse(
+                tweets=[],
+                total=0,
+                page=page,
+                page_size=page_size,
+                has_next=False,
+            )
+
     # target_account_id が指定されている場合、ユーザーに紐づいたアカウントか確認
     if target_account_id is not None:
         # ユーザーに紐づいたターゲットアカウントのIDを取得
@@ -394,8 +438,13 @@ async def BookmarkedTweetsAPI(
     offset = (page - 1) * page_size
     bookmarked_tweets_query = BookmarkedTweet.filter(user=current_user)
 
+    # timeline_id が指定されている場合、タイムラインに所属するアカウントでフィルタリング
+    if timeline_id is not None and timeline_target_account_ids:
+        bookmarked_tweets_query = bookmarked_tweets_query.filter(
+            tweet__target_account_id__in=timeline_target_account_ids
+        )
     # target_account_id が指定されている場合、フィルタリング
-    if target_account_id is not None:
+    elif target_account_id is not None:
         bookmarked_tweets_query = bookmarked_tweets_query.filter(
             tweet__target_account_id=target_account_id
         )
