@@ -1,17 +1,85 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
-import { timelineQueryOptions } from '../integrations/tanstack-query/queries/tweets';
+import { useNavigate } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import {
+  timelineListQueryOptions,
+  timelineTweetsQueryOptions,
+} from '../integrations/tanstack-query/queries/timeline';
+import {
+  type TweetResponse,
+  timelineQueryOptions,
+} from '../integrations/tanstack-query/queries/tweets';
 import * as styles from './Timeline.css';
 import { TweetItem } from './TweetItem';
 
 interface TimelineProps {
   targetAccountId?: number;
+  selectedTimelineId?: number;
 }
 
-export function Timeline({ targetAccountId }: TimelineProps) {
+export function Timeline({
+  targetAccountId,
+  selectedTimelineId,
+}: TimelineProps) {
   const [page, setPage] = useState(1);
+  const [currentTimelineId, setCurrentTimelineId] = useState<number | null>(
+    null,
+  );
   const pageSize = 20;
+  const navigate = useNavigate();
 
+  // タイムライン一覧を取得
+  const { data: timelinesData, isLoading: timelinesLoading } = useQuery(
+    timelineListQueryOptions,
+  );
+
+  // selectedTimelineId が明示的に指定されている場合のみ自動選択
+  useEffect(() => {
+    if (selectedTimelineId && timelinesData) {
+      // URL パラメータで指定されたタイムラインが存在し、アクティブかチェック
+      const specifiedTimeline = timelinesData.timelines.find(
+        (t) => t.id === selectedTimelineId && t.is_active,
+      );
+      if (specifiedTimeline) {
+        setCurrentTimelineId(selectedTimelineId);
+        setPage(1); // ページをリセット
+      } else {
+        // 指定されたタイムラインが見つからない場合は全体タイムラインにフォールバック
+        setCurrentTimelineId(null);
+        setPage(1); // ページをリセット
+      }
+    } else if (!selectedTimelineId) {
+      // URL パラメータがない場合は全体タイムラインを表示
+      setCurrentTimelineId(null);
+      setPage(1); // ページをリセット
+    }
+  }, [selectedTimelineId, timelinesData]);
+
+  // ツイートデータ取得 - カスタムタイムラインか全体タイムラインかで切り替え
+  const useCustomTimeline = currentTimelineId !== null;
+
+  // カスタムタイムライン用のクエリ
+  const customTimelineQuery = useQuery({
+    ...(currentTimelineId !== null
+      ? timelineTweetsQueryOptions(currentTimelineId, page, pageSize)
+      : { queryKey: ['disabled'], queryFn: () => Promise.resolve(null) }),
+    enabled: useCustomTimeline && currentTimelineId !== null,
+  });
+
+  // 全体タイムライン用のクエリ
+  const globalTimelineQuery = useQuery({
+    ...timelineQueryOptions({
+      page,
+      page_size: pageSize,
+      target_account_id: targetAccountId,
+    }),
+    enabled: !useCustomTimeline,
+  });
+
+  // 使用するクエリを選択
+  const activeQuery = useCustomTimeline
+    ? customTimelineQuery
+    : globalTimelineQuery;
   const {
     data: timelineData,
     isLoading,
@@ -19,16 +87,22 @@ export function Timeline({ targetAccountId }: TimelineProps) {
     error,
     refetch,
     isFetching,
-  } = useQuery(
-    timelineQueryOptions({
-      page,
-      page_size: pageSize,
-      target_account_id: targetAccountId,
-    }),
-  );
+  } = activeQuery;
 
   const handleRefresh = () => {
     refetch();
+  };
+
+  // タイムライン切り替えハンドラー
+  const handleTimelineChange = (timelineId: number | null) => {
+    setCurrentTimelineId(timelineId);
+    setPage(1); // ページをリセット
+
+    // URL パラメータを更新
+    navigate({
+      to: '/timeline',
+      search: timelineId ? { timelineId } : {},
+    });
   };
 
   const handlePreviousPage = () => {
@@ -57,6 +131,7 @@ export function Timeline({ targetAccountId }: TimelineProps) {
             {timelineData?.total ? `${timelineData.total} 件のツイート` : ''}
           </div>
         </div>
+
         <button
           type="button"
           className={styles.refreshButton}
@@ -88,8 +163,51 @@ export function Timeline({ targetAccountId }: TimelineProps) {
         </button>
       </div>
 
+      {/* タイムライン選択タブ */}
+      {!timelinesLoading &&
+        timelinesData &&
+        timelinesData.timelines.length > 0 && (
+          <div className={styles.timelineTabContainer}>
+            {/* 全体タイムラインタブ */}
+            <button
+              type="button"
+              className={
+                currentTimelineId === null
+                  ? styles.timelineTabActive
+                  : styles.timelineTab
+              }
+              onClick={() => handleTimelineChange(null)}
+            >
+              全体タイムライン
+            </button>
+
+            {/* カスタムタイムラインタブ */}
+            {timelinesData.timelines
+              .filter((timeline) => timeline.is_active)
+              .map((timeline) => (
+                <button
+                  key={timeline.id}
+                  type="button"
+                  className={
+                    currentTimelineId === timeline.id
+                      ? styles.timelineTabActive
+                      : styles.timelineTab
+                  }
+                  onClick={() => handleTimelineChange(timeline.id)}
+                >
+                  {timeline.name}
+                  {timeline.is_default && (
+                    <span className={styles.timelineTabDefault}>
+                      (デフォルト)
+                    </span>
+                  )}
+                </button>
+              ))}
+          </div>
+        )}
+
       {/* コンテンツ */}
-      {isLoading ? (
+      {isLoading || timelinesLoading ? (
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner} />
           <div className={styles.loadingText}>ツイートを読み込み中...</div>
@@ -154,7 +272,7 @@ export function Timeline({ targetAccountId }: TimelineProps) {
         <>
           {/* ツイートリスト */}
           <div className={styles.tweetList}>
-            {timelineData.tweets.map((tweet) => (
+            {timelineData.tweets.map((tweet: TweetResponse) => (
               <TweetItem key={tweet.id} tweet={tweet} />
             ))}
           </div>
