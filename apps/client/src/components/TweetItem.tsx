@@ -181,7 +181,9 @@ export function TweetItem({ tweet }: TweetItemProps) {
     }
 
     // URLs データを使用して短縮URLを元URLに置換
-    let processedText = text;
+    // Unicode対応の文字配列に変換（絵文字対応）
+    const textChars = Array.from(text);
+    
     const urlReplacements: Array<{
       shortUrl: string;
       displayUrl: string;
@@ -190,10 +192,10 @@ export function TweetItem({ tweet }: TweetItemProps) {
       endIndex: number;
     }> = [];
 
-    // URLデータを処理してソート（後ろから置換するため逆順）
+    // URLデータを処理して前から後ろの順でソート
     urls
       .filter(urlData => urlData.url && urlData.display_url && urlData.expanded_url)
-      .sort((a, b) => b.indices[0] - a.indices[0])
+      .sort((a, b) => a.indices[0] - b.indices[0]) // 前から後ろの順
       .forEach(urlData => {
         const { url, display_url, expanded_url, indices } = urlData;
         const [start, end] = indices;
@@ -211,15 +213,13 @@ export function TweetItem({ tweet }: TweetItemProps) {
     const elements: React.ReactNode[] = [];
     let lastIndex = 0;
 
-    // インデックス順で処理（前から後ろへ）
-    const sortedReplacements = urlReplacements.reverse();
-
-    sortedReplacements.forEach((replacement, idx) => {
+    urlReplacements.forEach((replacement, idx) => {
       const { displayUrl, expandedUrl, startIndex, endIndex } = replacement;
 
       // URL前のテキスト部分を追加
       if (startIndex > lastIndex) {
-        elements.push(processedText.slice(lastIndex, startIndex));
+        const beforeText = textChars.slice(lastIndex, startIndex).join('');
+        elements.push(beforeText);
       }
 
       // URLリンクを追加（display_urlを表示、expanded_urlにリンク）
@@ -241,11 +241,12 @@ export function TweetItem({ tweet }: TweetItemProps) {
     });
 
     // 残りのテキスト部分を追加
-    if (lastIndex < processedText.length) {
-      elements.push(processedText.slice(lastIndex));
+    if (lastIndex < textChars.length) {
+      const remainingText = textChars.slice(lastIndex).join('');
+      elements.push(remainingText);
     }
 
-    return elements.length > 0 ? elements : processedText;
+    return elements.length > 0 ? elements : text;
   };
 
   return (
