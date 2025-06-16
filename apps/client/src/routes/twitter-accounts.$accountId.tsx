@@ -43,6 +43,11 @@ async function updateTwitterAccount(
 export const Route = createFileRoute('/twitter-accounts/$accountId')({
   component: TwitterAccountDetail,
   beforeLoad: authGuard,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      returnTab: (search.returnTab as string) || 'twitter',
+    };
+  },
   loader: ({ context, params }) => {
     return context.queryClient.ensureQueryData(
       twitterAccountDetailQueryOptions(params.accountId),
@@ -52,6 +57,7 @@ export const Route = createFileRoute('/twitter-accounts/$accountId')({
 
 function TwitterAccountDetail() {
   const { accountId } = Route.useParams();
+  const { returnTab } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -75,8 +81,11 @@ function TwitterAccountDetail() {
         queryKey: ['twitter-accounts', accountId],
       });
 
-      // アカウント管理画面に戻る
-      navigate({ to: '/account-management' });
+      // アカウント管理画面に戻る（適切なタブを指定）
+      navigate({
+        to: '/account-management',
+        search: { tab: returnTab },
+      });
     },
     onError: (error) => {
       console.error('Twitter account update failed:', error);
@@ -90,8 +99,11 @@ function TwitterAccountDetail() {
       // キャッシュを無効化
       queryClient.invalidateQueries({ queryKey: ['twitter-accounts'] });
 
-      // アカウント管理画面に戻る
-      navigate({ to: '/account-management' });
+      // アカウント管理画面に戻る（適切なタブを指定）
+      navigate({
+        to: '/account-management',
+        search: { tab: returnTab },
+      });
     },
     onError: (error) => {
       console.error('Twitter account delete failed:', error);
@@ -125,7 +137,10 @@ function TwitterAccountDetail() {
   };
 
   const handleCancel = () => {
-    navigate({ to: '/account-management' });
+    navigate({
+      to: '/account-management',
+      search: { tab: returnTab },
+    });
   };
 
   const handleDelete = () => {

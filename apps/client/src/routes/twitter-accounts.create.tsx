@@ -44,11 +44,11 @@ function TwitterAccountCreate() {
       queryClient.invalidateQueries({ queryKey: ['twitter-accounts'] });
 
       if (response.success && response.account) {
-        // 認証成功時はアカウント管理画面に遷移
-        navigate({ to: '/account-management' });
+        // 認証成功時はアカウント管理画面の Twitter タブに遷移
+        navigate({ to: '/account-management', search: { tab: 'twitter' } });
       } else {
-        // アカウント管理画面に戻る
-        navigate({ to: '/account-management' });
+        // アカウント管理画面の Twitter タブに戻る
+        navigate({ to: '/account-management', search: { tab: 'twitter' } });
       }
     },
     onError: (error) => {
@@ -111,7 +111,7 @@ function TwitterAccountCreate() {
   };
 
   const handleCancel = () => {
-    navigate({ to: '/account-management' });
+    navigate({ to: '/account-management', search: { tab: 'twitter' } });
   };
 
   return (

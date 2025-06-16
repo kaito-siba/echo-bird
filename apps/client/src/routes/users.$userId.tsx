@@ -29,6 +29,11 @@ import { authGuard } from '../utils/auth-guard';
 export const Route = createFileRoute('/users/$userId')({
   component: UserDetail,
   beforeLoad: authGuard,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      returnTab: (search.returnTab as string) || 'echobird',
+    };
+  },
   loader: ({ context, params }) => {
     return context.queryClient.ensureQueryData(
       userDetailQueryOptions(params.userId),
@@ -38,6 +43,7 @@ export const Route = createFileRoute('/users/$userId')({
 
 function UserDetail() {
   const { userId } = Route.useParams();
+  const { returnTab } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -65,7 +71,7 @@ function UserDetail() {
       });
 
       // パスワードフィールドをクリア（セキュリティのため）
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         newPassword: '',
         confirmPassword: '',
@@ -74,8 +80,11 @@ function UserDetail() {
       // エラーメッセージをクリア
       setErrors({});
 
-      // アカウント管理画面に戻る
-      navigate({ to: '/account-management' });
+      // アカウント管理画面に戻る（適切なタブを指定）
+      navigate({
+        to: '/account-management',
+        search: { tab: returnTab },
+      });
     },
     onError: (error) => {
       console.error('User update failed:', error);
@@ -89,8 +98,11 @@ function UserDetail() {
       // キャッシュを無効化
       queryClient.invalidateQueries({ queryKey: ['users'] });
 
-      // アカウント管理画面に戻る
-      navigate({ to: '/account-management' });
+      // アカウント管理画面に戻る（適切なタブを指定）
+      navigate({
+        to: '/account-management',
+        search: { tab: returnTab },
+      });
     },
     onError: (error) => {
       console.error('User delete failed:', error);
@@ -154,7 +166,10 @@ function UserDetail() {
   };
 
   const handleCancel = () => {
-    navigate({ to: '/account-management' });
+    navigate({
+      to: '/account-management',
+      search: { tab: returnTab },
+    });
   };
 
   const handleDelete = () => {

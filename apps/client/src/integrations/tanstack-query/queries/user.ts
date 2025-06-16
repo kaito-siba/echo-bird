@@ -28,7 +28,7 @@ interface UserUpdateRequest {
   username?: string;
   is_active?: boolean;
   is_admin?: boolean;
-  password?: string;  // パスワード更新用フィールドを追加
+  password?: string; // パスワード更新用フィールドを追加
 }
 
 interface UserCreateRequest {

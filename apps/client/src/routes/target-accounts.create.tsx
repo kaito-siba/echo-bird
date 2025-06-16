@@ -39,7 +39,7 @@ function TargetAccountCreate() {
   const queryClient = useQueryClient();
 
   const handleCancel = () => {
-    navigate({ to: '/target-accounts' });
+    navigate({ to: '/account-management', search: { tab: 'target' } });
   };
 
   // 認証済み Twitter アカウント一覧を取得
@@ -95,7 +95,7 @@ function TargetAccountCreate() {
         });
       } else {
         // 一覧画面に戻る
-        navigate({ to: '/target-accounts' });
+        navigate({ to: '/account-management', search: { tab: 'target' } });
       }
     },
     onError: (error) => {

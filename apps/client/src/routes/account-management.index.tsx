@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   type TargetAccount,
   targetAccountListQueryOptions,
@@ -30,6 +30,11 @@ import { authGuard } from '../utils/auth-guard';
 export const Route = createFileRoute('/account-management/')({
   component: AccountManagement,
   beforeLoad: authGuard,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      tab: (search.tab as string) || 'target',
+    };
+  },
   loader: ({ context }) => {
     // 3種類のアカウント情報を並行して取得
     return Promise.all([
@@ -44,8 +49,24 @@ type AccountType = 'target' | 'twitter' | 'echobird';
 
 function AccountManagement() {
   const navigate = useNavigate();
+  const { tab } = Route.useSearch();
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<AccountType>('target');
+  const [activeTab, setActiveTab] = useState<AccountType>(() => {
+    // URLのクエリパラメータから初期タブを設定（有効な値のみ）
+    const validTabs: AccountType[] = ['target', 'twitter', 'echobird'];
+    return validTabs.includes(tab as AccountType)
+      ? (tab as AccountType)
+      : 'target';
+  });
+
+  // activeTabが変更されたらURLのクエリパラメータを更新
+  useEffect(() => {
+    navigate({
+      to: '/account-management',
+      search: { tab: activeTab },
+      replace: true, // ブラウザの履歴を置き換える（戻るボタンで無限ループを防ぐ）
+    });
+  }, [activeTab, navigate]);
 
   // 各アカウント情報を取得
   const { data: targetAccountData } = useSuspenseQuery(
@@ -267,6 +288,7 @@ function AccountManagement() {
                       navigate({
                         to: '/target-accounts/$accountId',
                         params: { accountId: account.id.toString() },
+                        search: { returnTab: activeTab }, // 現在のタブ情報を渡す
                       });
                     }}
                   >
@@ -347,6 +369,7 @@ function AccountManagement() {
                       navigate({
                         to: '/twitter-accounts/$accountId',
                         params: { accountId: account.id.toString() },
+                        search: { returnTab: activeTab }, // 現在のタブ情報を渡す
                       });
                     }}
                   >
@@ -404,6 +427,7 @@ function AccountManagement() {
                       navigate({
                         to: '/users/$userId',
                         params: { userId: account.id.toString() },
+                        search: { returnTab: activeTab }, // 現在のタブ情報を渡す
                       });
                     }}
                   >

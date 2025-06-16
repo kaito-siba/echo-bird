@@ -29,7 +29,10 @@ function UserCreate() {
   const queryClient = useQueryClient();
 
   const handleCancel = () => {
-    navigate({ to: '/account-management' });
+    navigate({
+      to: '/account-management',
+      search: { tab: 'echobird' }, // EchoBird ユーザータブに戻る
+    });
   };
 
   const [formData, setFormData] = useState({
@@ -47,8 +50,11 @@ function UserCreate() {
       // キャッシュを無効化して最新データを取得
       queryClient.invalidateQueries({ queryKey: ['users'] });
 
-      // 作成に成功した場合、アカウント管理画面に遷移
-      navigate({ to: '/account-management' });
+      // 作成に成功した場合、アカウント管理画面の EchoBird ユーザータブに遷移
+      navigate({
+        to: '/account-management',
+        search: { tab: 'echobird' },
+      });
     },
     onError: (error) => {
       console.error('User creation failed:', error);
