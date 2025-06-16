@@ -9,6 +9,7 @@ from app.models.target_account import TargetAccount
 from app.models.tweet import Tweet
 from app.models.user import User
 from app.utils.auth import get_current_user
+from app.utils.media_downloader import process_single_media
 from app.utils.s3_client import get_media_public_url
 
 router = APIRouter(prefix='/api/v1/tweets', tags=['tweets'])
@@ -477,6 +478,10 @@ async def ToggleBookmarkAPI(
     else:
         # 未ブックマークの場合は追加
         await BookmarkedTweet.create(user=current_user, tweet=tweet)
+
+        # ブックマーク追加時にツイートのメディアを MinIO に保存開始
+        await _process_tweet_media_for_bookmark(tweet)
+
         return {
             'message': 'ブックマークに追加しました',
             'is_bookmarked': True,
@@ -509,3 +514,38 @@ async def MarkTweetAsReadAPI(
         await ReadTweet.create(user=current_user, tweet=tweet)
 
     return {'message': 'ツイートを既読にしました'}
+
+
+async def _process_tweet_media_for_bookmark(tweet: Tweet) -> None:
+    """
+    ブックマーク時にツイートのメディアを MinIO に保存する処理
+
+    Args:
+        tweet: ブックマークされたツイート
+    """
+    # ツイート自身のメディアを処理
+    main_media_items = await Media.filter(tweet=tweet).all()
+
+    # メインツイートのメディアをダウンロード開始
+    for media in main_media_items:
+        try:
+            # 非同期でメディアダウンロードを開始（バックグラウンド処理）
+            await process_single_media(media.id)
+        except Exception as ex:
+            # ログに記録するが、ブックマーク処理は継続
+            print(f'Failed to process media {media.media_key} for bookmarked tweet {tweet.tweet_id}: {ex}')
+
+    # 引用ツイートがある場合、その メディアも処理
+    if tweet.is_quote and tweet.quoted_tweet_id:
+        quoted_tweet = await Tweet.filter(tweet_id=tweet.quoted_tweet_id).first()
+        if quoted_tweet:
+            quoted_media_items = await Media.filter(tweet=quoted_tweet).all()
+
+            # 引用ツイートのメディアもダウンロード開始
+            for media in quoted_media_items:
+                try:
+                    # 非同期でメディアダウンロードを開始（バックグラウンド処理）
+                    await process_single_media(media.id)
+                except Exception as ex:
+                    # ログに記録するが、ブックマーク処理は継続
+                    print(f'Failed to process quoted tweet media {media.media_key} for bookmarked tweet {tweet.tweet_id}: {ex}')
