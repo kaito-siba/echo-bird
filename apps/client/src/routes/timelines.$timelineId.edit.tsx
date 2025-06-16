@@ -64,7 +64,9 @@ function EditTimeline() {
       setFormData({
         name: timeline.name,
         description: timeline.description || '',
-        target_account_ids: timeline.target_accounts.map((account) => account.id),
+        target_account_ids: timeline.target_accounts.map(
+          (account) => account.id,
+        ),
         is_active: timeline.is_active,
         is_default: timeline.is_default,
       });
@@ -121,9 +123,7 @@ function EditTimeline() {
     <div className={formContainer}>
       <div className={formHeader}>
         <h1>タイムライン「{timeline.name}」を編集</h1>
-        <p>
-          タイムラインの設定やターゲットアカウントを変更できます。
-        </p>
+        <p>タイムラインの設定やターゲットアカウントを変更できます。</p>
       </div>
 
       <form onSubmit={handleSubmit}>
