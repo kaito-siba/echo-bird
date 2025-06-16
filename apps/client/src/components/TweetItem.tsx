@@ -154,6 +154,36 @@ export function TweetItem({ tweet }: TweetItemProps) {
     window.open(mediaUrl, '_blank', 'noopener,noreferrer');
   };
 
+  // ツイート本文内のURLを検出してリンクに変換する関数
+  const parseTextWithUrls = (text: string): React.ReactNode => {
+    // URLを検出するための正規表現（Twitter標準のURL検出パターン）
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    
+    // テキストをURLで分割
+    const parts = text.split(urlRegex);
+    
+    return parts.map((part, index) => {
+      // URLパターンにマッチするかチェック
+      if (urlRegex.test(part)) {
+        // URLの場合はクリック可能なリンクとして表示
+        return (
+          <a
+            key={index}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.urlLink}
+            onClick={(e) => e.stopPropagation()} // 親要素のクリックイベントを停止
+          >
+            {part}
+          </a>
+        );
+      }
+      // 通常のテキストの場合はそのまま表示
+      return part;
+    });
+  };
+
   return (
     <article className={`${styles.tweetItem} ${styles.responsiveContainer}`}>
       {/* リツイートヘッダー */}
@@ -239,7 +269,7 @@ export function TweetItem({ tweet }: TweetItemProps) {
 
           {/* ツイート本文 */}
           <div className={`${styles.text} ${styles.responsiveText}`}>
-            {tweet.full_text || tweet.content}
+            {parseTextWithUrls(tweet.full_text || tweet.content)}
           </div>
 
           {/* 引用ツイート表示 */}
@@ -281,7 +311,7 @@ export function TweetItem({ tweet }: TweetItemProps) {
 
               {/* 引用元ツイート本文 */}
               <div className={styles.quotedTweetText}>
-                {tweet.quoted_tweet.full_text || tweet.quoted_tweet.content}
+                {parseTextWithUrls(tweet.quoted_tweet.full_text || tweet.quoted_tweet.content)}
               </div>
 
               {/* 引用元ツイートのメディア */}
@@ -408,7 +438,7 @@ export function TweetItem({ tweet }: TweetItemProps) {
 
               {/* 引用元ツイート本文 */}
               <div className={styles.quotedTweetText}>
-                {tweet.quoted_tweet.full_text || tweet.quoted_tweet.content}
+                {parseTextWithUrls(tweet.quoted_tweet.full_text || tweet.quoted_tweet.content)}
               </div>
 
               {/* 引用元ツイートのメディア */}
