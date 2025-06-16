@@ -64,6 +64,16 @@ function UserDetail() {
         queryKey: ['users', userId],
       });
 
+      // パスワードフィールドをクリア（セキュリティのため）
+      setFormData(prev => ({
+        ...prev,
+        newPassword: '',
+        confirmPassword: '',
+      }));
+
+      // エラーメッセージをクリア
+      setErrors({});
+
       // アカウント管理画面に戻る
       navigate({ to: '/account-management' });
     },
@@ -135,11 +145,9 @@ function UserDetail() {
       is_admin: formData.is_admin,
     };
 
-    // パスワード変更が指定されている場合のみ含める
+    // パスワード変更が指定されている場合は含める
     if (formData.newPassword.trim()) {
-      // パスワード更新は別のAPIエンドポイントが必要な場合があるため、
-      // ここではユーザー名とステータスのみ更新
-      console.warn('Password update not implemented in this endpoint');
+      updateData.password = formData.newPassword.trim();
     }
 
     updateUserMutation.mutate(updateData);
