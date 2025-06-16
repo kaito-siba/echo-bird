@@ -4,6 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.constants import MEDIA_STATUS_COMPLETED
+
+# バックグラウンドタスクの参照を保持するためのセット
+_background_tasks: set[asyncio.Task] = set()
 from app.models.bookmarked_tweet import BookmarkedTweet
 from app.models.media import Media
 from app.models.read_tweet import ReadTweet
@@ -538,6 +541,19 @@ async def _process_single_media_background(
         )
 
 
+def _add_background_task(coro) -> None:
+    """
+    バックグラウンドタスクを作成し、参照を保持する
+
+    Args:
+        coro: 実行するコルーチン
+    """
+    task = asyncio.create_task(coro)
+    _background_tasks.add(task)
+    # タスク完了時に自動的にセットから削除
+    task.add_done_callback(_background_tasks.discard)
+
+
 async def _process_tweet_media_for_bookmark(tweet: Tweet) -> None:
     """
     ブックマーク時にツイートのメディアを MinIO に保存する処理（バックグラウンド実行）
@@ -550,8 +566,8 @@ async def _process_tweet_media_for_bookmark(tweet: Tweet) -> None:
 
     # メインツイートのメディアをバックグラウンドでダウンロード開始
     for media in main_media_items:
-        # バックグラウンドタスクとして実行（awaitしない）
-        asyncio.create_task(
+        # バックグラウンドタスクとして実行（参照を保持）
+        _add_background_task(
             _process_single_media_background(media.id, media.media_key, tweet.tweet_id)
         )
 
@@ -563,8 +579,8 @@ async def _process_tweet_media_for_bookmark(tweet: Tweet) -> None:
 
             # 引用ツイートのメディアもバックグラウンドでダウンロード開始
             for media in quoted_media_items:
-                # バックグラウンドタスクとして実行（awaitしない）
-                asyncio.create_task(
+                # バックグラウンドタスクとして実行（参照を保持）
+                _add_background_task(
                     _process_single_media_background(
                         media.id, media.media_key, quoted_tweet.tweet_id
                     )
