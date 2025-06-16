@@ -63,7 +63,7 @@ export function CollapsibleSidebar({
     {
       id: 'accounts',
       label: 'アカウント管理',
-      path: '/target-accounts',
+      path: '/account-management',
       icon: (
         <svg
           viewBox="0 0 24 24"
