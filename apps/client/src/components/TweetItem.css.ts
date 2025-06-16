@@ -127,12 +127,12 @@ export const urlLink = style({
   borderRadius: '4px',
   padding: '1px 2px',
   transition: 'all 0.2s ease-in-out',
-  
+
   ':hover': {
     textDecoration: 'underline',
     backgroundColor: 'rgba(29, 155, 240, 0.1)',
   },
-  
+
   ':focus': {
     outline: `2px solid ${colors.primary}`,
     outlineOffset: '1px',

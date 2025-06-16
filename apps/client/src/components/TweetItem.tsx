@@ -155,11 +155,24 @@ export function TweetItem({ tweet }: TweetItemProps) {
   };
 
   // ツイート本文内のURLを検出してリンクに変換する関数（短縮URLを元URLに置換）
-  const parseTextWithUrls = (text: string, urls?: any[]): React.ReactNode => {
+  const parseTextWithUrls = (
+    text: string,
+    urls?: any[],
+    media?: any[],
+  ): React.ReactNode => {
+    // メディアが存在する場合、本文からメディア短縮URLを除去
+    let processedText = text;
+    if (media && media.length > 0) {
+      // 本文末尾の短縮URL（t.co）を除去（メディア付きツイートでよく見られるパターン）
+      processedText = text
+        .replace(/\s*https?:\/\/t\.co\/[A-Za-z0-9]+\s*$/, '')
+        .trim();
+    }
+
     if (!urls || urls.length === 0) {
-      // URLデータがない場合は従来通りの処理
+      // URLデータがない場合は従来通りの処理（処理済みテキストを使用）
       const urlRegex = /(https?:\/\/[^\s]+)/g;
-      const parts = text.split(urlRegex);
+      const parts = processedText.split(urlRegex);
 
       return parts.map((part, index) => {
         if (urlRegex.test(part)) {
@@ -182,8 +195,8 @@ export function TweetItem({ tweet }: TweetItemProps) {
 
     // URLs データを使用して短縮URLを元URLに置換
     // Unicode対応の文字配列に変換（絵文字対応）
-    const textChars = Array.from(text);
-    
+    const textChars = Array.from(processedText);
+
     const urlReplacements: Array<{
       shortUrl: string;
       displayUrl: string;
@@ -194,12 +207,14 @@ export function TweetItem({ tweet }: TweetItemProps) {
 
     // URLデータを処理して前から後ろの順でソート
     urls
-      .filter(urlData => urlData.url && urlData.display_url && urlData.expanded_url)
+      .filter(
+        (urlData) => urlData.url && urlData.display_url && urlData.expanded_url,
+      )
       .sort((a, b) => a.indices[0] - b.indices[0]) // 前から後ろの順
-      .forEach(urlData => {
+      .forEach((urlData) => {
         const { url, display_url, expanded_url, indices } = urlData;
         const [start, end] = indices;
-        
+
         urlReplacements.push({
           shortUrl: url,
           displayUrl: display_url,
@@ -234,7 +249,7 @@ export function TweetItem({ tweet }: TweetItemProps) {
           title={expandedUrl} // ホバー時に完全URLを表示
         >
           {displayUrl}
-        </a>
+        </a>,
       );
 
       lastIndex = endIndex;
@@ -246,7 +261,7 @@ export function TweetItem({ tweet }: TweetItemProps) {
       elements.push(remainingText);
     }
 
-    return elements.length > 0 ? elements : text;
+    return elements.length > 0 ? elements : processedText;
   };
 
   return (
@@ -334,7 +349,11 @@ export function TweetItem({ tweet }: TweetItemProps) {
 
           {/* ツイート本文 */}
           <div className={`${styles.text} ${styles.responsiveText}`}>
-            {parseTextWithUrls(tweet.full_text || tweet.content, tweet.urls || undefined)}
+            {parseTextWithUrls(
+              tweet.full_text || tweet.content,
+              tweet.urls || undefined,
+              tweet.media || undefined,
+            )}
           </div>
 
           {/* 引用ツイート表示 */}
@@ -376,7 +395,11 @@ export function TweetItem({ tweet }: TweetItemProps) {
 
               {/* 引用元ツイート本文 */}
               <div className={styles.quotedTweetText}>
-                {parseTextWithUrls(tweet.quoted_tweet.full_text || tweet.quoted_tweet.content, tweet.quoted_tweet.urls || undefined)}
+                {parseTextWithUrls(
+                  tweet.quoted_tweet.full_text || tweet.quoted_tweet.content,
+                  tweet.quoted_tweet.urls || undefined,
+                  tweet.quoted_tweet.media || undefined,
+                )}
               </div>
 
               {/* 引用元ツイートのメディア */}
@@ -503,7 +526,11 @@ export function TweetItem({ tweet }: TweetItemProps) {
 
               {/* 引用元ツイート本文 */}
               <div className={styles.quotedTweetText}>
-                {parseTextWithUrls(tweet.quoted_tweet.full_text || tweet.quoted_tweet.content, tweet.quoted_tweet.urls || undefined)}
+                {parseTextWithUrls(
+                  tweet.quoted_tweet.full_text || tweet.quoted_tweet.content,
+                  tweet.quoted_tweet.urls || undefined,
+                  tweet.quoted_tweet.media || undefined,
+                )}
               </div>
 
               {/* 引用元ツイートのメディア */}
