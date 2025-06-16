@@ -1,5 +1,5 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import {
   timelineDetailQueryOptions,
@@ -35,7 +35,11 @@ function TimelineDetail() {
     timelineDetailQueryOptions(Number.parseInt(timelineId)),
   );
   const { data: tweetsData } = useSuspenseQuery(
-    timelineTweetsQueryOptions(Number.parseInt(timelineId), currentPage, pageSize),
+    timelineTweetsQueryOptions(
+      Number.parseInt(timelineId),
+      currentPage,
+      pageSize,
+    ),
   );
 
   const deleteTimelineMutation = useDeleteTimelineMutation();

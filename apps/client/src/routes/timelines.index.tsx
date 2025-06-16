@@ -1,20 +1,20 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { useState, useMemo } from 'react';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useMemo, useState } from 'react';
 import {
   timelineListQueryOptions,
   useDeleteTimelineMutation,
 } from '../integrations/tanstack-query/queries/timeline';
 import {
+  cell,
   container,
+  createButton,
   header,
   headerControls,
-  searchInput,
-  createButton,
-  table,
-  cell,
   row,
+  searchInput,
   statusBadge,
+  table,
 } from '../styles/admin.css';
 
 export const Route = createFileRoute('/timelines/')({

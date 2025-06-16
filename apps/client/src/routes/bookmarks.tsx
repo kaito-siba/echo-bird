@@ -1,9 +1,10 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { bookmarkedTweetsQueryOptions } from '../integrations/tanstack-query/queries/tweets';
-import { targetAccountListQueryOptions } from '../integrations/tanstack-query/queries/target-account';
+import { useState } from 'react';
 import { TweetItem } from '../components/TweetItem';
+import { targetAccountListQueryOptions } from '../integrations/tanstack-query/queries/target-account';
+import { timelineListQueryOptions } from '../integrations/tanstack-query/queries/timeline';
+import { bookmarkedTweetsQueryOptions } from '../integrations/tanstack-query/queries/tweets';
 import { authGuard } from '../utils/auth-guard';
 
 export const Route = createFileRoute('/bookmarks')({
@@ -13,11 +14,22 @@ export const Route = createFileRoute('/bookmarks')({
 
 function BookmarksPage() {
   const [page, setPage] = useState(1);
-  const [selectedAccountId, setSelectedAccountId] = useState<number | undefined>(undefined);
+  const [selectedAccountId, setSelectedAccountId] = useState<
+    number | undefined
+  >(undefined);
+  const [selectedTimelineId, setSelectedTimelineId] = useState<
+    number | undefined
+  >(undefined);
+  const [filterType, setFilterType] = useState<'account' | 'timeline' | 'all'>(
+    'all',
+  );
   const pageSize = 20;
 
   // ターゲットアカウント一覧を取得
   const { data: accountsData } = useQuery(targetAccountListQueryOptions);
+
+  // タイムライン一覧を取得
+  const { data: timelinesData } = useQuery(timelineListQueryOptions);
 
   // ブックマーク一覧を取得
   const {
@@ -25,11 +37,15 @@ function BookmarksPage() {
     isLoading,
     error,
     refetch,
-  } = useQuery(bookmarkedTweetsQueryOptions({ 
-    page, 
-    page_size: pageSize,
-    target_account_id: selectedAccountId,
-  }));
+  } = useQuery(
+    bookmarkedTweetsQueryOptions({
+      page,
+      page_size: pageSize,
+      target_account_id:
+        filterType === 'account' ? selectedAccountId : undefined,
+      timeline_id: filterType === 'timeline' ? selectedTimelineId : undefined,
+    }),
+  );
 
   if (isLoading) {
     return (
@@ -125,35 +141,112 @@ function BookmarksPage() {
             {total} 件のツイート
           </p>
         )}
-        {/* アカウントフィルター */}
-        {accountsData && accountsData.accounts.length > 0 && (
-          <div style={{ marginTop: '12px' }}>
-            <select
-              value={selectedAccountId || ''}
-              onChange={(e) => {
-                setSelectedAccountId(e.target.value ? Number(e.target.value) : undefined);
-                setPage(1); // フィルター変更時はページを1に戻す
-              }}
-              style={{
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid #d1d5db',
-                backgroundColor: '#fff',
-                fontSize: '14px',
-                color: '#374151',
-                cursor: 'pointer',
-                minWidth: '200px',
-              }}
-            >
-              <option value="">すべてのアカウント</option>
-              {accountsData.accounts.map(account => (
-                <option key={account.id} value={account.id}>
-                  @{account.username} {account.display_name && `(${account.display_name})`}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+        {/* フィルター */}
+        <div
+          style={{
+            marginTop: '12px',
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center',
+          }}
+        >
+          {/* フィルター種類選択 */}
+          <select
+            value={filterType}
+            onChange={(e) => {
+              const newFilterType = e.target.value as
+                | 'account'
+                | 'timeline'
+                | 'all';
+              setFilterType(newFilterType);
+              setSelectedAccountId(undefined);
+              setSelectedTimelineId(undefined);
+              setPage(1);
+            }}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: '1px solid #d1d5db',
+              backgroundColor: '#fff',
+              fontSize: '14px',
+              color: '#374151',
+              cursor: 'pointer',
+              minWidth: '140px',
+            }}
+          >
+            <option value="all">すべて</option>
+            <option value="account">アカウント別</option>
+            <option value="timeline">タイムライン別</option>
+          </select>
+
+          {/* アカウント選択 */}
+          {filterType === 'account' &&
+            accountsData &&
+            accountsData.accounts.length > 0 && (
+              <select
+                value={selectedAccountId || ''}
+                onChange={(e) => {
+                  setSelectedAccountId(
+                    e.target.value ? Number(e.target.value) : undefined,
+                  );
+                  setPage(1);
+                }}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #d1d5db',
+                  backgroundColor: '#fff',
+                  fontSize: '14px',
+                  color: '#374151',
+                  cursor: 'pointer',
+                  minWidth: '200px',
+                }}
+              >
+                <option value="">アカウントを選択</option>
+                {accountsData.accounts.map((account) => (
+                  <option key={account.id} value={account.id}>
+                    @{account.username}{' '}
+                    {account.display_name && `(${account.display_name})`}
+                  </option>
+                ))}
+              </select>
+            )}
+
+          {/* タイムライン選択 */}
+          {filterType === 'timeline' &&
+            timelinesData &&
+            timelinesData.timelines.length > 0 && (
+              <select
+                value={selectedTimelineId || ''}
+                onChange={(e) => {
+                  setSelectedTimelineId(
+                    e.target.value ? Number(e.target.value) : undefined,
+                  );
+                  setPage(1);
+                }}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #d1d5db',
+                  backgroundColor: '#fff',
+                  fontSize: '14px',
+                  color: '#374151',
+                  cursor: 'pointer',
+                  minWidth: '200px',
+                }}
+              >
+                <option value="">タイムラインを選択</option>
+                {timelinesData.timelines
+                  .filter((timeline) => timeline.is_active)
+                  .map((timeline) => (
+                    <option key={timeline.id} value={timeline.id}>
+                      {timeline.name} ({timeline.target_accounts.length}
+                      アカウント)
+                    </option>
+                  ))}
+              </select>
+            )}
+        </div>
       </div>
 
       {tweets.length === 0 ? (
