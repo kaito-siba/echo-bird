@@ -1,7 +1,12 @@
+import asyncio
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.constants import MEDIA_STATUS_COMPLETED
+
+# バックグラウンドタスクの参照を保持するためのセット
+_background_tasks: set[asyncio.Task] = set()
 from app.models.bookmarked_tweet import BookmarkedTweet
 from app.models.media import Media
 from app.models.read_tweet import ReadTweet
@@ -10,6 +15,7 @@ from app.models.timeline import Timeline
 from app.models.tweet import Tweet
 from app.models.user import User
 from app.utils.auth import get_current_user
+from app.utils.media_downloader import process_single_media
 from app.utils.s3_client import get_media_public_url
 
 router = APIRouter(prefix='/api/v1/tweets', tags=['tweets'])
@@ -549,6 +555,10 @@ async def ToggleBookmarkAPI(
     else:
         # 未ブックマークの場合は追加
         await BookmarkedTweet.create(user=current_user, tweet=tweet)
+
+        # ブックマーク追加時にツイートのメディアを MinIO に保存開始
+        await _process_tweet_media_for_bookmark(tweet)
+
         return {
             'message': 'ブックマークに追加しました',
             'is_bookmarked': True,
@@ -581,3 +591,69 @@ async def MarkTweetAsReadAPI(
         await ReadTweet.create(user=current_user, tweet=tweet)
 
     return {'message': 'ツイートを既読にしました'}
+
+
+async def _process_single_media_background(
+    media_id: int, media_key: str, tweet_id: str
+) -> None:
+    """
+    単一メディアをバックグラウンドで処理する内部関数
+
+    Args:
+        media_id: メディアID
+        media_key: メディアキー（ログ用）
+        tweet_id: ツイートID（ログ用）
+    """
+    try:
+        await process_single_media(media_id)
+    except Exception as ex:
+        # ログに記録（バックグラウンド処理のため例外は再発生させない）
+        print(
+            f'Failed to process media {media_key} for bookmarked tweet {tweet_id}: {ex}'
+        )
+
+
+def _add_background_task(coro) -> None:
+    """
+    バックグラウンドタスクを作成し、参照を保持する
+
+    Args:
+        coro: 実行するコルーチン
+    """
+    task = asyncio.create_task(coro)
+    _background_tasks.add(task)
+    # タスク完了時に自動的にセットから削除
+    task.add_done_callback(_background_tasks.discard)
+
+
+async def _process_tweet_media_for_bookmark(tweet: Tweet) -> None:
+    """
+    ブックマーク時にツイートのメディアを MinIO に保存する処理（バックグラウンド実行）
+
+    Args:
+        tweet: ブックマークされたツイート
+    """
+    # ツイート自身のメディアを処理
+    main_media_items = await Media.filter(tweet=tweet).all()
+
+    # メインツイートのメディアをバックグラウンドでダウンロード開始
+    for media in main_media_items:
+        # バックグラウンドタスクとして実行（参照を保持）
+        _add_background_task(
+            _process_single_media_background(media.id, media.media_key, tweet.tweet_id)
+        )
+
+    # 引用ツイートがある場合、そのメディアも処理
+    if tweet.is_quote and tweet.quoted_tweet_id:
+        quoted_tweet = await Tweet.filter(tweet_id=tweet.quoted_tweet_id).first()
+        if quoted_tweet:
+            quoted_media_items = await Media.filter(tweet=quoted_tweet).all()
+
+            # 引用ツイートのメディアもバックグラウンドでダウンロード開始
+            for media in quoted_media_items:
+                # バックグラウンドタスクとして実行（参照を保持）
+                _add_background_task(
+                    _process_single_media_background(
+                        media.id, media.media_key, quoted_tweet.tweet_id
+                    )
+                )
