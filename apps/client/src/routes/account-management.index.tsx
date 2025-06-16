@@ -127,6 +127,22 @@ function AccountManagement() {
               ターゲットアカウント追加
             </button>
           )}
+          {activeTab === 'twitter' && (
+            <button
+              className={createButton}
+              onClick={() => navigate({ to: '/twitter-accounts/create' })}
+            >
+              Twitter アカウント認証
+            </button>
+          )}
+          {activeTab === 'echobird' && (
+            <button
+              className={createButton}
+              onClick={() => navigate({ to: '/users/create' })}
+            >
+              EchoBird ユーザー作成
+            </button>
+          )}
         </div>
       </div>
 
@@ -328,7 +344,10 @@ function AccountManagement() {
                     className={actionButton}
                     onClick={() => {
                       // Twitter アカウント詳細・編集画面への遷移
-                      console.log('Twitter account edit:', account.id);
+                      navigate({
+                        to: '/twitter-accounts/$accountId',
+                        params: { accountId: account.id.toString() },
+                      });
                     }}
                   >
                     編集
@@ -382,7 +401,10 @@ function AccountManagement() {
                     className={actionButton}
                     onClick={() => {
                       // EchoBird ユーザー詳細・編集画面への遷移
-                      console.log('EchoBird user edit:', account.id);
+                      navigate({
+                        to: '/users/$userId',
+                        params: { userId: account.id.toString() },
+                      });
                     }}
                   >
                     編集

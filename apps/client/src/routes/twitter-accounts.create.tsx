@@ -2,6 +2,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import {
+  type TwitterAuthRequest,
+  authenticateTwitterAccount,
+} from '../integrations/tanstack-query/queries/twitter-account';
+import {
   buttonGroup,
   cancelButton,
   errorMessage,
@@ -13,34 +17,7 @@ import {
   mutationErrorContainer,
   saveButton,
 } from '../styles/admin-form.css';
-import { apiClientJson } from '../utils/api-client';
 import { authGuard } from '../utils/auth-guard';
-
-interface TwitterAuthRequest {
-  username: string;
-  email: string;
-  password: string;
-}
-
-interface TwitterAuthResponse {
-  success: boolean;
-  message: string;
-  account?: {
-    id: number;
-    username: string;
-    display_name: string;
-  };
-}
-
-// Twitter 認証 API 関数
-async function authenticateTwitterAccount(
-  data: TwitterAuthRequest,
-): Promise<TwitterAuthResponse> {
-  return apiClientJson<TwitterAuthResponse>('/twitter/authenticate', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
-}
 
 export const Route = createFileRoute('/twitter-accounts/create')({
   component: TwitterAccountCreate,
@@ -67,14 +44,11 @@ function TwitterAccountCreate() {
       queryClient.invalidateQueries({ queryKey: ['twitter-accounts'] });
 
       if (response.success && response.account) {
-        // 認証成功時は詳細ページに遷移
-        navigate({
-          to: '/twitter-accounts/$accountId',
-          params: { accountId: response.account.id.toString() },
-        });
+        // 認証成功時はアカウント管理画面に遷移
+        navigate({ to: '/account-management' });
       } else {
-        // 一覧画面に戻る
-        navigate({ to: '/twitter-accounts' });
+        // アカウント管理画面に戻る
+        navigate({ to: '/account-management' });
       }
     },
     onError: (error) => {
@@ -137,7 +111,7 @@ function TwitterAccountCreate() {
   };
 
   const handleCancel = () => {
-    navigate({ to: '/twitter-accounts' });
+    navigate({ to: '/account-management' });
   };
 
   return (

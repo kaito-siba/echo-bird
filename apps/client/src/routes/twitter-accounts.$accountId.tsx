@@ -5,7 +5,12 @@ import {
 } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import type { TwitterAccountResponse } from '../integrations/tanstack-query/queries/twitter-account';
+import {
+  type TwitterAccount,
+  deleteTwitterAccount,
+  refreshTwitterAccount,
+  twitterAccountDetailQueryOptions,
+} from '../integrations/tanstack-query/queries/twitter-account';
 import {
   buttonGroup,
   cancelButton,
@@ -20,21 +25,6 @@ import {
 import { apiClientJson } from '../utils/api-client';
 import { authGuard } from '../utils/auth-guard';
 
-// 個別アカウント詳細取得のクエリオプション
-const twitterAccountDetailQueryOptions = (accountId: string) => ({
-  queryKey: ['twitter-accounts', accountId],
-  queryFn: async (): Promise<TwitterAccountResponse> => {
-    return apiClientJson<TwitterAccountResponse>(
-      `/twitter/accounts/${accountId}`,
-      {
-        method: 'GET',
-      },
-    );
-  },
-  staleTime: 5 * 60 * 1000, // 5分間キャッシュ
-  retry: 2,
-});
-
 interface TwitterAccountUpdateRequest {
   is_active?: boolean;
 }
@@ -43,35 +33,11 @@ interface TwitterAccountUpdateRequest {
 async function updateTwitterAccount(
   accountId: string,
   data: TwitterAccountUpdateRequest,
-): Promise<TwitterAccountResponse> {
-  return apiClientJson<TwitterAccountResponse>(
-    `/twitter/accounts/${accountId}`,
-    {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    },
-  );
-}
-
-// アカウント削除 API 関数
-async function deleteTwitterAccount(
-  accountId: string,
-): Promise<{ success: boolean; message: string }> {
-  return apiClientJson(`/twitter/accounts/${accountId}`, {
-    method: 'DELETE',
+): Promise<TwitterAccount> {
+  return apiClientJson<TwitterAccount>(`/twitter/accounts/${accountId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
   });
-}
-
-// アカウント情報更新 API 関数
-async function refreshTwitterAccount(
-  accountId: string,
-): Promise<TwitterAccountResponse> {
-  return apiClientJson<TwitterAccountResponse>(
-    `/twitter/accounts/${accountId}/refresh`,
-    {
-      method: 'PUT',
-    },
-  );
 }
 
 export const Route = createFileRoute('/twitter-accounts/$accountId')({
@@ -109,8 +75,8 @@ function TwitterAccountDetail() {
         queryKey: ['twitter-accounts', accountId],
       });
 
-      // 一覧画面に戻る
-      navigate({ to: '/twitter-accounts' });
+      // アカウント管理画面に戻る
+      navigate({ to: '/account-management' });
     },
     onError: (error) => {
       console.error('Twitter account update failed:', error);
@@ -124,8 +90,8 @@ function TwitterAccountDetail() {
       // キャッシュを無効化
       queryClient.invalidateQueries({ queryKey: ['twitter-accounts'] });
 
-      // 一覧画面に戻る
-      navigate({ to: '/twitter-accounts' });
+      // アカウント管理画面に戻る
+      navigate({ to: '/account-management' });
     },
     onError: (error) => {
       console.error('Twitter account delete failed:', error);
@@ -159,7 +125,7 @@ function TwitterAccountDetail() {
   };
 
   const handleCancel = () => {
-    navigate({ to: '/twitter-accounts' });
+    navigate({ to: '/account-management' });
   };
 
   const handleDelete = () => {
