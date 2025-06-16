@@ -21,6 +21,7 @@ class UserUpdateRequest(BaseModel):
     username: str | None = None
     is_active: bool | None = None
     is_admin: bool | None = None
+    password: str | None = None  # パスワード更新用フィールドを追加
 
 
 class UserResponse(BaseModel):
@@ -105,6 +106,12 @@ async def UserUpdateAPI(
         update_data['is_active'] = request.is_active
     if request.is_admin is not None:
         update_data['is_admin'] = request.is_admin
+
+    # パスワード更新処理を追加
+    if request.password is not None and request.password.strip():
+        # パスワードをハッシュ化して更新
+        password_hash = hash_password(request.password.strip())
+        update_data['password_hash'] = password_hash
 
     try:
         # ユーザー情報を更新

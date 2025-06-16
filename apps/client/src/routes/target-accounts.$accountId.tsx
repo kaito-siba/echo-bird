@@ -30,6 +30,11 @@ import { authGuard } from '../utils/auth-guard';
 export const Route = createFileRoute('/target-accounts/$accountId')({
   component: TargetAccountDetail,
   beforeLoad: authGuard,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      returnTab: (search.returnTab as string) || 'target',
+    };
+  },
   loader: ({ context, params }) => {
     return context.queryClient.ensureQueryData(
       targetAccountDetailQueryOptions(params.accountId),
@@ -39,6 +44,7 @@ export const Route = createFileRoute('/target-accounts/$accountId')({
 
 function TargetAccountDetail() {
   const { accountId } = Route.useParams();
+  const { returnTab } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -66,8 +72,11 @@ function TargetAccountDetail() {
         queryKey: ['target-accounts', accountId],
       });
 
-      // 一覧画面に戻る
-      navigate({ to: '/target-accounts' });
+      // アカウント管理画面に戻る（適切なタブを指定）
+      navigate({
+        to: '/account-management',
+        search: { tab: returnTab },
+      });
     },
     onError: (error) => {
       console.error('Target account update failed:', error);
@@ -81,8 +90,11 @@ function TargetAccountDetail() {
       // キャッシュを無効化
       queryClient.invalidateQueries({ queryKey: ['target-accounts'] });
 
-      // 一覧画面に戻る
-      navigate({ to: '/target-accounts' });
+      // アカウント管理画面に戻る（適切なタブを指定）
+      navigate({
+        to: '/account-management',
+        search: { tab: returnTab },
+      });
     },
     onError: (error) => {
       console.error('Target account delete failed:', error);
@@ -134,7 +146,10 @@ function TargetAccountDetail() {
   };
 
   const handleCancel = () => {
-    navigate({ to: '/target-accounts' });
+    navigate({
+      to: '/account-management',
+      search: { tab: returnTab },
+    });
   };
 
   const handleDelete = () => {

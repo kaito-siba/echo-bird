@@ -28,6 +28,7 @@ interface UserUpdateRequest {
   username?: string;
   is_active?: boolean;
   is_admin?: boolean;
+  password?: string; // パスワード更新用フィールドを追加
 }
 
 interface UserCreateRequest {
@@ -52,6 +53,12 @@ async function updateUser(
   });
 }
 
+async function deleteUser(userId: string): Promise<void> {
+  return apiClientJson(`/users/${userId}`, {
+    method: 'DELETE',
+  });
+}
+
 // TanStack Query options
 export const userListQueryOptions = queryOptions({
   queryKey: ['users'],
@@ -69,4 +76,4 @@ export const userDetailQueryOptions = (userId: string) =>
   });
 
 export type { User, UserUpdateRequest, UserCreateRequest };
-export { updateUser, createUser };
+export { updateUser, createUser, deleteUser };

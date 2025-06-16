@@ -1,13 +1,13 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
+import { TweetItem } from '../components/TweetItem';
 import {
   timelineDetailQueryOptions,
   timelineTweetsQueryOptions,
   useDeleteTimelineMutation,
 } from '../integrations/tanstack-query/queries/timeline';
 import { container, header, headerControls } from '../styles/admin.css';
-import { TweetItem } from '../components/TweetItem';
 
 export const Route = createFileRoute('/timelines/$timelineId/')({
   loader: ({ context, params }) => {
@@ -55,8 +55,6 @@ function TimelineDetail() {
     });
   };
 
-
-
   // タイムライン削除
   const handleDelete = async () => {
     if (
@@ -84,7 +82,6 @@ function TimelineDetail() {
 
   return (
     <div className={container}>
-
       {/* ヘッダー */}
       <div className={header}>
         <div>
