@@ -1,8 +1,11 @@
 import logging
+import random
+from datetime import datetime, timedelta
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
+from app.constants import SCHEDULER_INITIAL_DELAY_MAX_MINUTES, SCHEDULER_JITTER_SECONDS
 from app.models.target_account import TargetAccount
 from app.models.twitter_account import TwitterAccount
 from app.utils.twitter_service import TwitterService
@@ -106,6 +109,10 @@ class TweetScheduler:
         """
         ターゲットアカウントの定期取得タスクを内部的にスケジュールする
 
+        より自然なAPIコールパターンを作るため、以下のランダム化を適用：
+        - 初回実行時刻のランダム遅延
+        - フェッチ間隔のジッター（揺らぎ）
+
         Args:
             target_account: スケジュールするターゲットアカウント
         """
@@ -117,10 +124,20 @@ class TweetScheduler:
             if target_account.id in self.scheduled_jobs:
                 await self.unschedule_account(target_account.id)
 
-            # 定期取得タスクをスケジュール
+            # 初回実行時刻をランダムに遅延（0～30分の範囲）
+            initial_delay_minutes = random.randint(
+                0, SCHEDULER_INITIAL_DELAY_MAX_MINUTES
+            )
+            start_time = datetime.now() + timedelta(minutes=initial_delay_minutes)
+
+            # 定期取得タスクをスケジュール（ジッター付き）
             self.scheduler.add_job(
                 func=self._fetch_tweets_for_account,
-                trigger=IntervalTrigger(minutes=target_account.fetch_interval_minutes),
+                trigger=IntervalTrigger(
+                    minutes=target_account.fetch_interval_minutes,
+                    start_date=start_time,
+                    jitter=SCHEDULER_JITTER_SECONDS,  # ±5分のランダム要素
+                ),
                 args=[target_account.id],
                 id=job_id,
                 name=f'Fetch tweets for @{target_account.username}',
@@ -132,7 +149,8 @@ class TweetScheduler:
 
             logger.info(
                 f'Scheduled tweet fetch for @{target_account.username} '
-                f'every {target_account.fetch_interval_minutes} minutes'
+                f'every {target_account.fetch_interval_minutes} minutes '
+                f'(initial delay: {initial_delay_minutes}min, jitter: ±{SCHEDULER_JITTER_SECONDS // 60}min)'
             )
 
         except Exception as ex:
