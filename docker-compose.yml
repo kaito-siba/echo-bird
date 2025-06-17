@@ -49,22 +49,46 @@ services:
       retries: 3
       start_period: 40s
 
-  # 将来的にサーバーもDockerizeする場合用
-  # server:
-  #   build:
-  #     context: ./apps/server
-  #     dockerfile: Dockerfile
-  #   container_name: echo-bird-server
-  #   restart: unless-stopped
-  #   ports:
-  #     - "8000:8000"
-  #   environment:
-  #     DATABASE_URL: postgres://postgres:password@postgres:5432/echo_bird
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   networks:
-  #     - echo-bird-network
+  # Client サービス (React + TypeScript)
+  client:
+    build:
+      context: ./apps/client
+      dockerfile: Dockerfile
+    container_name: echo-bird-client
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/client:/app
+      - /app/node_modules
+    networks:
+      - echo-bird-network
+    stdin_open: true
+    tty: true
+
+  # Server サービス (FastAPI + Python)
+  server:
+    build:
+      context: ./apps/server
+      dockerfile: Dockerfile
+    container_name: echo-bird-server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://postgres:password@postgres:5432/echo_bird
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin123
+    volumes:
+      - ./apps/server:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - echo-bird-network
 
 volumes:
   postgres_data:
