@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.models.twitter_account import TwitterAccount
 from app.models.user import User
 from app.utils.auth import get_current_user
-from app.utils.twitter_auth import TwitterAuthService
+from app.utils.twitter_auth import TwitterAuthService, AuthChallengeRequiredException
 
 router = APIRouter(prefix='/api/v1/twitter', tags=['twitter_auth'])
 
@@ -49,6 +49,37 @@ class TwitterAuthResponse(BaseModel):
     )
 
 
+class TwitterAuthInitResponse(BaseModel):
+    """Twitter 初回認証レスポンス（認証チャレンジ検出付き）"""
+
+    success: bool = Field(..., description='認証成功フラグ')
+    message: str = Field(..., description='メッセージ')
+    account: TwitterAccountResponse | None = Field(
+        None, description='認証されたアカウント情報（チャレンジ不要の場合）'
+    )
+    needs_challenge: bool = Field(
+        False, description='認証チャレンジコード入力が必要かどうか'
+    )
+    session_id: str | None = Field(
+        None, description='認証セッション ID（チャレンジ必要の場合）'
+    )
+    prompt_message: str | None = Field(
+        None, description='ユーザーに表示するプロンプトメッセージ（チャレンジ必要の場合）'
+    )
+    challenge_type: str | None = Field(
+        None, description='チャレンジの種類（LoginAcid、LoginTwoFactorAuthChallenge など）'
+    )
+
+
+class TwitterChallengeRequest(BaseModel):
+    """Twitter 認証チャレンジコード入力リクエスト"""
+
+    session_id: str = Field(..., description='認証セッション ID')
+    challenge_code: str = Field(
+        ..., description='認証チャレンジコード（メールコード、TOTPコードなど）', min_length=1
+    )
+
+
 class TwitterAccountListResponse(BaseModel):
     """Twitter アカウント一覧レスポンス"""
 
@@ -58,14 +89,106 @@ class TwitterAccountListResponse(BaseModel):
     total: int = Field(..., description='アカウント総数')
 
 
+@router.post('/authenticate-init', response_model=TwitterAuthInitResponse)
+async def TwitterAuthenticateInitAPI(
+    request: TwitterAuthRequest,
+    current_user: User = Depends(get_current_user),
+) -> TwitterAuthInitResponse:
+    """
+    Twitter アカウント初回認証 API（TFA 検出付き）
+
+    twikit を使用して Twitter アカウントの認証を開始します。
+    TFA が不要な場合は認証完了、TFA が必要な場合はセッション ID を返します。
+    """
+    twitter_service = TwitterAuthService()
+
+    (
+        success,
+        twitter_account,
+        error_or_exception,
+    ) = await twitter_service.authenticate_init(
+        user=current_user,
+        username=request.username,
+        email=request.email,
+        password=request.password,
+    )
+
+    # 認証チャレンジが必要な場合
+    if isinstance(error_or_exception, AuthChallengeRequiredException):
+        return TwitterAuthInitResponse(
+            success=False,
+            message='Authentication challenge required',
+            account=None,
+            needs_challenge=True,
+            session_id=error_or_exception.session_id,
+            prompt_message=error_or_exception.prompt_message,
+            challenge_type=error_or_exception.challenge_type,
+        )
+
+    # 認証成功の場合
+    if success and twitter_account:
+        return TwitterAuthInitResponse(
+            success=True,
+            message='Twitter account authenticated successfully',
+            account=TwitterAccountResponse.model_validate(twitter_account),
+            needs_challenge=False,
+            session_id=None,
+            prompt_message=None,
+            challenge_type=None,
+        )
+
+    # 認証失敗の場合
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=error_or_exception or 'Twitter authentication failed',
+    )
+
+
+@router.post('/authenticate-challenge', response_model=TwitterAuthResponse)
+async def TwitterAuthenticateChallengeAPI(
+    request: TwitterChallengeRequest,
+    current_user: User = Depends(get_current_user),
+) -> TwitterAuthResponse:
+    """
+    Twitter 認証チャレンジコード入力認証 API
+
+    セッション ID と認証チャレンジコードを使用して Twitter 認証を完了します。
+    """
+    twitter_service = TwitterAuthService()
+
+    (
+        success,
+        twitter_account,
+        error_message,
+    ) = await twitter_service.authenticate_challenge(
+        session_id=request.session_id,
+        challenge_code=request.challenge_code,
+    )
+
+    if success and twitter_account:
+        return TwitterAuthResponse(
+            success=True,
+            message='Twitter account authenticated successfully with challenge',
+            account=TwitterAccountResponse.model_validate(twitter_account),
+        )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=error_message or 'Challenge authentication failed',
+        )
+
+
 @router.post('/authenticate', response_model=TwitterAuthResponse)
 async def TwitterAuthenticateAPI(
     request: TwitterAuthRequest,
     current_user: User = Depends(get_current_user),
 ) -> TwitterAuthResponse:
     """
-    Twitter アカウント認証 API
+    【廃止予定】Twitter アカウント認証 API
 
+    このエンドポイントは TFA 非対応の後方互換性のために残されています。
+    新しい実装では /authenticate-init を使用してください。
+    
     twikit を使用して Twitter アカウントを認証し、
     成功した場合はアカウント情報をデータベースに保存します。
     """
@@ -85,13 +208,13 @@ async def TwitterAuthenticateAPI(
     if success and twitter_account:
         return TwitterAuthResponse(
             success=True,
-            message='Twitter アカウントの認証が成功しました',
+            message='Twitter account authenticated successfully',
             account=TwitterAccountResponse.model_validate(twitter_account),
         )
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=error_message or 'Twitter の認証に失敗しました',
+            detail=error_message or 'Twitter authentication failed',
         )
 
 

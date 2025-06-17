@@ -35,6 +35,21 @@ interface TwitterAuthResponse {
   account: TwitterAccount | null;
 }
 
+interface TwitterAuthInitResponse {
+  success: boolean;
+  message: string;
+  account: TwitterAccount | null;
+  needs_challenge: boolean;
+  session_id: string | null;
+  prompt_message: string | null;
+  challenge_type: string | null;
+}
+
+interface TwitterChallengeRequest {
+  session_id: string;
+  challenge_code: string;
+}
+
 // APIクライアント関数
 async function fetchTwitterAccounts(): Promise<TwitterAccountListResponse> {
   return apiClientJson<TwitterAccountListResponse>('/twitter/accounts', {
@@ -52,6 +67,24 @@ async function authenticateTwitterAccount(
   data: TwitterAuthRequest,
 ): Promise<TwitterAuthResponse> {
   return apiClientJson<TwitterAuthResponse>('/twitter/authenticate', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+async function authenticateTwitterAccountInit(
+  data: TwitterAuthRequest,
+): Promise<TwitterAuthInitResponse> {
+  return apiClientJson<TwitterAuthInitResponse>('/twitter/authenticate-init', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+async function authenticateTwitterAccountChallenge(
+  data: TwitterChallengeRequest,
+): Promise<TwitterAuthResponse> {
+  return apiClientJson<TwitterAuthResponse>('/twitter/authenticate-challenge', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -97,10 +130,17 @@ export type {
   TwitterAccountListResponse,
   TwitterAuthRequest,
   TwitterAuthResponse,
+  TwitterAuthInitResponse,
+  TwitterChallengeRequest,
 };
+
+// TwitterAccountResponse is an alias for TwitterAccount for backward compatibility
+export type TwitterAccountResponse = TwitterAccount;
 
 export {
   authenticateTwitterAccount,
+  authenticateTwitterAccountInit,
+  authenticateTwitterAccountChallenge,
   refreshTwitterAccount,
   deleteTwitterAccount,
 };
