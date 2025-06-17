@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate } from '@tanstack/react-router';
 import { removeAuthToken } from '../integrations/tanstack-query/queries/auth';
 import * as styles from '../styles/layout.css';
@@ -14,6 +15,7 @@ export function CollapsibleSidebar({
   // 現在のパスを取得してアクティブ状態を管理
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // ログアウト処理
   const handleLogout = () => {
@@ -21,6 +23,8 @@ export function CollapsibleSidebar({
     if (window.confirm('ログアウトしますか？')) {
       // 認証トークンを削除
       removeAuthToken();
+      // TanStack Query のキャッシュをクリア
+      queryClient.clear();
       // ログインページにリダイレクト
       navigate({ to: '/login' });
     }
