@@ -18,7 +18,10 @@ class S3Client:
 
     def __init__(self):
         """S3クライアントを初期化"""
+        # サーバー間通信用エンドポイント（コンテナ名使用）
         self.endpoint_url = os.getenv('MINIO_ENDPOINT_URL', 'http://localhost:9000')
+        # ブラウザ向けパブリックアクセス用エンドポイント（localhostを使用）
+        self.public_endpoint_url = os.getenv('MINIO_PUBLIC_ENDPOINT_URL', 'http://localhost:9000')
         self.access_key = os.getenv('MINIO_ACCESS_KEY', 'minioadmin')
         self.secret_key = os.getenv('MINIO_SECRET_KEY', 'minioadmin123')
         self.region_name = os.getenv('MINIO_REGION', 'us-east-1')
@@ -165,8 +168,8 @@ class S3Client:
             return False
 
     def get_public_url(self, bucket_name: str, object_key: str) -> str:
-        """パブリックアクセス用の直接URLを生成する"""
-        return f'{self.endpoint_url}/{bucket_name}/{object_key}'
+        """パブリックアクセス用の直接URLを生成する（ブラウザからアクセス可能）"""
+        return f'{self.public_endpoint_url}/{bucket_name}/{object_key}'
 
     async def file_exists(self, bucket_name: str, object_key: str) -> bool:
         """ファイルがMinIOに存在するかチェックする"""

@@ -58,9 +58,14 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    environment:
+      # ViteプロキシでServerコンテナにアクセスするための設定
+      VITE_API_TARGET: http://server:8000
     volumes:
       - ./apps/client:/app
       - /app/node_modules
+    depends_on:
+      - server
     networks:
       - echo-bird-network
     stdin_open: true
@@ -77,9 +82,12 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgres://postgres:password@postgres:5432/echo_bird
-      MINIO_ENDPOINT: minio:9000
+      # MinIO設定（S3Clientコードに合わせた環境変数名）
+      MINIO_ENDPOINT_URL: http://minio:9000  # サーバー間通信用
+      MINIO_PUBLIC_ENDPOINT_URL: http://localhost:9000  # ブラウザアクセス用
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin123
+      MINIO_REGION: us-east-1
     volumes:
       - ./apps/server:/app
     depends_on:
