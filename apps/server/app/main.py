@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -43,13 +44,21 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, title=APP_NAME, version=APP_VERSION)
 
-# CORS設定 - 開発環境用
+# CORS設定 - 開発環境用（ローカル・Docker対応）
+allowed_origins = [
+    'http://localhost:5173',  # Vite開発サーバー（ローカル）
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',  # Docker環境でのClient
+    'http://127.0.0.1:3000',
+]
+
+# 環境変数で追加のオリジンを指定可能
+if cors_origins := os.environ.get('CORS_ORIGINS'):
+    allowed_origins.extend(cors_origins.split(','))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        'http://localhost:5173',  # Vite開発サーバー
-        'http://127.0.0.1:5173',
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=['*'],
     allow_headers=['*'],
